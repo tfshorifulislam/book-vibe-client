@@ -1,429 +1,291 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import {
-  ChevronDown,
+  BookOpen,
   Heart,
-  LogOut,
   Menu,
-  Search,
+  MessageCircle,
   ShoppingCart,
-  X,
 } from "lucide-react";
-import { NAV_LINKS } from "@/lib/constants";
+import { useCartCount } from "@/lib/hooks/useCartCount";
 import { cn } from "@/lib/utils";
+import type { Category } from "@/types/category";
 import type { User } from "@/types";
+import { CategoriesDropdown } from "./CategoriesDropdown";
+import { MobileNavigation } from "./MobileNavigation";
+import { NotificationMenu } from "./NotificationMenu";
+import { ProfileMenu } from "./ProfileMenu";
 import { ThemeToggle } from "./ThemeToggle";
 
-interface NavbarProps {
-  user?: User | null;
-  cartCount?: number;
-  wishlistCount?: number;
+const PRIMARY_LEFT = [
+  { label: "Home", href: "/" },
+  { label: "Browse Books", href: "/books" },
+] as const;
+
+const PRIMARY_RIGHT = [
+  { label: "Top Sellers", href: "/sellers" },
+  { label: "About Us", href: "/about" },
+] as const;
+
+const iconButtonClass =
+  "relative inline-flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+function isNavActive(pathname: string, href: string) {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-interface SearchFormProps {
-  className?: string;
-  onSearch?: () => void;
-}
-
-function SearchForm({ className, onSearch }: SearchFormProps) {
-  const router = useRouter();
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const query = String(data.get("q") ?? "").trim();
-    onSearch?.();
-    router.push(query ? `/browse?q=${encodeURIComponent(query)}` : "/browse");
-  }
+function NavLink({
+  href,
+  label,
+  pathname,
+}: {
+  href: string;
+  label: string;
+  pathname: string;
+}) {
+  const active = isNavActive(pathname, href);
 
   return (
-    <form
-      role="search"
-      onSubmit={handleSubmit}
-      className={cn("relative w-full", className)}
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "relative rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        active
+          ? "font-semibold text-primary"
+          : "text-muted-foreground hover:text-foreground",
+      )}
     >
-      <Search
-        className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+      {label}
+      <span
         aria-hidden="true"
+        className={cn(
+          "absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-primary transition-opacity",
+          active ? "opacity-100" : "opacity-0",
+        )}
       />
-      <input
-        type="search"
-        name="q"
-        aria-label="Search books"
-        placeholder="Search by title, author, or ISBN..."
-        className="h-10 w-full rounded-lg border border-border bg-muted pr-4 pl-10 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
-      />
-    </form>
+    </Link>
   );
 }
 
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+function CartLink({ count }: { count: number }) {
+  return (
+    <Link href="/buyer/cart" aria-label="Cart" className={iconButtonClass}>
+      <ShoppingCart className="size-5" aria-hidden="true" />
+      {count > 0 ? (
+        <span className="absolute -right-0.5 -top-0.5 flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-4 text-primary-foreground">
+          {count > 99 ? "99+" : count}
+        </span>
+      ) : null}
+    </Link>
+  );
 }
 
-const iconButtonClass =
-  "relative inline-flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
+interface RightSideProps {
+  user: User | null;
+  cartCount: number;
+  onLogout: () => void;
+}
 
-export function Navbar({
-  user: initialUser = null,
-  cartCount = 0,
-  wishlistCount = 0,
-}: NavbarProps) {
+function RightSide({ user, cartCount, onLogout }: RightSideProps) {
+  if (!user) {
+    return (
+      <>
+        <Link
+          href="/register?role=seller"
+          className="hidden rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:inline-flex"
+        >
+          Become a Seller
+        </Link>
+        <Link
+          href="/login"
+          className="rounded-md px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          Login
+        </Link>
+        <Link
+          href="/register"
+          className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          Sign Up
+        </Link>
+      </>
+    );
+  }
+
+  if (user.role === "buyer") {
+    return (
+      <>
+        <Link
+          href="/buyer/wishlist"
+          aria-label="Wishlist"
+          className={iconButtonClass}
+        >
+          <Heart className="size-5" aria-hidden="true" />
+        </Link>
+        <CartLink count={cartCount} />
+        <Link
+          href="/buyer/messages"
+          aria-label="Messages"
+          className={iconButtonClass}
+        >
+          <MessageCircle className="size-5" aria-hidden="true" />
+        </Link>
+        <NotificationMenu />
+        <ProfileMenu user={user} onLogout={onLogout} />
+      </>
+    );
+  }
+
+  if (user.role === "seller") {
+    return (
+      <>
+        <Link
+          href="/seller/messages"
+          aria-label="Messages"
+          className={iconButtonClass}
+        >
+          <MessageCircle className="size-5" aria-hidden="true" />
+        </Link>
+        <NotificationMenu />
+        <ProfileMenu user={user} onLogout={onLogout} />
+      </>
+    );
+  }
+
+  return <ProfileMenu user={user} onLogout={onLogout} />;
+}
+
+interface NavbarProps {
+  categories?: Category[];
+  user?: User | null;
+}
+
+export function Navbar({ categories = [], user: initialUser = null }: NavbarProps) {
   const [user, setUser] = useState<User | null>(initialUser);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const cartCount = useCartCount();
+
+  useEffect(() => {
+    function handleScroll() {
+      setScrolled(window.scrollY > 4);
+    }
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (!mobileOpen) return;
 
-    const originalOverflow = document.body.style.overflow;
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setMobileOpen(false);
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-
     return () => {
-      document.body.style.overflow = originalOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
     };
   }, [mobileOpen]);
 
-  function closeMobileMenu() {
-    setMobileOpen(false);
-  }
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth >= 1024) setMobileOpen(false);
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const closeMobile = useCallback(() => setMobileOpen(false), []);
 
   function handleLogout() {
     setUser(null);
-    closeMobileMenu();
+    closeMobile();
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 sm:px-6 lg:gap-6 lg:px-8">
-        <Link
-          href="/"
-          onClick={closeMobileMenu}
-          className="flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight text-foreground"
-          aria-label="BookHand home"
-        >
-          <span aria-hidden="true">📚</span>
-          <span>BookHand</span>
-        </Link>
-
-        <div className="hidden flex-1 justify-center md:flex">
-          <SearchForm className="max-w-xl" />
-        </div>
-
-        <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
-          {NAV_LINKS.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={isActive ? "page" : undefined}
-                className={cn(
-                  "rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  isActive
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="ml-auto flex items-center gap-1.5 md:ml-0">
-          <ThemeToggle />
-
-          {user ? (
-            <>
-              <Link
-                href="/wishlist"
-                aria-label={`Wishlist, ${wishlistCount} items`}
-                className={cn(iconButtonClass, "hidden sm:inline-flex")}
-              >
-                <Heart className="size-5" aria-hidden="true" />
-                {wishlistCount > 0 ? (
-                  <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-secondary text-[10px] font-semibold text-secondary-foreground">
-                    {wishlistCount}
-                  </span>
-                ) : null}
-              </Link>
-
-              <Link
-                href="/cart"
-                aria-label={`Cart, ${cartCount} items`}
-                className={cn(iconButtonClass, "hidden sm:inline-flex")}
-              >
-                <ShoppingCart className="size-5" aria-hidden="true" />
-                {cartCount > 0 ? (
-                  <span className="absolute -top-0.5 -right-0.5 flex min-w-4 items-center justify-center rounded-full bg-secondary px-1 text-[10px] font-semibold text-secondary-foreground">
-                    {cartCount}
-                  </span>
-                ) : null}
-              </Link>
-            </>
-          ) : null}
-
-          {user ? (
-            <details className="group relative hidden md:block">
-              <summary
-                aria-label="Open account menu"
-                className="flex cursor-pointer list-none items-center gap-1.5 rounded-full p-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none [&::-webkit-details-marker]:hidden"
-              >
-                <span className="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-                  {getInitials(user.name)}
-                </span>
-                <ChevronDown
-                  className="size-4 transition-transform group-open:rotate-180"
-                  aria-hidden="true"
-                />
-              </summary>
-
-              <div className="absolute top-full right-0 z-50 mt-2 w-56 overflow-hidden rounded-lg border border-border bg-card p-1 text-card-foreground shadow-lg">
-                <div className="border-b border-border px-3 py-2">
-                  <p className="truncate text-sm font-semibold">{user.name}</p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {user.email}
-                  </p>
-                </div>
-                <div className="py-1">
-                  <Link
-                    href="/account"
-                    className="block rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  >
-                    Account
-                  </Link>
-                  <Link
-                    href="/orders"
-                    className="block rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  >
-                    Orders
-                  </Link>
-                  {user.role !== "buyer" ? (
-                    <Link
-                      href="/dashboard"
-                      className="block rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                    >
-                      Seller Dashboard
-                    </Link>
-                  ) : null}
-                </div>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="flex w-full items-center gap-2 rounded-md border-t border-border px-3 py-2 text-left text-sm text-destructive transition-colors hover:bg-muted"
-                >
-                  <LogOut className="size-4" aria-hidden="true" />
-                  Log out
-                </button>
-              </div>
-            </details>
-          ) : (
-            <div className="hidden items-center gap-1.5 md:flex">
-              <Link
-                href="/login"
-                className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                Login
-              </Link>
-              <Link
-                href="/signup"
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
-              >
-                Sign Up
-              </Link>
-            </div>
-          )}
-
-          <button
-            type="button"
-            aria-label="Open menu"
-            aria-expanded={mobileOpen}
-            aria-controls="mobile-menu"
-            onClick={() => setMobileOpen(true)}
-            className={cn(iconButtonClass, "lg:hidden")}
-          >
-            <Menu className="size-5" aria-hidden="true" />
-          </button>
-        </div>
-      </div>
-
-      <div
+    <>
+      <header
         className={cn(
-          "fixed inset-0 z-50 lg:hidden",
-          mobileOpen ? "pointer-events-auto" : "pointer-events-none",
+          "sticky top-0 z-40 border-b bg-background/85 backdrop-blur-md transition-colors duration-200",
+          scrolled ? "border-border" : "border-transparent",
         )}
       >
-        <button
-          type="button"
-          aria-label="Close menu"
-          tabIndex={mobileOpen ? 0 : -1}
-          onClick={closeMobileMenu}
-          className={cn(
-            "absolute inset-0 bg-foreground/40 backdrop-blur-sm transition-opacity duration-300",
-            mobileOpen ? "opacity-100" : "opacity-0",
-          )}
-        />
+        <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
+          <Link
+            href="/"
+            className="flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label="BookHand home"
+          >
+            <span className="flex size-8 items-center justify-center rounded-lg brand-gradient text-on-brand shadow-sm">
+              <BookOpen className="size-4" aria-hidden="true" />
+            </span>
+            <span>BookHand</span>
+          </Link>
 
-        <div
-          id="mobile-menu"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Mobile navigation"
-          aria-hidden={!mobileOpen}
-          inert={!mobileOpen}
-          className={cn(
-            "absolute top-0 right-0 flex h-full w-80 max-w-[85%] flex-col gap-6 border-l border-border bg-background p-5 shadow-xl transition-transform duration-300",
-            mobileOpen ? "translate-x-0" : "translate-x-full",
-          )}
-        >
-          <div className="flex items-center justify-between">
-            <Link
-              href="/"
-              onClick={closeMobileMenu}
-              className="flex items-center gap-2 text-lg font-bold text-foreground"
-            >
-              <span aria-hidden="true">📚</span>
-              <span>BookHand</span>
-            </Link>
-            <button
-              type="button"
-              aria-label="Close menu"
-              onClick={closeMobileMenu}
-              className={iconButtonClass}
-            >
-              <X className="size-5" aria-hidden="true" />
-            </button>
-          </div>
+          <nav
+            aria-label="Primary navigation"
+            className="hidden flex-1 items-center justify-center gap-0.5 lg:flex"
+          >
+            {PRIMARY_LEFT.map((item) => (
+              <NavLink
+                key={item.href}
+                {...item}
+                pathname={pathname}
+              />
+            ))}
 
-          <SearchForm onSearch={closeMobileMenu} />
+            <CategoriesDropdown
+              categories={categories}
+              pathname={pathname}
+            />
 
-          <nav aria-label="Mobile primary" className="flex flex-col gap-1">
-            {NAV_LINKS.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={closeMobileMenu}
-                  aria-current={isActive ? "page" : undefined}
-                  className={cn(
-                    "rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-muted text-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                  )}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
+            {PRIMARY_RIGHT.map((item) => (
+              <NavLink
+                key={item.href}
+                {...item}
+                pathname={pathname}
+              />
+            ))}
           </nav>
 
-          <div className="border-t border-border pt-4">
-            {user ? (
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-3">
-                  <span className="flex size-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-                    {getInitials(user.name)}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">
-                      {user.name}
-                    </p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                </div>
-                <Link
-                  href="/account"
-                  onClick={closeMobileMenu}
-                  className="rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  Account
-                </Link>
-                <Link
-                  href="/cart"
-                  onClick={closeMobileMenu}
-                  className="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <span className="flex items-center gap-2">
-                    <ShoppingCart className="size-4" aria-hidden="true" />
-                    Cart
-                  </span>
-                  {cartCount > 0 ? (
-                    <span className="flex min-w-5 items-center justify-center rounded-full bg-secondary px-1.5 text-[10px] font-semibold text-secondary-foreground">
-                      {cartCount}
-                    </span>
-                  ) : null}
-                </Link>
-                <Link
-                  href="/wishlist"
-                  onClick={closeMobileMenu}
-                  className="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <span className="flex items-center gap-2">
-                    <Heart className="size-4" aria-hidden="true" />
-                    Wishlist
-                  </span>
-                  {wishlistCount > 0 ? (
-                    <span className="flex min-w-5 items-center justify-center rounded-full bg-secondary px-1.5 text-[10px] font-semibold text-secondary-foreground">
-                      {wishlistCount}
-                    </span>
-                  ) : null}
-                </Link>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-destructive transition-colors hover:bg-muted"
-                >
-                  <LogOut className="size-4" aria-hidden="true" />
-                  Log out
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <Link
-                  href="/login"
-                  onClick={closeMobileMenu}
-                  className="rounded-lg border border-border px-4 py-2.5 text-center text-sm font-medium text-foreground transition-colors hover:bg-muted"
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/signup"
-                  onClick={closeMobileMenu}
-                  className="rounded-lg bg-primary px-4 py-2.5 text-center text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
-                >
-                  Sign Up
-                </Link>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
-            <span className="text-sm text-muted-foreground">Theme</span>
+          <div className="ml-auto flex items-center gap-1.5">
             <ThemeToggle />
+            <div className="hidden items-center gap-1.5 lg:flex">
+              <RightSide
+                user={user}
+                cartCount={cartCount}
+                onLogout={handleLogout}
+              />
+            </div>
+
+            <button
+              type="button"
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-navigation"
+              onClick={() => setMobileOpen((value) => !value)}
+              className="inline-flex size-9 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
+            >
+              <Menu className="size-5" aria-hidden="true" />
+            </button>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      <MobileNavigation
+        isOpen={mobileOpen}
+        onClose={closeMobile}
+        user={user}
+        onLogout={handleLogout}
+        categories={categories}
+      />
+    </>
   );
 }

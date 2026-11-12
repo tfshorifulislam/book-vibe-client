@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SITE_CONFIG } from "@/lib/constants";
+import { getCategories } from "@/lib/services/catalog";
 import "./globals.css";
 
 const inter = Inter({
@@ -37,29 +38,17 @@ export const metadata: Metadata = {
     description: SITE_CONFIG.description,
     url: SITE_CONFIG.url,
     siteName: "BookHand",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "BookHand",
-      },
-    ],
     locale: "en_US",
     type: "website",
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: defaultTitle,
     description: SITE_CONFIG.description,
-    images: ["/og-image.png"],
   },
   robots: {
     index: true,
     follow: true,
-  },
-  icons: {
-    icon: "/favicon.ico",
   },
 };
 
@@ -70,11 +59,18 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
+  const categories = await getCategories();
+
   return (
-    <html lang="en" suppressHydrationWarning className={inter.variable}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      data-scroll-behavior="smooth"
+      className={inter.variable}
+    >
       <body className="flex min-h-screen flex-col bg-background text-foreground antialiased">
         <ThemeProvider
           attribute="class"
@@ -82,7 +78,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
+          <Navbar categories={categories} />
           <main className="flex-1">{children}</main>
           <Footer />
         </ThemeProvider>

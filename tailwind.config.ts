@@ -47,6 +47,17 @@ const config: Config = {
         success: "var(--success)",
         warning: "var(--warning)",
         destructive: "var(--destructive)",
+        "on-brand": "var(--on-brand)",
+        "book-spine": "var(--book-spine)",
+        star: "var(--star)",
+        overlay: "var(--overlay)",
+        "cover-overlay": "var(--cover-overlay)",
+        footer: {
+          DEFAULT: "var(--footer)",
+          foreground: "var(--footer-foreground)",
+          muted: "var(--footer-muted)",
+          border: "var(--footer-border)",
+        },
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],

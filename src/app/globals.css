@@ -42,6 +42,17 @@
   --color-warning:     var(--warning);
   --color-destructive: var(--destructive);
 
+  /* Content that sits on top of a brand gradient / book cover */
+  --color-on-brand:   var(--on-brand);
+  --color-book-spine: var(--book-spine);
+  --color-star:       var(--star);
+  --color-overlay:    var(--overlay);
+  --color-cover-overlay: var(--cover-overlay);
+  --color-footer:     var(--footer);
+  --color-footer-foreground: var(--footer-foreground);
+  --color-footer-muted:      var(--footer-muted);
+  --color-footer-border:     var(--footer-border);
+
   /* Typography */
   --font-sans: var(--font-inter), system-ui, sans-serif;
 
@@ -98,6 +109,19 @@
   --success:     #16a34a;
   --warning:     #eab308;
   --destructive: #dc2626;
+
+  /* Content on brand gradients and book covers */
+  --on-brand:   #ffffff;
+  --book-spine: rgba(0, 0, 0, 0.22);
+  --star:       var(--secondary);
+  --overlay:    rgba(23, 20, 17, 0.55);
+  --cover-overlay: rgba(0, 0, 0, 0.34);
+
+  /* Footer */
+  --footer:            #29231f;
+  --footer-foreground: #faf8f5;
+  --footer-muted:      rgba(250, 248, 245, 0.66);
+  --footer-border:     rgba(250, 248, 245, 0.16);
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -142,7 +166,22 @@
   --shadow-card: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
 
   /* Status */
+  --success:     #4ade80;
+  --warning:     #facc15;
   --destructive: #f87171;
+
+  /* Content on brand gradients and book covers */
+  --on-brand:   #f5efe7;
+  --book-spine: rgba(0, 0, 0, 0.32);
+  --star:       var(--primary);
+  --overlay:    rgba(0, 0, 0, 0.65);
+  --cover-overlay: rgba(0, 0, 0, 0.3);
+
+  /* Footer */
+  --footer:            #211c17;
+  --footer-foreground: #f5efe7;
+  --footer-muted:      rgba(245, 239, 231, 0.66);
+  --footer-border:     rgba(245, 239, 231, 0.14);
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -180,19 +219,101 @@
 
   /* ── Gradient utility classes ──────────────────────── */
   .brand-gradient {
-    background-image: linear-gradient(135deg, #8b5e3c, #d6a85f);
+    background-image: var(--gradient-brand);
   }
 
   .brand-gradient-text {
-    background-image: linear-gradient(135deg, #8b5e3c, #d6a85f);
+    background-image: var(--gradient-text);
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
-    /* Solid fallback for browsers that don't support bg-clip:text */
   }
 
-  .dark .brand-gradient-text {
-    background-image: linear-gradient(135deg, #d6a85f, #c49a52);
+  /* ── CSS book covers ───────────────────────────────── */
+  .book-cover-tone-1 {
+    background-image: linear-gradient(
+      155deg,
+      var(--primary) 0%,
+      var(--secondary) 100%
+    );
+  }
+
+  .book-cover-tone-2 {
+    background-image: linear-gradient(
+      155deg,
+      var(--secondary) 0%,
+      var(--primary) 100%
+    );
+  }
+
+  .book-cover-tone-3 {
+    background-image: linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--primary) 80%, var(--secondary)) 0%,
+      var(--primary) 100%
+    );
+  }
+
+  .book-cover-tone-4 {
+    background-image: linear-gradient(
+      165deg,
+      color-mix(in oklab, var(--secondary) 80%, var(--primary)) 0%,
+      var(--secondary) 100%
+    );
+  }
+
+  .book-cover-tone-5 {
+    background-image: linear-gradient(
+      145deg,
+      color-mix(in oklab, var(--primary) 65%, var(--secondary)) 0%,
+      color-mix(in oklab, var(--secondary) 65%, var(--primary)) 100%
+    );
+  }
+
+  .book-cover-tone-6 {
+    background-image: linear-gradient(
+      170deg,
+      color-mix(in oklab, var(--secondary) 45%, var(--primary)) 0%,
+      color-mix(in oklab, var(--primary) 80%, var(--secondary)) 100%
+    );
+  }
+
+  /* ── Subtle motion ─────────────────────────────────── */
+  @keyframes bookhand-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-float {
+    animation: bookhand-float 7s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: bookhand-float 8s ease-in-out 1.2s infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    .animate-float,
+    .animate-float-delayed {
+      animation: none;
+    }
+
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   /* ── Scrollbar ─────────────────────────────────────── */

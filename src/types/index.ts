@@ -11,6 +11,8 @@ export interface User {
 export interface NavItem {
   label: string;
   href: string;
+  icon?: string;
+  children?: NavItem[];
 }
 
 export interface FooterLink {
@@ -22,3 +24,22 @@ export interface FooterSection {
   title: string;
   links: FooterLink[];
 }
+
+export type {
+  Book,
+  BookCondition,
+  ListingType,
+} from "./book";
+export type { Category } from "./category";
+export type { Offer } from "./offer";
+export type { Seller, TopSeller } from "./seller";
+export type { Testimonial } from "./testimonial";
+export type {
+  Feature,
+  FinalCtaContent,
+  HeroContent,
+  HowItWorksContent,
+  Journey,
+  JourneyStep,
+  TrustItem,
+} from "./home";

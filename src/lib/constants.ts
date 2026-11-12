@@ -5,55 +5,75 @@ export const SITE_CONFIG = {
   description:
     "BookHand is a trusted online marketplace to buy and sell new and used books.",
   url: "https://bookhand.com",
+  tagline: "Discover Books. Share Knowledge.",
 } as const;
 
 export const NAV_LINKS: NavItem[] = [
   { label: "Home", href: "/" },
-  { label: "Browse", href: "/browse" },
+  { label: "Browse Books", href: "/books" },
   { label: "Categories", href: "/categories" },
+  { label: "Top Sellers", href: "/sellers" },
+  { label: "About Us", href: "/about" },
 ];
 
-export const FOOTER_LINKS = {
-  quickLinks: {
-    title: "Quick Links",
+export const FOOTER_NAV: FooterSection[] = [
+  {
+    title: "Explore",
     links: [
-      { label: "About", href: "/about" },
-      { label: "Contact", href: "/contact" },
-      { label: "FAQ", href: "/faq" },
-      { label: "Blog", href: "/blog" },
-    ],
-  },
-  buyers: {
-    title: "For Buyers",
-    links: [
-      { label: "Browse", href: "/browse" },
+      { label: "Browse Books", href: "/books" },
       { label: "Categories", href: "/categories" },
-      { label: "Wishlist", href: "/wishlist" },
-      { label: "Help", href: "/help" },
+      { label: "New Arrivals", href: "/books?sort=newest" },
+      { label: "Best Sellers", href: "/books?sort=popular" },
+      { label: "Top Sellers", href: "/sellers" },
     ],
   },
-  sellers: {
-    title: "For Sellers",
+  {
+    title: "For Users",
     links: [
-      { label: "Become a Seller", href: "/sell" },
-      { label: "Dashboard", href: "/dashboard" },
-      { label: "Guidelines", href: "/guidelines" },
-      { label: "Support", href: "/support" },
+      { label: "My Account", href: "/buyer/dashboard" },
+      { label: "Wishlist", href: "/buyer/wishlist" },
+      { label: "My Orders", href: "/buyer/orders" },
+      { label: "Become a Seller", href: "/register?role=seller" },
     ],
   },
-  legal: {
+  {
+    title: "Company",
+    links: [
+      { label: "About Us", href: "/about" },
+      { label: "Contact Us", href: "/contact" },
+      { label: "FAQ", href: "/faq" },
+    ],
+  },
+  {
     title: "Legal",
     links: [
-      { label: "Privacy", href: "/privacy" },
-      { label: "Terms", href: "/terms" },
-      { label: "Refund", href: "/refund" },
+      { label: "Privacy Policy", href: "/privacy-policy" },
+      { label: "Terms & Conditions", href: "/terms" },
+      { label: "Refund Policy", href: "/refund-policy" },
     ],
   },
-} satisfies Record<string, FooterSection>;
+];
 
 export const SOCIAL_LINKS = [
   { label: "Website", href: "https://bookhand.com", icon: "globe" },
   { label: "Email", href: "mailto:hello@bookhand.com", icon: "mail" },
-  { label: "Community", href: "https://bookhand.com/community", icon: "chat" },
+  { label: "Community", href: "https://bookhand.com/community", icon: "message" },
   { label: "Blog RSS", href: "https://bookhand.com/blog/rss.xml", icon: "rss" },
 ] as const;
+
+export const PAYMENT_METHODS = [
+  "Visa",
+  "Mastercard",
+  "bKash",
+  "Nagad",
+  "Cash on Delivery",
+] as const;
+
+export const CURRENCY = {
+  code: "BDT",
+  symbol: "৳",
+  locale: "en-BD",
+} as const;
+
+export const SEARCH_HELP_TEXT =
+  "Search by book title, author, ISBN, or publisher.";

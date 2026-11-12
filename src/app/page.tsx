@@ -1,9 +1,5 @@
-import { HeroSection } from "@/components/home/HeroSection";
+import { HomePage } from "@/components/home";
 
-export default function HomePage() {
-  return (
-    <div className="mx-auto w-full">
-      <HeroSection />
-    </div>
-  );
+export default function Page() {
+  return <HomePage />;
 }
