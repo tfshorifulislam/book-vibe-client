@@ -41,7 +41,7 @@ export function Footer() {
                     key={social.label}
                     href={social.href}
                     aria-label={social.label}
-                    className="inline-flex size-9 items-center justify-center rounded-full border border-background/20 text-background/70 transition-colors hover:border-brand-accent hover:text-brand-accent focus-visible:ring-2 focus-visible:ring-background focus-visible:outline-none"
+                    className="inline-flex size-9 items-center justify-center rounded-full border border-background/20 text-background/70 transition-colors hover:border-secondary hover:text-secondary focus-visible:ring-2 focus-visible:ring-background focus-visible:outline-none"
                   >
                     <Icon className="size-4" aria-hidden="true" />
                   </a>

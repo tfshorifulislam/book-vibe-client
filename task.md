@@ -1,375 +1,341 @@
-# TASK — BOOKHAND HERO SECTION & GLOBAL DESIGN SYSTEM
+# TASK — FIX GLOBAL LIGHT & DARK THEME COLORS
 
-**Project:** BookHand — Book Marketplace  
-**Priority:** High  
-**Scope:** Home Page Hero Section + Global CSS Theme  
-**Status:** To Do
+**Project:** BookHand  
+**Priority:** Critical  
+**Scope:** Global CSS + Theme Consistency
 
----
+## 1. PROBLEM
 
-# 1. OBJECTIVE
+The current Light Theme has visual inconsistencies:
 
-Implement a premium, modern, book-inspired design system for BookHand and develop the Home Page Hero Section.
+- Text colors are not displaying correctly.
+- Some text becomes difficult to read against backgrounds.
+- Background colors do not update consistently.
+- Some cards retain incorrect background colors.
+- Input fields and borders do not follow the active theme.
+- Some components appear to use Dark Theme colors even in Light Theme.
+- Gradient text and background colors sometimes become unreadable.
 
-The design should communicate:
+Fix the root cause instead of applying random CSS overrides.
 
-- Reading and knowledge
-- Trust and reliability
-- Modern book marketplace
-- Premium shopping experience
-- Simplicity and accessibility
+## 2. FIRST — AUDIT EXISTING IMPLEMENTATION
 
-The design must support both Light and Dark themes.
+Before changing anything, inspect:
 
-# 2. GLOBAL CSS — `globals.css`
+- `globals.css`
+- Theme provider
+- Theme switching mechanism
+- Tailwind CSS theme configuration
+- Shadcn UI CSS variables
+- Component-level hardcoded colors
+- Background and text utility classes
 
-## Task 2.1 — Update Global Color System
+Identify why the Light Theme is inconsistent.
 
-Update the existing `globals.css`.
+Do not assume the theme uses `.dark`. Verify the actual implementation.
 
-Use exactly **2 primary brand colors** throughout the application.
+## 3. ESTABLISH A SINGLE COLOR SYSTEM
 
-### Brand Color Palette
+Use only two primary brand colors:
 
-| Token     | Color     | Purpose                     |
-| --------- | --------- | --------------------------- |
-| Primary   | `#8B5E3C` | Warm book-inspired brown    |
-| Secondary | `#D6A85F` | Golden paper / antique gold |
+| Brand        | Hex       |
+| ------------ | --------- |
+| Book Brown   | `#8B5E3C` |
+| Antique Gold | `#D6A85F` |
 
-These two colors must be the foundation of the entire BookHand visual identity.
+Other neutral colors are allowed for backgrounds, text, borders and surfaces. The two-color restriction applies to brand colors, not the entire UI.
 
-### Task 2.2 — Gradient System
+### Light Theme
 
-Create gradients using only the two brand colors.
+```css
+:root {
+  color-scheme: light;
 
-Required gradients:
+  --background: #faf8f5;
+  --foreground: #29231f;
 
-- Primary gradient: Brown → Golden
-- Text gradient: Brown → Golden
-- Subtle background gradient: Very light brown → Very light gold
-- Dark theme gradient: Deep brown → Dark golden tone
+  --card: #ffffff;
+  --card-foreground: #29231f;
 
-Avoid introducing additional brand colors into gradients.
+  --popover: #ffffff;
+  --popover-foreground: #29231f;
 
-### Task 2.3 — Light Theme
+  --primary: #8b5e3c;
+  --primary-foreground: #ffffff;
 
-Use the following semantic colors:
+  --secondary: #d6a85f;
+  --secondary-foreground: #29231f;
 
-| Variable             | Value     |
-| -------------------- | --------- |
-| Background           | `#FAF8F5` |
-| Foreground           | `#29231F` |
-| Card                 | `#FFFFFF` |
-| Card Foreground      | `#29231F` |
-| Primary              | `#8B5E3C` |
-| Primary Foreground   | `#FFFFFF` |
-| Secondary            | `#D6A85F` |
-| Secondary Foreground | `#29231F` |
-| Muted                | `#F0EBE5` |
-| Muted Foreground     | `#756B62` |
-| Border               | `#E8DFD5` |
-| Input                | `#E8DFD5` |
-| Ring                 | `#8B5E3C` |
+  --muted: #f0ebe5;
+  --muted-foreground: #756b62;
 
-### Task 2.4 — Dark Theme
+  --accent: #f3e8d8;
+  --accent-foreground: #65452f;
 
-Create a complete dark theme using the same two brand colors.
+  --border: #e8dfd5;
+  --input: #e8dfd5;
+  --ring: #8b5e3c;
 
-| Variable             | Value     |
-| -------------------- | --------- |
-| Background           | `#171411` |
-| Foreground           | `#F5EFE7` |
-| Card                 | `#211C17` |
-| Card Foreground      | `#F5EFE7` |
-| Primary              | `#D6A85F` |
-| Primary Foreground   | `#171411` |
-| Secondary            | `#8B5E3C` |
-| Secondary Foreground | `#FFFFFF` |
-| Muted                | `#2C251F` |
-| Muted Foreground     | `#B8AA9A` |
-| Border               | `#3A3028` |
-| Input                | `#3A3028` |
-| Ring                 | `#D6A85F` |
+  --destructive: #dc2626;
+}
+```
 
-### Task 2.5 — Global Design Tokens
+### Dark Theme
 
-Organize the CSS variables for:
+```css
+.dark {
+  color-scheme: dark;
 
-- Brand colors
-- Background colors
-- Foreground colors
-- Border colors
-- Card colors
-- Input colors
-- Gradient colors
-- Shadows
-- Border radius
-- Typography
+  --background: #171411;
+  --foreground: #f5efe7;
+
+  --card: #211c17;
+  --card-foreground: #f5efe7;
+
+  --popover: #211c17;
+  --popover-foreground: #f5efe7;
+
+  --primary: #d6a85f;
+  --primary-foreground: #171411;
+
+  --secondary: #8b5e3c;
+  --secondary-foreground: #ffffff;
+
+  --muted: #2c251f;
+  --muted-foreground: #b8aa9a;
+
+  --accent: #35291f;
+  --accent-foreground: #f5efe7;
+
+  --border: #3a3028;
+  --input: #3a3028;
+  --ring: #d6a85f;
+
+  --destructive: #f87171;
+}
+```
+
+Adapt the variable format to the existing Tailwind and Shadcn UI configuration. Do not blindly replace existing tokens if the project uses a different naming convention.
+
+## 4. FIX GLOBAL BACKGROUND AND TEXT
+
+Ensure the application root uses semantic theme variables.
+
+```css
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+```
 
 Requirements:
 
-- Use CSS custom properties.
-- Support the project's existing theme switching mechanism.
-- Avoid hardcoded colors inside components when a global token exists.
-- Keep all components compatible with Light and Dark themes.
-- Preserve existing utility classes and third-party component compatibility.
-- Ensure readable contrast in both themes.
+- Every page must inherit the correct background.
+- Every page must inherit the correct foreground color.
+- Main content must not retain outdated background colors.
+- No unexpected white backgrounds in Dark Theme.
+- No unexpected dark backgrounds in Light Theme.
+- Avoid conflicting global selectors.
 
-# 3. HOME PAGE — SECTION 01: HERO SECTION
+## 5. FIX COMPONENT COLORS
 
-**Route:** `/`
+Audit and correct these components:
 
-Implement only the first section of the Home Page.
+### Typography
 
-## Task 3.1 — Hero Layout
+- Headings
+- Paragraphs
+- Labels
+- Captions
+- Muted text
+- Links
 
-Create a premium two-column hero layout.
+### Surfaces
 
-**Left Column: Content**
+- Main page background
+- Section background
+- Cards
+- Popovers
+- Dropdown menus
+- Dialogs
+- Sidebars
 
-1. Eyebrow / Badge
-2. Main heading
-3. Supporting description
-4. Search bar
-5. Primary CTA
-6. Secondary CTA
-7. Trust indicators
+### Form Elements
 
-**Right Column: Visual**
+- Input
+- Textarea
+- Select
+- Checkbox
+- Radio
+- Search bar
+- Placeholder text
 
-Create a book-focused visual composition.
+### Interactive Elements
 
-Possible elements:
+- Primary buttons
+- Secondary buttons
+- Ghost buttons
+- Links
+- Tabs
+- Badges
+- Hover states
+- Focus states
+- Disabled states
 
-- Featured book covers
-- Floating book cards
-- Decorative book illustrations
-- Subtle gradient shapes
-- Small floating category badges
+All components must use the semantic color tokens.
 
-The right side should visually communicate an online book marketplace.
+## 6. FIX GRADIENTS
 
-Do not use generic SaaS dashboard illustrations.
+Create reusable gradient utilities using only Book Brown and Antique Gold.
 
-## Task 3.2 — Hero Content
+```css
+.brand-gradient {
+  background-image: linear-gradient(135deg, #8b5e3c, #d6a85f);
+}
 
-### Eyebrow
+.brand-gradient-text {
+  background-image: linear-gradient(135deg, #8b5e3c, #d6a85f);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+```
 
-`YOUR NEXT FAVORITE BOOK IS WAITING`
+Important:
 
-### Main Heading
+- Verify gradient text in both themes.
+- Ensure gradient text never disappears.
+- Use an appropriate solid-color fallback.
+- Do not use low-contrast gradients for small text.
 
-`Discover Books.`
+## 7. REMOVE COLOR CONFLICTS
 
-`Share Knowledge.`
+Search the codebase for hardcoded colors such as:
 
-Use the brand gradient for the second line.
+- `bg-white`
+- `bg-black`
+- `text-black`
+- `text-white`
+- `text-gray-*`
+- `bg-gray-*`
+- `border-gray-*`
+- Hardcoded hexadecimal colors
 
-### Description
+Do not blindly replace all occurrences.
 
-`Explore thousands of books, discover new authors, and connect with independent bookstores and readers. Find your next favorite book on BookHand.`
-
-### Search Bar
-
-Placeholder:
-
-`Search by book title, author, ISBN...`
-
-Include:
-
-- Search icon
-- Search input
-- Search button
-- Responsive behavior
-
-Search should navigate to the marketplace search results using the entered keyword.
-
-### Primary CTA
-
-`Explore Books`
-
-Destination: `/books`
-
-### Secondary CTA
-
-`Start Selling`
-
-Destination: `/register?role=seller`
-
-### Trust Indicators
-
-Show three concise benefits:
-
-- Discover Amazing Books
-- Shop from Independent Sellers
-- Buy and Sell with Ease
-
-Use subtle icons and supporting text.
-
-## Task 3.3 — Hero Visual Design
-
-Create an attractive book-themed composition.
-
-Design direction:
-
-- One large featured book cover
-- Two or three smaller floating book cards
-- Soft shadows
-- Subtle rounded corners
-- Warm background accents
-- Brand gradient highlights
-- Minimal decorative elements
-
-Use realistic book imagery where available.
-
-If the project already has book assets, reuse them. Otherwise, use appropriate temporary visual assets without inventing real book listings or prices.
-
-The composition must look polished and balanced.
-
-## Task 3.4 — Responsive Design
-
-### Desktop
-
-- Two-column layout
-- Content on the left
-- Book visual on the right
-- Comfortable spacing
-
-### Tablet
-
-- Balanced two-column layout where space permits
-- Reduce visual element sizes
-- Prevent content overflow
-
-### Mobile
-
-- Single-column layout
-- Content first
-- Book visual underneath
-- Full-width search bar
-- Stacked or appropriately grouped CTA buttons
-- Proper typography scaling
-- No horizontal scrolling
-
-# 4. VISUAL DESIGN REQUIREMENTS
-
-The overall aesthetic should feel like a premium bookstore mixed with a modern marketplace.
+Replace theme-dependent colors with semantic tokens. Preserve intentional image, illustration and status colors.
 
 Use:
 
-- Warm neutral surfaces
-- Book-inspired brown and golden accents
-- Subtle gradients
-- Clean typography
-- Refined spacing
-- Soft shadows
-- Consistent border radius
+- `bg-background`
+- `text-foreground`
+- `bg-card`
+- `text-card-foreground`
+- `text-muted-foreground`
+- `border-border`
+- `bg-primary`
+- `text-primary-foreground`
 
-Avoid:
+Follow the project's actual Tailwind configuration.
 
-- Excessive gradients
-- Too many decorative elements
-- Neon colors
-- Random colors
-- Oversized typography
-- Generic AI-generated SaaS layouts
-- Excessive whitespace
-- Unnecessary animations
-- Heavy blur effects
+## 8. HOME PAGE HERO SECTION
 
-# 5. DARK / LIGHT THEME REQUIREMENTS
-
-The Hero Section must adapt automatically to the selected theme.
+Verify the existing Hero Section after fixing global colors.
 
 Light Theme:
 
-- Warm off-white background
-- Dark readable text
-- Brown primary accents
-- Golden gradient highlights
-- White cards
+- Warm off-white background.
+- Dark readable headings.
+- Brown primary CTA.
+- Brown-to-gold gradient heading.
+- White book cards.
+- Visible borders and shadows.
 
 Dark Theme:
 
-- Deep warm background
-- Light readable text
-- Golden primary highlights
-- Brown secondary accents
-- Dark cards with subtle borders
+- Deep warm background.
+- Light headings.
+- Golden highlights.
+- Dark book cards.
+- Visible borders and shadows.
+
+Ensure the Hero Section does not contain hardcoded theme-specific background colors that conflict with global CSS.
+
+## 9. THEME SWITCHING
+
+Test the complete application in both themes.
 
 Requirements:
 
-- No invisible text in either theme.
-- No hardcoded light-theme-only colors.
-- Gradients must remain readable.
-- Book images must retain their original appearance.
-- Theme switching must not break the layout.
+- Theme switching updates all semantic colors.
+- No mixed-theme components.
+- No flash of incorrect background during initial load, where supported by the existing theme provider.
+- Preserve the user's existing theme preference mechanism.
+- No hydration mismatch.
+- No unnecessary theme provider or dependency replacement.
 
-# 6. TECHNICAL REQUIREMENTS
+## 10. VERIFICATION
 
-1. Inspect the existing project before making changes.
-2. Follow the existing framework and folder structure.
-3. Reuse existing UI components where appropriate.
-4. Use the project's existing icon library.
-5. Use semantic HTML.
-6. Ensure accessible labels and keyboard navigation.
-7. Add proper hover, focus and active states.
-8. Keep components reusable and maintainable.
-9. Avoid unnecessary dependencies.
-10. Do not modify unrelated pages or sections.
+Test the following:
 
-# 7. OUT OF SCOPE
+| Element         | Light    | Dark     |
+| --------------- | -------- | -------- |
+| Body background | Correct  | Correct  |
+| Main heading    | Readable | Readable |
+| Paragraph       | Readable | Readable |
+| Card background | Correct  | Correct  |
+| Card text       | Readable | Readable |
+| Search input    | Correct  | Correct  |
+| Placeholder     | Visible  | Visible  |
+| Buttons         | Correct  | Correct  |
+| Borders         | Visible  | Visible  |
+| Dropdown        | Correct  | Correct  |
+| Gradient text   | Visible  | Visible  |
+| Hero background | Correct  | Correct  |
 
-Do not implement:
+Also verify:
 
-- Other Home Page sections
-- Browse Books page
-- Book Details page
-- Buyer Dashboard
-- Seller Dashboard
-- Admin Dashboard
-- Backend APIs
-- Authentication logic
-- Payment integration
-- Database changes
+- [ ] No conflicting CSS variables.
+- [ ] No unexpected hardcoded backgrounds.
+- [ ] No invisible text.
+- [ ] No broken Shadcn UI components.
+- [ ] No console errors.
+- [ ] No hydration errors.
+- [ ] Production build succeeds.
 
-Only implement the Global CSS design system and Home Page Hero Section.
+## 11. IMPORTANT RULES
 
-# 8. FINAL VERIFICATION CHECKLIST
+1. Fix the root cause, not individual symptoms.
+2. Do not redesign the entire website.
+3. Do not modify unrelated functionality.
+4. Do not introduce additional brand colors.
+5. Do not remove existing functionality.
+6. Keep all theme colors centralized in `globals.css`.
+7. Preserve the existing theme switching architecture.
+8. Test actual rendered components, not just CSS variable definitions.
 
-- [ ] `globals.css` updated
-- [ ] Exactly two primary brand colors established
-- [ ] Brand gradients use only those two colors
-- [ ] Light theme works correctly
-- [ ] Dark theme works correctly
-- [ ] Home Page Hero implemented
-- [ ] Search navigation works
-- [ ] Explore Books CTA works
-- [ ] Start Selling CTA works
-- [ ] Desktop responsive
-- [ ] Tablet responsive
-- [ ] Mobile responsive
-- [ ] No horizontal overflow
-- [ ] No console errors
-- [ ] No broken images
-- [ ] Existing pages remain unaffected
-- [ ] Production build succeeds
+## 12. COMPLETION REPORT
 
-# 9. COMPLETION REPORT
+Provide:
 
-After implementation, provide:
+- Root cause of the theme inconsistency.
+- Files modified.
+- CSS variables corrected.
+- Components fixed.
+- Light Theme verification.
+- Dark Theme verification.
+- Build result.
+- Remaining issues.
 
-1. Files created.
-2. Files modified.
-3. Color system details.
-4. Components implemented.
-5. Responsive behavior summary.
-6. Light/Dark theme verification.
-7. Build and lint results.
-8. Any remaining issues.
-
-**Important:** Do not proceed to the next Home Page section. Stop after completing the Hero Section and Global CSS updates.
-
----
-
-**BOOKHAND — Discover Books. Share Knowledge.**
+**Final Goal:** BookHand must have a visually consistent, readable and polished Light Theme and Dark Theme across all existing pages and components.

@@ -54,7 +54,7 @@ function SearchForm({ className, onSearch }: SearchFormProps) {
         name="q"
         aria-label="Search books"
         placeholder="Search by title, author, or ISBN..."
-        className="h-10 w-full rounded-lg border border-border bg-muted pr-4 pl-10 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 focus:outline-none"
+        className="h-10 w-full rounded-lg border border-border bg-muted pr-4 pl-10 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
       />
     </form>
   );
@@ -159,7 +159,7 @@ export function Navbar({
               >
                 <Heart className="size-5" aria-hidden="true" />
                 {wishlistCount > 0 ? (
-                  <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-brand-accent text-[10px] font-semibold text-white">
+                  <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-secondary text-[10px] font-semibold text-secondary-foreground">
                     {wishlistCount}
                   </span>
                 ) : null}
@@ -172,7 +172,7 @@ export function Navbar({
               >
                 <ShoppingCart className="size-5" aria-hidden="true" />
                 {cartCount > 0 ? (
-                  <span className="absolute -top-0.5 -right-0.5 flex min-w-4 items-center justify-center rounded-full bg-brand-accent px-1 text-[10px] font-semibold text-white">
+                  <span className="absolute -top-0.5 -right-0.5 flex min-w-4 items-center justify-center rounded-full bg-secondary px-1 text-[10px] font-semibold text-secondary-foreground">
                     {cartCount}
                   </span>
                 ) : null}
@@ -186,7 +186,7 @@ export function Navbar({
                 aria-label="Open account menu"
                 className="flex cursor-pointer list-none items-center gap-1.5 rounded-full p-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none [&::-webkit-details-marker]:hidden"
               >
-                <span className="flex size-8 items-center justify-center rounded-full bg-brand-primary text-xs font-semibold text-white">
+                <span className="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
                   {getInitials(user.name)}
                 </span>
                 <ChevronDown
@@ -244,7 +244,7 @@ export function Navbar({
               </Link>
               <Link
                 href="/signup"
-                className="rounded-lg bg-brand-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
               >
                 Sign Up
               </Link>
@@ -340,7 +340,7 @@ export function Navbar({
             {user ? (
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="flex size-10 items-center justify-center rounded-full bg-brand-primary text-sm font-semibold text-white">
+                  <span className="flex size-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
                     {getInitials(user.name)}
                   </span>
                   <div className="min-w-0">
@@ -369,7 +369,7 @@ export function Navbar({
                     Cart
                   </span>
                   {cartCount > 0 ? (
-                    <span className="flex min-w-5 items-center justify-center rounded-full bg-brand-accent px-1.5 text-[10px] font-semibold text-white">
+                    <span className="flex min-w-5 items-center justify-center rounded-full bg-secondary px-1.5 text-[10px] font-semibold text-secondary-foreground">
                       {cartCount}
                     </span>
                   ) : null}
@@ -384,7 +384,7 @@ export function Navbar({
                     Wishlist
                   </span>
                   {wishlistCount > 0 ? (
-                    <span className="flex min-w-5 items-center justify-center rounded-full bg-brand-accent px-1.5 text-[10px] font-semibold text-white">
+                    <span className="flex min-w-5 items-center justify-center rounded-full bg-secondary px-1.5 text-[10px] font-semibold text-secondary-foreground">
                       {wishlistCount}
                     </span>
                   ) : null}
@@ -410,7 +410,7 @@ export function Navbar({
                 <Link
                   href="/signup"
                   onClick={closeMobileMenu}
-                  className="rounded-lg bg-brand-primary px-4 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-brand-primary-hover"
+                  className="rounded-lg bg-primary px-4 py-2.5 text-center text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
                 >
                   Sign Up
                 </Link>

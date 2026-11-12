@@ -4,150 +4,201 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TAILWIND THEME BRIDGE
+   Maps CSS custom properties → Tailwind color utilities
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 @theme inline {
-  /* ── Semantic surface tokens ── */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
+  /* Surfaces */
+  --color-background:        var(--background);
+  --color-foreground:        var(--foreground);
+  --color-card:              var(--card);
+  --color-card-foreground:   var(--card-foreground);
+  --color-popover:           var(--popover);
+  --color-popover-foreground:var(--popover-foreground);
+  --color-muted:             var(--muted);
+  --color-muted-foreground:  var(--muted-foreground);
+  --color-accent:            var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
 
-  /* ── Brand colors (shadcn-compatible aliases) ── */
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
+  /* Borders & inputs */
+  --color-border: var(--border);
+  --color-input:  var(--input);
+  --color-ring:   var(--ring);
+
+  /* shadcn/ui-compatible primary & secondary */
+  --color-primary:              var(--primary);
+  --color-primary-foreground:   var(--primary-foreground);
+  --color-secondary:            var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
 
-  /* ── Brand tokens ── */
-  --color-brand-primary: var(--brand-primary);
-  --color-brand-primary-hover: var(--brand-primary-hover);
-  --color-brand-secondary: var(--brand-secondary);
+  /* Brand aliases (kept for backward-compat with existing components) */
+  --color-brand-primary:        var(--primary);
+  --color-brand-primary-hover:  var(--primary-hover);
+  --color-brand-secondary:      var(--secondary);
 
-  /* ── Utility colors ── */
-  --color-success: var(--success);
-  --color-warning: var(--warning);
+  /* Status */
+  --color-success:     var(--success);
+  --color-warning:     var(--warning);
   --color-destructive: var(--destructive);
 
-  /* ── Typography ── */
+  /* Typography */
   --font-sans: var(--font-inter), system-ui, sans-serif;
 
-  /* ── Border radius ── */
+  /* Radius */
   --radius-lg: 0.75rem;
   --radius-md: 0.5rem;
   --radius-sm: 0.375rem;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   LIGHT THEME — BookHand warm book-inspired palette
-   Brand primary  : #8B5E3C  (warm brown)
-   Brand secondary: #D6A85F  (antique gold)
+   LIGHT THEME
+   Brand primary  : #8b5e3c  (Book Brown)
+   Brand secondary: #d6a85f  (Antique Gold)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 :root {
-  /* ── Surfaces ── */
-  --background: #FAF8F5;
-  --foreground: #29231F;
-  --card: #FFFFFF;
-  --card-foreground: #29231F;
-  --muted: #F0EBE5;
-  --muted-foreground: #756B62;
-  --border: #E8DFD5;
-  --input: #E8DFD5;
-  --ring: #8B5E3C;
+  color-scheme: light;
 
-  /* ── Brand (primary = brown, secondary = gold) ── */
-  --brand-primary: #8B5E3C;
-  --brand-primary-hover: #7A5234;
-  --brand-secondary: #D6A85F;
+  /* Surfaces */
+  --background:         #faf8f5;
+  --foreground:         #29231f;
+  --card:               #ffffff;
+  --card-foreground:    #29231f;
+  --popover:            #ffffff;
+  --popover-foreground: #29231f;
+  --muted:              #f0ebe5;
+  --muted-foreground:   #756b62;
+  --accent:             #f3e8d8;
+  --accent-foreground:  #65452f;
 
-  /* ── shadcn-compatible aliases ── */
-  --primary: #8B5E3C;
-  --primary-foreground: #FFFFFF;
-  --secondary: #D6A85F;
-  --secondary-foreground: #29231F;
+  /* Borders & inputs */
+  --border: #e8dfd5;
+  --input:  #e8dfd5;
+  --ring:   #8b5e3c;
 
-  /* ── Gradients ── */
-  --gradient-brand: linear-gradient(135deg, #8B5E3C 0%, #D6A85F 100%);
-  --gradient-text: linear-gradient(90deg, #8B5E3C 0%, #D6A85F 100%);
-  --gradient-subtle: linear-gradient(135deg, #FAF0E8 0%, #FBF4E4 100%);
+  /* Primary = Book Brown */
+  --primary:            #8b5e3c;
+  --primary-hover:      #7a5234;
+  --primary-foreground: #ffffff;
 
-  /* ── Shadows ── */
+  /* Secondary = Antique Gold */
+  --secondary:            #d6a85f;
+  --secondary-foreground: #29231f;
+
+  /* Gradients (CSS custom properties, referenced via var()) */
+  --gradient-brand:  linear-gradient(135deg, #8b5e3c 0%, #d6a85f 100%);
+  --gradient-text:   linear-gradient(90deg,  #8b5e3c 0%, #d6a85f 100%);
+  --gradient-subtle: linear-gradient(135deg, #faf0e8 0%, #fbf4e4 100%);
+
+  /* Shadows */
   --shadow-book: 0 4px 24px 0 rgba(139, 94, 60, 0.12);
   --shadow-card: 0 2px 12px 0 rgba(139, 94, 60, 0.08);
 
-  /* ── Utility colors ── */
-  --success: #16a34a;
-  --warning: #eab308;
+  /* Status */
+  --success:     #16a34a;
+  --warning:     #eab308;
   --destructive: #dc2626;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   DARK THEME — Deep warm book aesthetic
+   DARK THEME
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .dark {
-  /* ── Surfaces ── */
-  --background: #171411;
-  --foreground: #F5EFE7;
-  --card: #211C17;
-  --card-foreground: #F5EFE7;
-  --muted: #2C251F;
-  --muted-foreground: #B8AA9A;
-  --border: #3A3028;
-  --input: #3A3028;
-  --ring: #D6A85F;
+  color-scheme: dark;
 
-  /* ── Brand (primary = gold in dark, secondary = brown) ── */
-  --brand-primary: #D6A85F;
-  --brand-primary-hover: #C49A52;
-  --brand-secondary: #8B5E3C;
+  /* Surfaces */
+  --background:         #171411;
+  --foreground:         #f5efe7;
+  --card:               #211c17;
+  --card-foreground:    #f5efe7;
+  --popover:            #211c17;
+  --popover-foreground: #f5efe7;
+  --muted:              #2c251f;
+  --muted-foreground:   #b8aa9a;
+  --accent:             #35291f;
+  --accent-foreground:  #f5efe7;
 
-  /* ── shadcn-compatible aliases ── */
-  --primary: #D6A85F;
+  /* Borders & inputs */
+  --border: #3a3028;
+  --input:  #3a3028;
+  --ring:   #d6a85f;
+
+  /* Primary = Antique Gold (high contrast on dark bg) */
+  --primary:            #d6a85f;
+  --primary-hover:      #c49a52;
   --primary-foreground: #171411;
-  --secondary: #8B5E3C;
-  --secondary-foreground: #FFFFFF;
 
-  /* ── Gradients ── */
-  --gradient-brand: linear-gradient(135deg, #5C3D22 0%, #8B6B3D 100%);
-  --gradient-text: linear-gradient(90deg, #D6A85F 0%, #C49A52 100%);
-  --gradient-subtle: linear-gradient(135deg, #1E180F 0%, #231B10 100%);
+  /* Secondary = Book Brown */
+  --secondary:            #8b5e3c;
+  --secondary-foreground: #ffffff;
 
-  /* ── Shadows ── */
+  /* Gradients */
+  --gradient-brand:  linear-gradient(135deg, #5c3d22 0%, #8b6b3d 100%);
+  --gradient-text:   linear-gradient(90deg,  #d6a85f 0%, #c49a52 100%);
+  --gradient-subtle: linear-gradient(135deg, #1e180f 0%, #231b10 100%);
+
+  /* Shadows */
   --shadow-book: 0 4px 24px 0 rgba(0, 0, 0, 0.4);
   --shadow-card: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
+
+  /* Status */
+  --destructive: #f87171;
 }
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   GLOBAL BASE STYLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 @layer base {
-  * {
+  *,
+  ::before,
+  ::after {
     @apply border-border;
+    box-sizing: border-box;
   }
 
   html {
     scroll-behavior: smooth;
   }
 
+  /* color-scheme already set per theme via CSS variables above */
+
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings:
-      "rlig" 1,
-      "calt" 1;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition:
+      background-color 200ms ease,
+      color 200ms ease;
   }
 
   ::selection {
-    @apply bg-brand-primary/20;
+    background-color: color-mix(in oklab, var(--primary) 20%, transparent);
   }
 
+  /* ── Gradient utility classes ──────────────────────── */
+  .brand-gradient {
+    background-image: linear-gradient(135deg, #8b5e3c, #d6a85f);
+  }
+
+  .brand-gradient-text {
+    background-image: linear-gradient(135deg, #8b5e3c, #d6a85f);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    /* Solid fallback for browsers that don't support bg-clip:text */
+  }
+
+  .dark .brand-gradient-text {
+    background-image: linear-gradient(135deg, #d6a85f, #c49a52);
+  }
+
+  /* ── Scrollbar ─────────────────────────────────────── */
   * {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(
-        in oklab,
-        var(--muted-foreground) 40%,
-        transparent
-      )
-      transparent;
+    scrollbar-color: color-mix(in oklab, var(--muted-foreground) 40%, transparent) transparent;
   }
 
   ::-webkit-scrollbar {

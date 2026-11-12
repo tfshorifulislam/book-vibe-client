@@ -46,7 +46,7 @@ function HeroSearchForm() {
     <form
       role="search"
       onSubmit={handleSubmit}
-      className="flex w-full items-stretch overflow-hidden rounded-xl border border-border bg-card shadow-[var(--shadow-card)] focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/20 transition-all"
+      className="flex w-full items-stretch overflow-hidden rounded-xl border border-border bg-card shadow-[var(--shadow-card)] focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all"
     >
       <label htmlFor="hero-search" className="sr-only">
         Search books
@@ -63,7 +63,7 @@ function HeroSearchForm() {
       />
       <button
         type="submit"
-        className="m-1.5 shrink-0 rounded-lg bg-brand-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+        className="m-1.5 shrink-0 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-[var(--primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
       >
         Search
       </button>
@@ -76,7 +76,7 @@ function BookVisual() {
   return (
     <div className="relative flex items-center justify-center" aria-hidden="true">
       {/* Soft background glow */}
-      <div className="absolute inset-0 rounded-3xl bg-[var(--gradient-subtle)] opacity-60" />
+      <div className="absolute inset-0 rounded-3xl opacity-60" style={{ backgroundImage: "var(--gradient-subtle)" }} />
 
       {/* Outer ring accent */}
       <div className="absolute size-72 rounded-full border border-brand-primary/10 sm:size-80 lg:size-96" />

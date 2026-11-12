@@ -12,14 +12,22 @@ const config: Config = {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",
         },
+        popover: {
+          DEFAULT: "var(--popover)",
+          foreground: "var(--popover-foreground)",
+        },
         muted: {
           DEFAULT: "var(--muted)",
           foreground: "var(--muted-foreground)",
         },
+        accent: {
+          DEFAULT: "var(--accent)",
+          foreground: "var(--accent-foreground)",
+        },
         border: "var(--border)",
         input: "var(--input)",
         ring: "var(--ring)",
-        /* shadcn-compatible primary/secondary aliases */
+        /* Primary & secondary — theme-aware brand tokens */
         primary: {
           DEFAULT: "var(--primary)",
           foreground: "var(--primary-foreground)",
@@ -28,12 +36,13 @@ const config: Config = {
           DEFAULT: "var(--secondary)",
           foreground: "var(--secondary-foreground)",
         },
+        /* brand-* aliases kept for backward-compat with existing JSX */
         brand: {
           primary: {
-            DEFAULT: "var(--brand-primary)",
-            hover: "var(--brand-primary-hover)",
+            DEFAULT: "var(--primary)",
+            hover: "var(--primary-hover)",
           },
-          secondary: "var(--brand-secondary)",
+          secondary: "var(--secondary)",
         },
         success: "var(--success)",
         warning: "var(--warning)",
