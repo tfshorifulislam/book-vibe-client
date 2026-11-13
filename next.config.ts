@@ -23,6 +23,9 @@ const nextConfig: NextConfig = {
       { source: "/checkout", destination: "/buyer/checkout", permanent: false },
       { source: "/account", destination: "/buyer/dashboard", permanent: false },
       { source: "/account/:path*", destination: "/buyer/:path*", permanent: false },
+      { source: "/admin/shipping", destination: "/admin/settings/shipping", permanent: false },
+      { source: "/register/buyer", destination: "/register", permanent: false },
+      { source: "/register/seller", destination: "/register?role=seller", permanent: false },
     ];
   },
 };

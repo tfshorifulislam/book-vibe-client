@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { handleError, ok, readJson, requireApiUser } from "@/lib/api";
 import { prisma } from "@/lib/db";
+import { sendEmail } from "@/lib/email/service";
+import { refundStatusEmailTemplate } from "@/lib/email/templates";
 
 const updateSchema = z.object({
   id: z.string().min(1),
@@ -61,6 +63,24 @@ export async function PATCH(request: Request) {
         metadata: JSON.stringify({ amount: refund.amount, orderId: refund.orderId }),
       },
     });
+
+    const buyer = await prisma.user.findUnique({
+      where: { id: refund.order.userId },
+      select: { name: true, email: true },
+    });
+    if (buyer) {
+      const emailData = refundStatusEmailTemplate(
+        refund.order.orderNumber,
+        buyer.name,
+        input.status,
+        refund.amount
+      );
+      await sendEmail({
+        to: buyer.email,
+        subject: emailData.subject,
+        html: emailData.html,
+      });
+    }
 
     return ok({ refund });
   } catch (error) {

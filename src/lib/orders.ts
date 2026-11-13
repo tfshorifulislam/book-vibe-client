@@ -1,6 +1,8 @@
 import "server-only";
 
 import { prisma } from "@/lib/db";
+import { sendEmail } from "@/lib/email/service";
+import { shippingNotificationEmailTemplate } from "@/lib/email/templates";
 import type { UserRole } from "@/types";
 
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
@@ -144,6 +146,26 @@ export async function updateOrderStatus(input: UpdateOrderInput) {
         }),
       },
     });
+
+    if (input.status === "SHIPPED") {
+      const buyer = await prisma.user.findUnique({
+        where: { id: order.userId },
+        select: { name: true, email: true },
+      });
+      if (buyer) {
+        const emailData = shippingNotificationEmailTemplate(
+          order.orderNumber,
+          buyer.name,
+          input.carrier ?? "Standard Courier",
+          input.trackingNumber
+        );
+        await sendEmail({
+          to: buyer.email,
+          subject: emailData.subject,
+          html: emailData.html,
+        });
+      }
+    }
 
     return updated;
   });

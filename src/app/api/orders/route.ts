@@ -1,4 +1,8 @@
 import { fail, handleError, ok, readJson, requireApiUser } from "@/lib/api";
+import { sendEmail } from "@/lib/email/service";
+import { orderConfirmationEmailTemplate } from "@/lib/email/templates";
+import { initiateBkashPayment } from "@/lib/payments/bkash";
+import { initiateStripePayment } from "@/lib/payments/stripe";
 import {
   calculateShipping,
   generateOrderNumber,
@@ -205,7 +209,41 @@ export async function POST(request: Request) {
       return created;
     });
 
-    return ok({ order }, { status: 201 });
+    const emailData = orderConfirmationEmailTemplate({
+      orderNumber: order.orderNumber,
+      customerName: user.name,
+      total: order.total,
+      items: order.items.map((i) => ({ title: i.title, quantity: i.quantity, price: i.price })),
+    });
+    await sendEmail({
+      to: user.email,
+      subject: emailData.subject,
+      html: emailData.html,
+    });
+
+    let paymentUrl: string | undefined;
+    if (input.paymentMethod === "BKASH") {
+      const p = await initiateBkashPayment({
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        amount: order.total,
+        customerName: user.name,
+        customerEmail: user.email,
+        customerPhone: address.phone,
+      });
+      if (p.success && p.paymentUrl) paymentUrl = p.paymentUrl;
+    } else if (input.paymentMethod === "CARD" && process.env.STRIPE_SECRET_KEY) {
+      const p = await initiateStripePayment({
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        amount: order.total,
+        customerName: user.name,
+        customerEmail: user.email,
+      });
+      if (p.success && p.paymentUrl) paymentUrl = p.paymentUrl;
+    }
+
+    return ok({ order, paymentUrl }, { status: 201 });
   } catch (error) {
     if (error instanceof Error && error.message.startsWith("INSUFFICIENT_STOCK:")) {
       return fail(

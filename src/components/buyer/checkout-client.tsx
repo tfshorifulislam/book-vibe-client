@@ -130,7 +130,7 @@ export function CheckoutClient() {
     });
     const payload = (await response.json()) as {
       success: boolean;
-      data?: { order: { id: string; orderNumber: string } };
+      data?: { order: { id: string; orderNumber: string }; paymentUrl?: string };
       message?: string;
     };
     setPlacing(false);
@@ -139,6 +139,10 @@ export function CheckoutClient() {
       return;
     }
     toast.success(`Order ${payload.data.order.orderNumber} placed.`);
+    if (payload.data.paymentUrl) {
+      window.location.href = payload.data.paymentUrl;
+      return;
+    }
     router.push(`/buyer/orders/${payload.data.order.id}`);
     router.refresh();
   }

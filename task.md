@@ -1856,3 +1856,329 @@ Prioritize functionality, maintainability, security, and consistent design over 
 Inspect first. Plan second. Implement in phases. Test continuously.
 
 Do not stop after building the homepage or public pages. Complete the Buyer, Seller, and Admin systems as well.
+
+# BookHand — Complete Remaining Tasks & Production Readiness
+
+Use the latest comprehensive BookHand audit report as the source of truth.
+
+Your task is to resolve every identified incomplete, broken, and missing feature and bring BookHand as close as possible to 100% production readiness.
+
+Do not rebuild the project. Continue from the existing codebase.
+
+## 1. Critical Database Configuration
+
+- Inspect `.env`, `.env.example`, `prisma/schema.prisma`, Prisma client configuration, and database connection.
+- Determine whether the project is intended to use SQLite or PostgreSQL.
+- Make the database configuration consistent.
+- Preserve existing database data.
+- If switching database providers is necessary, create a safe migration plan.
+- Regenerate Prisma Client.
+- Verify actual database connectivity and CRUD operations.
+
+Never expose or commit database credentials. Treat any credentials exposed in previous logs or reports as compromised and recommend rotating them.
+
+## 2. Fix Admin Route Integrity
+
+Fix the following issues:
+
+- Update `/admin/shipping` to `/admin/settings/shipping`.
+- Implement `/admin/contact` to display contact messages stored in `prisma.contactMessage`.
+- Add message details, read/unread status, and reply functionality if supported by the existing architecture.
+- Add proper admin authorization.
+- Ensure every Admin sidebar link resolves to a valid page.
+
+## 3. Authentication Routes
+
+Implement redirects:
+
+- `/register/buyer` → `/register`
+- `/register/seller` → `/register?role=seller`
+
+Ensure the registration page correctly handles the selected role.
+
+Inspect Google OAuth and `/auth/callback`. If OAuth credentials are unavailable, implement the integration structure and clearly document the required configuration rather than pretending it works.
+
+## 4. Buyer Refund and Dispute Workflows
+
+Implement complete buyer-facing refund and dispute functionality.
+
+### Refund API
+
+Create:
+
+`POST /api/refunds`
+
+Requirements:
+
+- Authenticate the buyer.
+- Verify order ownership.
+- Validate order eligibility.
+- Allow refund requests only for eligible delivered orders.
+- Validate refund reason.
+- Prevent duplicate or conflicting requests.
+- Store refund requests in the database.
+- Notify relevant administrators.
+- Return consistent API responses.
+
+Respect existing database models and status conventions.
+
+### Dispute API
+
+Create:
+
+`POST /api/disputes`
+
+Requirements:
+
+- Authenticate the buyer.
+- Verify order ownership.
+- Validate dispute reason and description.
+- Prevent duplicate active disputes.
+- Store dispute records.
+- Notify administrators.
+- Support admin review and resolution.
+
+### Buyer Order Details
+
+Update:
+
+`src/app/buyer/orders/[id]/page.tsx`
+
+Add:
+
+- Request Refund action.
+- Open Dispute action.
+- Proper modal forms using shadcn/ui.
+- Form validation using existing Zod conventions.
+- Loading and error states.
+- Success notifications.
+- Request status display.
+- Disable actions when the order is not eligible.
+
+Integrate everything with the actual backend APIs.
+
+## 5. Invoice Download
+
+Implement a proper invoice system.
+
+Requirements:
+
+- Invoice number.
+- Order number.
+- Buyer information.
+- Delivery address.
+- Book details.
+- Quantity.
+- Unit price.
+- Discounts.
+- Shipping charge.
+- Total amount.
+- Payment method.
+- Payment status.
+- Order date.
+
+Provide a downloadable PDF or a properly formatted printable invoice.
+
+Ensure buyers can only access invoices belonging to their own orders.
+
+Use server-side order data. Never trust client-provided invoice amounts.
+
+## 6. Production Email Integration
+
+Integrate a transactional email provider such as Resend.
+
+Implement:
+
+- Account verification emails.
+- Password reset emails.
+- Order confirmation emails.
+- Payment confirmation emails.
+- Shipping notifications.
+- Refund status notifications.
+
+Requirements:
+
+- Reusable email templates.
+- Secure token handling.
+- Proper error handling.
+- Environment-based configuration.
+- Development and production modes.
+
+Do not expose verification or password reset tokens in production API responses or logs.
+
+If credentials are unavailable, finish the integration code and document the required environment variables.
+
+## 7. Cloud Image Storage
+
+Update:
+
+`src/app/api/upload/route.ts`
+
+Integrate Cloudinary or AWS S3.
+
+Requirements:
+
+- Secure upload validation.
+- File size limits.
+- MIME type validation.
+- Image optimization.
+- Secure upload authorization.
+- Proper error handling.
+- Reusable storage service.
+
+Preserve existing uploaded images. Do not delete existing local uploads during migration.
+
+If cloud credentials are unavailable, implement the provider integration and document the required configuration.
+
+## 8. Live Payment Gateway Integration
+
+Inspect the current payment architecture.
+
+Prepare and implement integrations for:
+
+- bKash.
+- SSLCommerz.
+- Stripe where supported.
+
+Requirements:
+
+- Payment initiation.
+- Payment verification.
+- Webhook handling.
+- Signature verification.
+- Transaction records.
+- Idempotency.
+- Failed payment handling.
+- Refund handling.
+- Secure callback processing.
+
+Never mark a payment successful based only on a frontend redirect.
+
+Do not use fake payment success responses in production.
+
+If merchant credentials are unavailable, implement the integration structure, sandbox configuration where possible, and document what remains blocked.
+
+Keep Cash on Delivery functional.
+
+## 9. Automated Testing
+
+Install and configure Vitest or the most appropriate test runner for the existing architecture.
+
+Add tests for:
+
+### Authentication
+
+- Registration.
+- Login.
+- Password validation.
+- Role authorization.
+
+### Commerce
+
+- Cart operations.
+- Checkout.
+- Order creation.
+- Coupon application.
+- Inventory reservation.
+- Stock validation.
+
+### Refunds and Disputes
+
+- Buyer ownership validation.
+- Eligible order validation.
+- Duplicate request prevention.
+- Admin authorization.
+
+### Payments
+
+- Payment verification.
+- Invalid callbacks.
+- Duplicate webhook handling.
+
+Use isolated test data and never run destructive tests against production databases.
+
+## 10. Prettier and Code Quality
+
+- Inspect existing Prettier configuration.
+- Add or fix formatting scripts.
+- Run Prettier on project source files.
+- Avoid formatting generated files, database files, build output, and dependencies.
+- Fix lint issues.
+- Fix TypeScript issues.
+- Remove unused imports and dead code where safe.
+
+Do not change business logic just to satisfy formatting.
+
+## 11. Complete Route and Feature Verification
+
+After implementation, re-audit the entire application.
+
+Verify:
+
+- Every public route.
+- Every buyer route.
+- Every seller route.
+- Every admin route.
+- All sidebar links.
+- All buttons and forms.
+- All API endpoints.
+- Database connectivity.
+- Authentication and authorization.
+- Order lifecycle.
+- Payment workflows.
+- Refund and dispute workflows.
+- Image uploads.
+- Email notifications.
+- Responsive layouts.
+- Light and dark themes.
+- Global CSS tokens.
+- shadcn/ui consistency.
+
+Do not mark UI-only features as complete.
+
+## 12. Final Validation
+
+Run:
+
+- Prisma validation.
+- Prisma Client generation.
+- Database connectivity checks.
+- Database migrations where appropriate.
+- TypeScript typecheck.
+- ESLint.
+- Prettier check.
+- Automated tests.
+- Production build.
+
+Fix all errors introduced by your changes.
+
+## 13. Final Report
+
+Provide a detailed report containing:
+
+1. Completed audit findings.
+2. Files created and modified.
+3. Database changes.
+4. APIs implemented.
+5. Routes fixed.
+6. Refund and dispute functionality.
+7. Invoice implementation.
+8. Email integration status.
+9. Cloud storage integration status.
+10. Payment gateway integration status.
+11. Automated testing results.
+12. Build and lint results.
+13. Remaining external configuration requirements.
+14. Updated completion percentage.
+
+Use these statuses:
+
+- COMPLETE
+- PARTIAL
+- UI ONLY
+- BLOCKED
+- NOT STARTED
+
+Never claim 100% completion unless every required feature has been implemented and verified.
+
+**IMPORTANT:** Work through all priorities systematically. Do not stop after fixing the database or building UI forms. Complete the backend, frontend, database integration, validation, and testing for each feature.

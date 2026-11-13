@@ -228,3 +228,15 @@ export const contactSchema = z.object({
   subject: z.string().trim().min(2).max(160),
   message: z.string().trim().min(10).max(3000),
 });
+
+export const refundRequestSchema = z.object({
+  orderId: z.string().min(1, "Order ID is required"),
+  reason: z.string().trim().min(5, "Please provide a detailed reason (at least 5 characters).").max(500),
+  amount: z.coerce.number().int().positive().optional(),
+  note: z.string().trim().max(300).optional(),
+});
+
+export const disputeRequestSchema = z.object({
+  orderId: z.string().min(1, "Order ID is required"),
+  reason: z.string().trim().min(5, "Please provide dispute details (at least 5 characters).").max(1000),
+});

@@ -154,7 +154,7 @@ const ADMIN_NAV: NavGroup[] = [
       { label: "Commissions", href: "/admin/commissions", icon: Percent },
       { label: "Payouts", href: "/admin/payouts", icon: Wallet },
       { label: "Coupons", href: "/admin/coupons", icon: Percent },
-      { label: "Shipping", href: "/admin/shipping", icon: Truck },
+      { label: "Shipping", href: "/admin/settings/shipping", icon: Truck },
     ],
   },
   {

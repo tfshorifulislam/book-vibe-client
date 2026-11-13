@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CircleCheck, Clock, MapPin, Package, Receipt, Truck } from "lucide-react";
+import { CircleCheck, Clock, FileText, MapPin, Package, Receipt, Truck } from "lucide-react";
 
 import { CancelOrderButton } from "@/components/buyer/order-actions";
+import { DisputeRequestModal, RefundRequestModal } from "@/components/buyer/refund-dispute-actions";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 import { requireRole } from "@/lib/auth/session";
@@ -34,10 +35,27 @@ export default async function BuyerOrderDetailPage({ params }: Props) {
         title={`Order ${order.orderNumber}`}
         description={`Placed ${formatDate(order.createdAt.toISOString().slice(0, 10))}`}
         actions={
-          <>
+          <div className="flex flex-wrap items-center gap-2">
             <StatusBadge status={order.status} />
+            <Link
+              href={`/buyer/orders/${order.id}/invoice`}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
+            >
+              <FileText className="size-3.5" /> View Invoice
+            </Link>
             {canCancel ? <CancelOrderButton orderId={order.id} /> : null}
-          </>
+            {order.status === "DELIVERED" || order.refunds.length > 0 ? (
+              <RefundRequestModal
+                orderId={order.id}
+                orderTotal={order.total}
+                existingRefund={order.refunds[0] ?? null}
+              />
+            ) : null}
+            <DisputeRequestModal
+              orderId={order.id}
+              existingDispute={order.disputes[0] ?? null}
+            />
+          </div>
         }
       />
 

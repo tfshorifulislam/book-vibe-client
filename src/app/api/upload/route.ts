@@ -1,8 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 
 import { fail, handleError, ok, requireApiUser } from "@/lib/api";
+import { uploadImage } from "@/lib/storage";
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const ALLOWED = new Map([
@@ -27,12 +26,10 @@ export async function POST(request: Request) {
     }
 
     const bytes = Buffer.from(await file.arrayBuffer());
-    const directory = path.join(process.cwd(), "public", "uploads");
-    await mkdir(directory, { recursive: true });
     const filename = `${randomUUID()}.${extension}`;
-    await writeFile(path.join(directory, filename), bytes);
+    const url = await uploadImage(bytes, filename, file.type);
 
-    return ok({ url: `/uploads/${filename}` });
+    return ok({ url });
   } catch (error) {
     return handleError(error);
   }

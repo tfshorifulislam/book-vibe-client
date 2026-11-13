@@ -4,6 +4,8 @@ import { fail, handleError, ok, readJson } from "@/lib/api";
 import { hashPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
+import { sendEmail } from "@/lib/email/service";
+import { verificationEmailTemplate } from "@/lib/email/templates";
 import { uniqueSlug } from "@/lib/slug";
 import { registerSchema } from "@/lib/validators";
 
@@ -72,6 +74,15 @@ export async function POST(request: Request) {
     });
 
     await createSession(user.id);
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const verificationUrl = `${siteUrl}/verify-email?token=${verificationToken}`;
+    const emailData = verificationEmailTemplate(user.name, verificationUrl);
+    await sendEmail({
+      to: user.email,
+      subject: emailData.subject,
+      html: emailData.html,
+    });
 
     return ok(
       {
