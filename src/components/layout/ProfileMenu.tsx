@@ -37,7 +37,7 @@ export function ProfileMenu({ user, onLogout }: ProfileMenuProps) {
         aria-expanded={open}
         aria-label={`Account menu for ${user.name}`}
         onClick={() => setOpen((value) => !value)}
-        className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-primary text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-primary text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         {user.avatar ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -57,15 +57,15 @@ export function ProfileMenu({ user, onLogout }: ProfileMenuProps) {
           role="menu"
           aria-label="Account menu"
           className={cn(
-            "absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-border bg-popover shadow-xl",
-            "animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-150",
+            "absolute top-full right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border border-navbar-dropdown-border bg-navbar-dropdown-background shadow-[var(--navbar-dropdown-shadow)]",
+            "animate-in duration-150 fade-in-0 zoom-in-95 slide-in-from-top-1",
           )}
         >
-          <div className="border-b border-border px-4 py-3">
-            <p className="truncate text-sm font-semibold text-foreground">
+          <div className="border-b border-navbar-dropdown-border px-4 py-3">
+            <p className="truncate text-sm font-semibold text-navbar-foreground">
               {user.name}
             </p>
-            <p className="truncate text-xs text-muted-foreground">
+            <p className="truncate text-xs text-navbar-muted-foreground">
               {user.email}
             </p>
           </div>
@@ -76,14 +76,14 @@ export function ProfileMenu({ user, onLogout }: ProfileMenuProps) {
                 href={dashboard.href}
                 role="menuitem"
                 onClick={() => setOpen(false)}
-                className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+                className="block px-4 py-2 text-sm text-navbar-foreground transition-colors hover:bg-navbar-hover hover:text-navbar-hover-foreground focus-visible:bg-navbar-hover focus-visible:outline-none"
               >
                 {dashboard.label}
               </Link>
             </li>
           </ul>
 
-          <div className="border-t border-border py-2">
+          <div className="border-t border-navbar-dropdown-border py-2">
             <button
               type="button"
               role="menuitem"
@@ -91,7 +91,7 @@ export function ProfileMenu({ user, onLogout }: ProfileMenuProps) {
                 setOpen(false);
                 onLogout();
               }}
-              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-navbar-foreground transition-colors hover:bg-navbar-hover hover:text-navbar-hover-foreground focus-visible:bg-navbar-hover focus-visible:outline-none"
             >
               <LogOut className="size-4" aria-hidden="true" />
               Logout

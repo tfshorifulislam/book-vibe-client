@@ -31,7 +31,10 @@ const PRIMARY_RIGHT = [
 ] as const;
 
 const iconButtonClass =
-  "relative inline-flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "relative inline-flex size-9 items-center justify-center rounded-full text-navbar-muted-foreground transition-colors hover:bg-navbar-hover hover:text-navbar-hover-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+const actionButtonClass =
+  "inline-flex h-9 items-center justify-center rounded-lg px-3.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 function isNavActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -54,17 +57,17 @@ function NavLink({
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "relative inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
         active
-          ? "font-semibold text-primary"
-          : "text-muted-foreground hover:text-foreground",
+          ? "bg-navbar-nav-active font-semibold text-navbar-nav-active-foreground"
+          : "text-navbar-nav-foreground hover:bg-navbar-nav-hover hover:text-navbar-nav-hover-foreground",
       )}
     >
       {label}
       <span
         aria-hidden="true"
         className={cn(
-          "absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-primary transition-opacity",
+          "absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-navbar-nav-active-indicator transition-opacity",
           active ? "opacity-100" : "opacity-0",
         )}
       />
@@ -77,7 +80,7 @@ function CartLink({ count }: { count: number }) {
     <Link href="/buyer/cart" aria-label="Cart" className={iconButtonClass}>
       <ShoppingCart className="size-5" aria-hidden="true" />
       {count > 0 ? (
-        <span className="absolute -right-0.5 -top-0.5 flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-4 text-primary-foreground">
+        <span className="absolute -top-0.5 -right-0.5 flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] leading-4 font-bold text-primary-foreground">
           {count > 99 ? "99+" : count}
         </span>
       ) : null}
@@ -97,19 +100,28 @@ function RightSide({ user, cartCount, onLogout }: RightSideProps) {
       <>
         <Link
           href="/register?role=seller"
-          className="hidden rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:inline-flex"
+          className={cn(
+            actionButtonClass,
+            "hidden border border-navbar-border text-navbar-foreground hover:border-primary/30 hover:bg-navbar-hover hover:text-navbar-hover-foreground lg:inline-flex",
+          )}
         >
           Become a Seller
         </Link>
         <Link
           href="/login"
-          className="rounded-md px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className={cn(
+            actionButtonClass,
+            "text-navbar-foreground hover:bg-navbar-hover hover:text-navbar-hover-foreground",
+          )}
         >
           Login
         </Link>
         <Link
           href="/register"
-          className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className={cn(
+            actionButtonClass,
+            "bg-primary px-4 font-semibold text-primary-foreground hover:bg-brand-primary-hover",
+          )}
         >
           Sign Up
         </Link>
@@ -165,7 +177,10 @@ interface NavbarProps {
   user?: User | null;
 }
 
-export function Navbar({ categories = [], user: initialUser = null }: NavbarProps) {
+export function Navbar({
+  categories = [],
+  user: initialUser = null,
+}: NavbarProps) {
   const [user, setUser] = useState<User | null>(initialUser);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -213,17 +228,19 @@ export function Navbar({ categories = [], user: initialUser = null }: NavbarProp
     <>
       <header
         className={cn(
-          "sticky top-0 z-40 border-b bg-background/85 backdrop-blur-md transition-colors duration-200",
-          scrolled ? "border-border" : "border-transparent",
+          "sticky top-0 z-40 border-b bg-navbar-background/85 backdrop-blur-md transition-[border-color,box-shadow] duration-200",
+          scrolled
+            ? "border-navbar-border-scrolled shadow-[var(--navbar-shadow)]"
+            : "border-navbar-border-idle",
         )}
       >
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className="flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight text-navbar-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             aria-label="BookHand home"
           >
-            <span className="flex size-8 items-center justify-center rounded-lg brand-gradient text-on-brand shadow-sm">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-[image:var(--navbar-logo-background)] text-on-brand shadow-sm">
               <BookOpen className="size-4" aria-hidden="true" />
             </span>
             <span>BookHand</span>
@@ -231,33 +248,22 @@ export function Navbar({ categories = [], user: initialUser = null }: NavbarProp
 
           <nav
             aria-label="Primary navigation"
-            className="hidden flex-1 items-center justify-center gap-0.5 lg:flex"
+            className="hidden flex-1 items-center justify-center gap-1 lg:flex"
           >
             {PRIMARY_LEFT.map((item) => (
-              <NavLink
-                key={item.href}
-                {...item}
-                pathname={pathname}
-              />
+              <NavLink key={item.href} {...item} pathname={pathname} />
             ))}
 
-            <CategoriesDropdown
-              categories={categories}
-              pathname={pathname}
-            />
+            <CategoriesDropdown categories={categories} pathname={pathname} />
 
             {PRIMARY_RIGHT.map((item) => (
-              <NavLink
-                key={item.href}
-                {...item}
-                pathname={pathname}
-              />
+              <NavLink key={item.href} {...item} pathname={pathname} />
             ))}
           </nav>
 
-          <div className="ml-auto flex items-center gap-1.5">
+          <div className="ml-auto flex items-center gap-2">
             <ThemeToggle />
-            <div className="hidden items-center gap-1.5 lg:flex">
+            <div className="hidden items-center gap-2 lg:flex">
               <RightSide
                 user={user}
                 cartCount={cartCount}
@@ -271,7 +277,7 @@ export function Navbar({ categories = [], user: initialUser = null }: NavbarProp
               aria-expanded={mobileOpen}
               aria-controls="mobile-navigation"
               onClick={() => setMobileOpen((value) => !value)}
-              className="inline-flex size-9 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
+              className="inline-flex size-9 items-center justify-center rounded-full text-navbar-foreground transition-colors hover:bg-navbar-hover hover:text-navbar-hover-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none lg:hidden"
             >
               <Menu className="size-5" aria-hidden="true" />
             </button>

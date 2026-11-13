@@ -55,10 +55,12 @@ export function CategoriesDropdown({
         aria-controls="categories-menu"
         onClick={() => setOpen((value) => !value)}
         className={cn(
-          "relative flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "relative inline-flex h-9 items-center gap-1 rounded-lg px-3 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
           isActive
-            ? "font-semibold text-primary"
-            : "text-muted-foreground hover:text-foreground",
+            ? "bg-navbar-nav-active font-semibold text-navbar-nav-active-foreground"
+            : open
+              ? "bg-navbar-nav-hover text-navbar-nav-hover-foreground"
+              : "text-navbar-nav-foreground hover:bg-navbar-nav-hover hover:text-navbar-nav-hover-foreground",
         )}
       >
         Categories
@@ -72,7 +74,7 @@ export function CategoriesDropdown({
         <span
           aria-hidden="true"
           className={cn(
-            "absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-primary transition-opacity",
+            "absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-navbar-nav-active-indicator transition-opacity",
             isActive ? "opacity-100" : "opacity-0",
           )}
         />
@@ -83,13 +85,13 @@ export function CategoriesDropdown({
           id="categories-menu"
           role="menu"
           aria-label="Book categories"
-          className="absolute left-1/2 top-full z-50 mt-2 w-80 -translate-x-1/2 overflow-hidden rounded-xl border border-border bg-popover shadow-xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-150"
+          className="absolute top-full left-1/2 z-50 mt-2 w-80 -translate-x-1/2 animate-in overflow-hidden rounded-xl border border-navbar-dropdown-border bg-navbar-dropdown-background shadow-[var(--navbar-dropdown-shadow)] duration-150 fade-in-0 zoom-in-95 slide-in-from-top-1"
           onMouseEnter={openMenu}
           onMouseLeave={scheduleClose}
         >
           <div className="max-h-[min(70vh,30rem)] overflow-y-auto py-2">
             {categories.length === 0 ? (
-              <p className="px-4 py-3 text-sm text-muted-foreground">
+              <p className="px-4 py-3 text-sm text-navbar-muted-foreground">
                 Categories are loading.
               </p>
             ) : (
@@ -101,10 +103,10 @@ export function CategoriesDropdown({
                       role="menuitem"
                       onClick={() => setOpen(false)}
                       className={cn(
-                        "flex items-center gap-3 px-4 py-2 text-sm transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none",
+                        "flex items-center gap-3 px-4 py-2 text-sm transition-colors hover:bg-navbar-hover hover:text-navbar-hover-foreground focus-visible:bg-navbar-hover focus-visible:outline-none",
                         pathname === `/categories/${category.slug}`
-                          ? "font-semibold text-primary"
-                          : "text-foreground",
+                          ? "bg-navbar-nav-active font-semibold text-navbar-nav-active-foreground"
+                          : "text-navbar-foreground",
                       )}
                     >
                       <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
@@ -113,20 +115,20 @@ export function CategoriesDropdown({
                       <span className="min-w-0 flex-1 truncate">
                         {category.name}
                       </span>
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-[11px] text-navbar-muted-foreground">
                         {category.bookCount}
                       </span>
                     </Link>
 
                     {category.children?.length ? (
-                      <ul className="mb-1 ml-11 space-y-0.5 border-l border-border pl-3">
+                      <ul className="mb-1 ml-11 space-y-0.5 border-l border-navbar-dropdown-border pl-3">
                         {category.children.map((child) => (
                           <li key={child.id}>
                             <Link
                               href={`/categories/${child.slug}`}
                               role="menuitem"
                               onClick={() => setOpen(false)}
-                              className="block rounded px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:bg-muted focus-visible:outline-none"
+                              className="block rounded px-2 py-1 text-xs text-navbar-muted-foreground transition-colors hover:bg-navbar-hover hover:text-navbar-hover-foreground focus-visible:bg-navbar-hover focus-visible:outline-none"
                             >
                               {child.name}
                             </Link>
@@ -140,11 +142,11 @@ export function CategoriesDropdown({
             )}
           </div>
 
-          <div className="border-t border-border bg-muted/40 px-4 py-3">
+          <div className="border-t border-navbar-dropdown-border bg-navbar-hover/40 px-4 py-3">
             <Link
               href="/categories"
               onClick={() => setOpen(false)}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-navbar-active-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             >
               <LayoutGrid className="size-4" aria-hidden="true" />
               View All Categories
