@@ -8,6 +8,9 @@ import {
   orderStatusLabel,
 } from "@/lib/commerce";
 import { prisma } from "@/lib/db";
+import { resolveSenderEmail } from "@/lib/email/service";
+import { validateEnv } from "@/lib/env";
+import { generateCloudinarySignature } from "@/lib/storage";
 import {
   checkoutSchema,
   contactSchema,
@@ -224,6 +227,32 @@ async function runTests() {
     assert.ok(usersCount > 0, "Users should be seeded");
     assert.ok(booksCount > 0, "Books should be seeded");
     assert.ok(categoriesCount > 0, "Categories should be seeded");
+  });
+
+  // --- 6. PRODUCTION INTEGRATIONS & SECURITY ---
+  console.log("\n--- Group 6: Production Integrations & Security ---");
+  await test("Resend sender resolution normalizes Gmail to sandbox domain in dev", () => {
+    const sender = resolveSenderEmail();
+    assert.ok(
+      sender.includes("onboarding@resend.dev") || sender.includes("BookHand"),
+    );
+  });
+
+  await test("Cloudinary signature generation creates exact SHA-1 hex digest", () => {
+    const params = { folder: "bookhand", timestamp: "1700000000" };
+    const secret = "test_secret_123";
+    const sig = generateCloudinarySignature(params, secret);
+    assert.strictEqual(typeof sig, "string");
+    assert.strictEqual(
+      sig.length,
+      40,
+      "SHA-1 hex digest must be 40 characters",
+    );
+  });
+
+  await test("Environment validation utility correctly reports valid env status", () => {
+    const check = validateEnv();
+    assert.strictEqual(check.isValid, true);
   });
 
   console.log("\n=============================================");

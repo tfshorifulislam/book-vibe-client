@@ -1,6 +1,6 @@
 import "server-only";
 
-import { randomBytes } from "node:crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -9,6 +9,46 @@ import type { User, UserRole } from "@/types";
 
 export const SESSION_COOKIE = "bookhand_session";
 const SESSION_DAYS = 30;
+
+function signSessionToken(token: string): string {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) return token;
+  const signature = createHmac("sha256", secret).update(token).digest("hex");
+  return `${token}.${signature}`;
+}
+
+function verifyAndExtractToken(cookieValue: string | undefined): string | null {
+  if (!cookieValue) return null;
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) return cookieValue;
+
+  const dotIdx = cookieValue.lastIndexOf(".");
+  if (dotIdx === -1) {
+    // Backward compatibility: allow legacy unsigned tokens
+    return cookieValue;
+  }
+
+  const token = cookieValue.slice(0, dotIdx);
+  const signature = cookieValue.slice(dotIdx + 1);
+  const expectedSignature = createHmac("sha256", secret)
+    .update(token)
+    .digest("hex");
+
+  try {
+    const sigBuf = Buffer.from(signature, "hex");
+    const expectedBuf = Buffer.from(expectedSignature, "hex");
+    if (
+      sigBuf.length === expectedBuf.length &&
+      timingSafeEqual(sigBuf, expectedBuf)
+    ) {
+      return token;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
 
 type DbUser = {
   id: string;
@@ -39,8 +79,9 @@ export async function createSession(userId: string): Promise<string> {
 
   await prisma.session.create({ data: { token, userId, expiresAt } });
 
+  const signedCookieValue = signSessionToken(token);
   const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, token, {
+  cookieStore.set(SESSION_COOKIE, signedCookieValue, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -53,7 +94,8 @@ export async function createSession(userId: string): Promise<string> {
 
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE)?.value;
+  const rawCookie = cookieStore.get(SESSION_COOKIE)?.value;
+  const token = verifyAndExtractToken(rawCookie);
 
   if (token) {
     await prisma.session.deleteMany({ where: { token } });
@@ -64,7 +106,8 @@ export async function destroySession(): Promise<void> {
 
 export async function getCurrentUser(): Promise<User | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE)?.value;
+  const rawCookie = cookieStore.get(SESSION_COOKIE)?.value;
+  const token = verifyAndExtractToken(rawCookie);
   if (!token) return null;
 
   const session = await prisma.session.findUnique({
