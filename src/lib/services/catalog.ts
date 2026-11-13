@@ -1,138 +1,118 @@
 import { cacheLife } from "next/cache";
+
+import { prisma } from "@/lib/db";
 import {
-  MOCK_BEST_SELLING,
-  MOCK_CATEGORIES,
-  MOCK_FEATURED_BOOKS,
-  MOCK_NEW_ARRIVALS,
-  MOCK_OFFERS,
-  MOCK_TESTIMONIALS,
-  MOCK_TOP_SELLERS,
-  MOCK_USED_BOOKS,
-} from "@/lib/mock-data";
+  getAllBooks as getAllBookCards,
+  getBestSellingBooks as getBestSelling,
+  getBookCards,
+  getCategories as getCategoryRows,
+  getFeaturedBooks as getFeatured,
+  getNewArrivals as getNew,
+  getPopularSearches as getSearches,
+  getTopSellers as getSellers,
+  getUsedBooks as getUsed,
+} from "@/lib/data/books";
 import type { Book } from "@/types/book";
 import type { Category } from "@/types/category";
 import type { Offer } from "@/types/offer";
 import type { TopSeller } from "@/types/seller";
 import type { Testimonial } from "@/types/testimonial";
 
-/**
- * API-ready data service for the homepage.
- *
- * The functions below currently read from development fixtures. When the
- * backend is available, replace the fixture reads with fetch calls to the
- * routes documented on each function. The `use cache` directive keeps the
- * homepage in the static shell while the data source is swapped.
- */
-
 export async function getCategories(): Promise<Category[]> {
   "use cache";
   cacheLife("hours");
-
-  // API: GET /api/categories
-  return MOCK_CATEGORIES.filter((category) => category.isActive).sort(
-    (a, b) => a.order - b.order,
-  );
+  return getCategoryRows();
 }
 
 export async function getAllBooks(): Promise<Book[]> {
   "use cache";
   cacheLife("hours");
-
-  // API: GET /api/books
-  // Pagination is handled client-side until the backend exposes page/limit.
-  const allBooks = [
-    ...MOCK_FEATURED_BOOKS,
-    ...MOCK_BEST_SELLING,
-    ...MOCK_NEW_ARRIVALS,
-    ...MOCK_USED_BOOKS,
-  ];
-
-  return Array.from(new Map(allBooks.map((book) => [book.id, book])).values());
+  return getAllBookCards();
 }
 
 export async function getFeaturedBooks(limit = 8): Promise<Book[]> {
   "use cache";
   cacheLife("hours");
-
-  // API: GET /api/books/featured
-  return MOCK_FEATURED_BOOKS.filter((book) => book.isFeatured).slice(0, limit);
+  return getFeatured(limit);
 }
 
 export async function getBestSellingBooks(limit = 4): Promise<Book[]> {
   "use cache";
   cacheLife("hours");
-
-  // API: GET /api/books/best-selling
-  return [...MOCK_BEST_SELLING]
-    .sort((a, b) => (b.salesCount ?? 0) - (a.salesCount ?? 0))
-    .slice(0, limit);
+  return getBestSelling(limit);
 }
 
 export async function getNewArrivals(limit = 4): Promise<Book[]> {
   "use cache";
   cacheLife("hours");
-
-  // API: GET /api/books/new-arrivals
-  return [...MOCK_NEW_ARRIVALS]
-    .sort((a, b) => (b.listedAt ?? "").localeCompare(a.listedAt ?? ""))
-    .slice(0, limit);
+  return getNew(limit);
 }
 
 export async function getUsedBooks(limit = 4): Promise<Book[]> {
   "use cache";
   cacheLife("hours");
-
-  // API: GET /api/books?condition=USED
-  return MOCK_USED_BOOKS.filter(
-    (book) => book.listingType === "USED",
-  ).slice(0, limit);
+  return getUsed(limit);
 }
 
 export async function getTopSellers(limit = 6): Promise<TopSeller[]> {
   "use cache";
   cacheLife("hours");
-
-  // API: GET /api/sellers/top
-  return [...MOCK_TOP_SELLERS]
-    .sort(
-      (a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount,
-    )
-    .slice(0, limit);
+  return getSellers(limit);
 }
 
 export async function getActiveOffers(): Promise<Offer[]> {
   "use cache";
   cacheLife("hours");
+  const { books } = await getBookCards({ onSale: true, limit: 4, sort: "popular" });
+  if (!books.length) return [];
 
-  // API: GET /api/offers/active
-  const today = new Date().toISOString().slice(0, 10);
+  const maxDiscount = Math.max(
+    ...books.map((book) => book.discount ?? 0),
+    0,
+  );
 
-  return MOCK_OFFERS.filter((offer) => {
-    if (!offer.isActive) return false;
-    if (offer.startDate && offer.startDate > today) return false;
-    if (offer.expiryDate && offer.expiryDate < today) return false;
-    return true;
-  });
+  return [
+    {
+      id: "offer-sale",
+      title: "Books on Sale",
+      description:
+        "Limited-time savings on new and used books from trusted BookHand sellers.",
+      discountPercent: maxDiscount || undefined,
+      startDate: new Date(Date.now() - 86400000).toISOString().slice(0, 10),
+      expiryDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+      isActive: true,
+      books,
+    },
+  ];
 }
 
 export async function getTestimonials(): Promise<Testimonial[]> {
   "use cache";
   cacheLife("hours");
+  const reviews = await prisma.review.findMany({
+    where: { isApproved: true, rating: { gte: 4 } },
+    include: {
+      user: { select: { name: true, avatar: true } },
+      book: { select: { title: true } },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+  });
 
-  // API: GET /api/testimonials
-  return MOCK_TESTIMONIALS.filter(
-    (testimonial) => testimonial.isApproved,
-  ).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  return reviews.map((review, index) => ({
+    id: review.id,
+    name: review.user.name,
+    avatar: review.user.avatar ?? undefined,
+    rating: review.rating,
+    review: review.body,
+    bookTitle: review.book.title,
+    isApproved: review.isApproved,
+    order: index,
+  }));
 }
 
 export async function getPopularSearches(): Promise<string[]> {
   "use cache";
   cacheLife("hours");
-
-  const categoryNames = MOCK_CATEGORIES.slice(0, 3).map(
-    (category) => category.name,
-  );
-  const authors = MOCK_FEATURED_BOOKS.slice(0, 3).map((book) => book.author);
-
-  return Array.from(new Set([...categoryNames, ...authors]));
+  return getSearches();
 }

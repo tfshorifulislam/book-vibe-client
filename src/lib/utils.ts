@@ -1,7 +1,12 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
 import { CURRENCY } from "@/lib/constants";
 import type { Book, BookCondition } from "@/types/book";
 
-export { cn } from "cn";
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 const priceFormatter = new Intl.NumberFormat(CURRENCY.locale, {
   maximumFractionDigits: 0,
@@ -17,6 +22,30 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 
 export function formatPrice(value: number): string {
   return `${CURRENCY.symbol}${priceFormatter.format(value)}`;
+}
+
+export const formatCurrency = formatPrice;
+
+export function formatDateDisplay(
+  date: Date | string | number,
+  options?: { includeTime?: boolean }
+): string {
+  const d = date instanceof Date ? date : new Date(date);
+  if (Number.isNaN(d.getTime())) return "";
+  if (options?.includeTime) {
+    return d.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 export function formatNumber(value: number): string {

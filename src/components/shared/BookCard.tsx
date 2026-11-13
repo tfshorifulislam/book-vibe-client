@@ -3,11 +3,14 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ArrowRight, Heart, ShoppingCart, Store, Tag } from "lucide-react";
+import { toast } from "sonner";
 import { BookCover } from "@/components/shared/BookCover";
 import { StarRating } from "@/components/shared/StarRating";
 import {
   addToCart,
   isWishlisted,
+  notifyLibraryChanged,
+  setWishlisted,
   subscribeToLibrary,
   toggleWishlist,
 } from "@/lib/client/guest-library";
@@ -59,18 +62,81 @@ export function BookCard({
     };
   }, []);
 
-  function handleWishlist() {
-    toggleWishlist(book.id);
+  useEffect(() => {
+    let active = true;
+    fetch("/api/wishlist")
+      .then((response) => response.json())
+      .then(
+        (payload: {
+          success?: boolean;
+          data?: { items?: { book: { id: string } }[] };
+        }) => {
+          if (!active || !payload.success) return;
+          setWishlisted(
+            book.id,
+            Boolean(payload.data?.items?.some((item) => item.book.id === book.id)),
+          );
+        },
+      )
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [book.id]);
+
+  async function handleWishlist() {
+    const next = !wishlisted;
+    setWishlisted(book.id, next);
+    const response = await fetch(
+      next ? "/api/wishlist" : `/api/wishlist?bookId=${book.id}`,
+      {
+        method: next ? "POST" : "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: next ? JSON.stringify({ bookId: book.id }) : undefined,
+      },
+    ).catch(() => null);
+    if (response && response.ok) {
+      notifyLibraryChanged();
+      toast.success(next ? "Saved to wishlist." : "Removed from wishlist.");
+    } else if (response && response.status === 401) {
+      toggleWishlist(book.id);
+      notifyLibraryChanged();
+      toast.success(next ? "Saved locally. Sign in to sync your wishlist." : "Removed from local wishlist.");
+    } else {
+      setWishlisted(book.id, !next);
+      toast.error("Unable to update your wishlist.");
+    }
   }
 
-  function handleAddToCart() {
+  async function handleAddToCart() {
     if (outOfStock) return;
 
-    addToCart(book.id);
-    setAdded(true);
+    const response = await fetch("/api/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bookId: book.id, quantity: 1 }),
+    }).catch(() => null);
 
-    if (resetTimer.current) clearTimeout(resetTimer.current);
-    resetTimer.current = setTimeout(() => setAdded(false), 2000);
+    if (response && response.ok) {
+      notifyLibraryChanged();
+      setAdded(true);
+      if (resetTimer.current) clearTimeout(resetTimer.current);
+      resetTimer.current = setTimeout(() => setAdded(false), 2000);
+      toast.success("Added to cart.");
+      return;
+    }
+
+    if (!response || response.status === 401) {
+      addToCart(book.id);
+      notifyLibraryChanged();
+      setAdded(true);
+      if (resetTimer.current) clearTimeout(resetTimer.current);
+      resetTimer.current = setTimeout(() => setAdded(false), 2000);
+      toast.success("Added to your guest cart. Sign in at checkout to complete your order.");
+      return;
+    }
+
+    toast.error("Unable to add this book to your cart.");
   }
 
   return (

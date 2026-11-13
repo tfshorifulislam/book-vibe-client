@@ -15,6 +15,16 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  async redirects() {
+    return [
+      { source: "/seller", destination: "/seller/dashboard", permanent: false },
+      { source: "/admin", destination: "/admin/dashboard", permanent: false },
+      { source: "/cart", destination: "/buyer/cart", permanent: false },
+      { source: "/checkout", destination: "/buyer/checkout", permanent: false },
+      { source: "/account", destination: "/buyer/dashboard", permanent: false },
+      { source: "/account/:path*", destination: "/buyer/:path*", permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;

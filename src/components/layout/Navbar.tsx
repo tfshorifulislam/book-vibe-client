@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import {
   BookOpen,
@@ -26,8 +26,10 @@ const PRIMARY_LEFT = [
 ] as const;
 
 const PRIMARY_RIGHT = [
-  { label: "Top Sellers", href: "/sellers" },
-  { label: "About Us", href: "/about" },
+  { label: "Authors", href: "/authors" },
+  { label: "Shops", href: "/shops" },
+  { label: "Deals", href: "/deals" },
+  { label: "About", href: "/about" },
 ] as const;
 
 const iconButtonClass =
@@ -185,7 +187,21 @@ export function Navbar({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const cartCount = useCartCount();
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/auth/me")
+      .then((response) => response.json())
+      .then((payload: { success?: boolean; data?: { user?: User | null } }) => {
+        if (active && payload.success) setUser(payload.data?.user ?? null);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     function handleScroll() {
@@ -219,9 +235,12 @@ export function Navbar({
 
   const closeMobile = useCallback(() => setMobileOpen(false), []);
 
-  function handleLogout() {
+  async function handleLogout() {
     setUser(null);
     closeMobile();
+    await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+    router.push("/");
+    router.refresh();
   }
 
   return (

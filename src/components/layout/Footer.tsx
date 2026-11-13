@@ -7,7 +7,6 @@ import {
   SITE_CONFIG,
   SOCIAL_LINKS,
 } from "@/lib/constants";
-import { getCurrentYear } from "@/lib/services/site";
 import { BackToTop } from "./BackToTop";
 
 const socialIcons = {
@@ -17,9 +16,7 @@ const socialIcons = {
   rss: "Rss",
 } as const;
 
-export async function Footer() {
-  const year = await getCurrentYear();
-
+export function Footer() {
   return (
     <footer className="border-t border-footer-border bg-footer text-footer-foreground">
       <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
@@ -82,7 +79,7 @@ export async function Footer() {
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
               <p className="text-sm text-footer-muted">
-                © {year} {SITE_CONFIG.name}. All rights reserved.
+                © {SITE_CONFIG.name}. All rights reserved.
               </p>
 
               <div className="flex flex-wrap items-center gap-2">

@@ -1,11 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
-import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
+import { Toaster } from "sonner";
+
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SITE_CONFIG } from "@/lib/constants";
-import { getCategories } from "@/lib/services/catalog";
 import "./globals.css";
 
 const inter = Inter({
@@ -59,11 +58,9 @@ export const viewport: Viewport = {
   ],
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
-  const categories = await getCategories();
-
   return (
     <html
       lang="en"
@@ -78,9 +75,8 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar categories={categories} />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          {children}
+          <Toaster richColors position="top-center" />
         </ThemeProvider>
       </body>
     </html>

@@ -49,6 +49,16 @@ export function isWishlisted(bookId: string): boolean {
   return getWishlist().includes(bookId);
 }
 
+export function setWishlisted(bookId: string, value: boolean): void {
+  const wishlist = getWishlist();
+  const has = wishlist.includes(bookId);
+  if (has === value) return;
+  writeJson(
+    WISHLIST_KEY,
+    value ? [...wishlist, bookId] : wishlist.filter((id) => id !== bookId),
+  );
+}
+
 export function toggleWishlist(bookId: string): boolean {
   const wishlist = getWishlist();
   const next = wishlist.includes(bookId)
@@ -57,6 +67,11 @@ export function toggleWishlist(bookId: string): boolean {
 
   writeJson(WISHLIST_KEY, next);
   return next.includes(bookId);
+}
+
+export function notifyLibraryChanged(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(LIBRARY_EVENT));
 }
 
 export function getCart(): GuestCartItem[] {
