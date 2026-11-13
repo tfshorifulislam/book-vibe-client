@@ -49,15 +49,21 @@ export default async function AdminUserDetailPage({
         description={`Registered ${targetUser.role.toLowerCase()} account on BookHand`}
         actions={
           <div className="flex items-center gap-3">
-            <StatusBadge status={targetUser.status} className="text-sm px-3 py-1" />
-            <UserStatusToggle userId={targetUser.id} currentStatus={targetUser.status} />
+            <StatusBadge
+              status={targetUser.status}
+              className="px-3 py-1 text-sm"
+            />
+            <UserStatusToggle
+              userId={targetUser.id}
+              currentStatus={targetUser.status}
+            />
           </div>
         }
       />
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Contact Info */}
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <UserIcon className="size-4" /> Personal Information
           </h2>
@@ -73,21 +79,25 @@ export default async function AdminUserDetailPage({
               </div>
             ) : null}
             <div className="border-t border-border pt-2 text-xs text-muted-foreground">
-              Joined on {formatDate(targetUser.createdAt.toISOString().slice(0, 10))} · Email Verified:{" "}
-              {targetUser.emailVerified ? "Yes" : "No"}
+              Joined on{" "}
+              {formatDate(targetUser.createdAt.toISOString().slice(0, 10))} ·
+              Email Verified: {targetUser.emailVerified ? "Yes" : "No"}
             </div>
           </div>
         </div>
 
         {/* Addresses */}
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <MapPin className="size-4" /> Saved Delivery Addresses
           </h2>
           {targetUser.addresses.length ? (
             <div className="space-y-2 text-xs">
               {targetUser.addresses.map((a) => (
-                <div key={a.id} className="rounded-lg border border-border bg-muted/30 p-2.5">
+                <div
+                  key={a.id}
+                  className="rounded-lg border border-border bg-muted/30 p-2.5"
+                >
                   <p className="font-semibold text-foreground">
                     {a.label} ({a.recipientName} - {a.phone})
                   </p>

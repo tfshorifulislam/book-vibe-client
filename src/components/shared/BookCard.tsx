@@ -74,7 +74,9 @@ export function BookCard({
           if (!active || !payload.success) return;
           setWishlisted(
             book.id,
-            Boolean(payload.data?.items?.some((item) => item.book.id === book.id)),
+            Boolean(
+              payload.data?.items?.some((item) => item.book.id === book.id),
+            ),
           );
         },
       )
@@ -101,7 +103,11 @@ export function BookCard({
     } else if (response && response.status === 401) {
       toggleWishlist(book.id);
       notifyLibraryChanged();
-      toast.success(next ? "Saved locally. Sign in to sync your wishlist." : "Removed from local wishlist.");
+      toast.success(
+        next
+          ? "Saved locally. Sign in to sync your wishlist."
+          : "Removed from local wishlist.",
+      );
     } else {
       setWishlisted(book.id, !next);
       toast.error("Unable to update your wishlist.");
@@ -132,7 +138,9 @@ export function BookCard({
       setAdded(true);
       if (resetTimer.current) clearTimeout(resetTimer.current);
       resetTimer.current = setTimeout(() => setAdded(false), 2000);
-      toast.success("Added to your guest cart. Sign in at checkout to complete your order.");
+      toast.success(
+        "Added to your guest cart. Sign in at checkout to complete your order.",
+      );
       return;
     }
 

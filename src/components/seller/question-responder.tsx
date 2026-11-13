@@ -40,7 +40,11 @@ export function QuestionResponder({ questionId }: { questionId: string }) {
   }
 
   if (answered) {
-    return <span className="text-xs font-medium text-success">Answered just now</span>;
+    return (
+      <span className="text-xs font-medium text-success">
+        Answered just now
+      </span>
+    );
   }
 
   return (
@@ -61,7 +65,7 @@ export function QuestionResponder({ questionId }: { questionId: string }) {
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder="Type your official seller answer here..."
-            className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
           />
           <div className="flex justify-end gap-2">
             <button
@@ -76,7 +80,12 @@ export function QuestionResponder({ questionId }: { questionId: string }) {
               disabled={loading}
               className="inline-flex items-center gap-1 rounded bg-primary px-3 py-1 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? <Loader2 className="size-3 animate-spin" /> : <Send className="size-3" />} Post Answer
+              {loading ? (
+                <Loader2 className="size-3 animate-spin" />
+              ) : (
+                <Send className="size-3" />
+              )}{" "}
+              Post Answer
             </button>
           </div>
         </form>

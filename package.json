@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "node tests/runner.cjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

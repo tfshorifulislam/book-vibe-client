@@ -11,10 +11,7 @@ export async function GET(request: Request) {
       where: {
         ...(q
           ? {
-              OR: [
-                { name: { contains: q } },
-                { email: { contains: q } },
-              ],
+              OR: [{ name: { contains: q } }, { email: { contains: q } }],
             }
           : {}),
         ...(role ? { role } : {}),

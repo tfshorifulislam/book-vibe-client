@@ -26,7 +26,10 @@ export default async function WishlistPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Wishlist" description={`${items.length} saved book${items.length === 1 ? "" : "s"}`} />
+      <PageHeader
+        title="Wishlist"
+        description={`${items.length} saved book${items.length === 1 ? "" : "s"}`}
+      />
       <WishlistClient initialItems={items} />
     </div>
   );

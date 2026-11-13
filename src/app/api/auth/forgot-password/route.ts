@@ -24,7 +24,8 @@ export async function POST(request: Request) {
           expiresAt: new Date(Date.now() + 60 * 60 * 1000),
         },
       });
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+      const siteUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
       const fullResetUrl = `${siteUrl}/reset-password?token=${token}`;
 
       const emailData = passwordResetEmailTemplate(user.name, fullResetUrl);

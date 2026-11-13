@@ -6,7 +6,7 @@ import path from "node:path";
 export async function uploadImage(
   bytes: Buffer,
   filename: string,
-  mimeType: string
+  mimeType: string,
 ): Promise<string> {
   const cloudinaryCloud = process.env.CLOUDINARY_CLOUD_NAME;
   const cloudinaryApiKey = process.env.CLOUDINARY_API_KEY;
@@ -16,7 +16,7 @@ export async function uploadImage(
     try {
       const base64 = `data:${mimeType};base64,${bytes.toString("base64")}`;
       const timestamp = Math.round(Date.now() / 1000).toString();
-      
+
       const formData = new URLSearchParams();
       formData.append("file", base64);
       formData.append("timestamp", timestamp);
@@ -27,16 +27,22 @@ export async function uploadImage(
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const data = await res.json();
       if (res.ok && data.secure_url) {
         return data.secure_url;
       }
-      console.warn("[Storage] Cloudinary upload returned error, falling back to local:", data);
+      console.warn(
+        "[Storage] Cloudinary upload returned error, falling back to local:",
+        data,
+      );
     } catch (err) {
-      console.warn("[Storage] Cloudinary upload failed, falling back to local storage:", err);
+      console.warn(
+        "[Storage] Cloudinary upload failed, falling back to local storage:",
+        err,
+      );
     }
   }
 

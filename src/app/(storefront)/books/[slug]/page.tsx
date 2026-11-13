@@ -14,7 +14,10 @@ import {
 import { BookCard } from "@/components/shared/BookCard";
 import { BookCover } from "@/components/shared/BookCover";
 import { StarRating } from "@/components/shared/StarRating";
-import { BookQuestionForm, BookReviewForm } from "@/components/store/community-forms";
+import {
+  BookQuestionForm,
+  BookReviewForm,
+} from "@/components/store/community-forms";
 import { PurchasePanel } from "@/components/store/purchase-panel";
 import { getBookBySlug, getRelatedBooks } from "@/lib/data/books";
 import {
@@ -74,12 +77,22 @@ export default async function BookDetailPage({ params }: Props) {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
-        <Link href="/" className="hover:text-primary">Home</Link>
+      <nav
+        aria-label="Breadcrumb"
+        className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
+      >
+        <Link href="/" className="hover:text-primary">
+          Home
+        </Link>
         <ChevronRight className="size-3" />
-        <Link href="/books" className="hover:text-primary">Books</Link>
+        <Link href="/books" className="hover:text-primary">
+          Books
+        </Link>
         <ChevronRight className="size-3" />
-        <Link href={`/categories/${book.category.slug}`} className="hover:text-primary">
+        <Link
+          href={`/categories/${book.category.slug}`}
+          className="hover:text-primary"
+        >
           {book.category.name}
         </Link>
         <ChevronRight className="size-3" />
@@ -96,14 +109,18 @@ export default async function BookDetailPage({ params }: Props) {
               <CircleCheck className="mt-0.5 size-4 text-success" />
               <div>
                 <p className="font-medium">Buyer protection</p>
-                <p className="text-xs text-muted-foreground">Report material condition issues within 7 days.</p>
+                <p className="text-xs text-muted-foreground">
+                  Report material condition issues within 7 days.
+                </p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <Package className="mt-0.5 size-4 text-primary" />
               <div>
                 <p className="font-medium">Delivery across Bangladesh</p>
-                <p className="text-xs text-muted-foreground">Tracked delivery from the seller&apos;s shop.</p>
+                <p className="text-xs text-muted-foreground">
+                  Tracked delivery from the seller&apos;s shop.
+                </p>
               </div>
             </div>
           </div>
@@ -124,12 +141,15 @@ export default async function BookDetailPage({ params }: Props) {
             ) : null}
           </div>
 
-          <h1 className="mt-3 text-balance text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+          <h1 className="mt-3 text-2xl font-bold tracking-tight text-balance sm:text-3xl lg:text-4xl">
             {book.title}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             by{" "}
-            <Link href={`/authors/${book.author.slug}`} className="font-medium text-primary hover:underline">
+            <Link
+              href={`/authors/${book.author.slug}`}
+              className="font-medium text-primary hover:underline"
+            >
               {book.author.name}
             </Link>
           </p>
@@ -142,7 +162,9 @@ export default async function BookDetailPage({ params }: Props) {
           </div>
 
           <div className="mt-5 flex flex-wrap items-end gap-3">
-            <span className="text-3xl font-bold tracking-tight">{formatPrice(book.price)}</span>
+            <span className="text-3xl font-bold tracking-tight">
+              {formatPrice(book.price)}
+            </span>
             {book.originalPrice && book.originalPrice > book.price ? (
               <>
                 <span className="text-base text-muted-foreground line-through">
@@ -169,7 +191,10 @@ export default async function BookDetailPage({ params }: Props) {
 
           <div className="mt-5 rounded-xl border border-border bg-card p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <Link href={`/shops/${book.shop.slug}`} className="flex items-center gap-2 text-sm font-semibold hover:text-primary">
+              <Link
+                href={`/shops/${book.shop.slug}`}
+                className="flex items-center gap-2 text-sm font-semibold hover:text-primary"
+              >
                 <Store className="size-4 text-primary" />
                 {book.shop.name}
               </Link>
@@ -178,17 +203,47 @@ export default async function BookDetailPage({ params }: Props) {
               </span>
             </div>
             <div className="mt-4">
-              <PurchasePanel bookId={book.id} slug={book.slug} stock={book.stock} />
+              <PurchasePanel
+                bookId={book.id}
+                slug={book.slug}
+                stock={book.stock}
+              />
             </div>
           </div>
 
           <div className="mt-6 grid gap-3 rounded-xl border border-border bg-card p-4 text-sm sm:grid-cols-2">
-            <Detail icon={<BookOpen className="size-4" />} label="Publisher" value={book.publisher?.name ?? "—"} />
-            <Detail icon={<Globe2 className="size-4" />} label="Language" value={book.language} />
-            <Detail icon={<BookOpen className="size-4" />} label="Edition" value={book.edition ?? "—"} />
-            <Detail icon={<BookOpen className="size-4" />} label="Pages" value={book.pageCount ? formatNumber(book.pageCount) : "—"} />
-            <Detail icon={<BookOpen className="size-4" />} label="ISBN" value={book.isbn ?? "—"} />
-            <Detail icon={<BookOpen className="size-4" />} label="Listed" value={formatDate(book.listedAt.toISOString().slice(0, 10)) ?? "—"} />
+            <Detail
+              icon={<BookOpen className="size-4" />}
+              label="Publisher"
+              value={book.publisher?.name ?? "—"}
+            />
+            <Detail
+              icon={<Globe2 className="size-4" />}
+              label="Language"
+              value={book.language}
+            />
+            <Detail
+              icon={<BookOpen className="size-4" />}
+              label="Edition"
+              value={book.edition ?? "—"}
+            />
+            <Detail
+              icon={<BookOpen className="size-4" />}
+              label="Pages"
+              value={book.pageCount ? formatNumber(book.pageCount) : "—"}
+            />
+            <Detail
+              icon={<BookOpen className="size-4" />}
+              label="ISBN"
+              value={book.isbn ?? "—"}
+            />
+            <Detail
+              icon={<BookOpen className="size-4" />}
+              label="Listed"
+              value={
+                formatDate(book.listedAt.toISOString().slice(0, 10)) ?? "—"
+              }
+            />
           </div>
         </div>
       </div>
@@ -218,14 +273,19 @@ export default async function BookDetailPage({ params }: Props) {
                 {book.reviews.map((review) => (
                   <li key={review.id} className="py-4 first:pt-0 last:pb-0">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-sm font-semibold">{review.title || "Verified reader"}</p>
+                      <p className="text-sm font-semibold">
+                        {review.title || "Verified reader"}
+                      </p>
                       <StarRating rating={review.rating} />
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {review.user.name} · {formatDate(review.createdAt.toISOString().slice(0, 10))}
+                      {review.user.name} ·{" "}
+                      {formatDate(review.createdAt.toISOString().slice(0, 10))}
                       {review.isVerified ? " · Verified purchase" : ""}
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{review.body}</p>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                      {review.body}
+                    </p>
                   </li>
                 ))}
               </ul>
@@ -263,7 +323,9 @@ export default async function BookDetailPage({ params }: Props) {
                         ))}
                       </ul>
                     ) : (
-                      <p className="mt-1 text-xs text-muted-foreground">Awaiting an answer from the seller.</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Awaiting an answer from the seller.
+                      </p>
                     )}
                   </li>
                 ))}
@@ -284,14 +346,24 @@ export default async function BookDetailPage({ params }: Props) {
             <h2 className="text-sm font-bold">More from this seller</h2>
             <div className="mt-3 space-y-3">
               {related.slice(0, 3).map((item) => (
-                <Link key={item.id} href={`/books/${item.slug}`} className="flex gap-3 rounded-lg p-1 hover:bg-muted">
+                <Link
+                  key={item.id}
+                  href={`/books/${item.slug}`}
+                  className="flex gap-3 rounded-lg p-1 hover:bg-muted"
+                >
                   <div className="w-14 shrink-0">
                     <BookCover book={item} sizes="56px" />
                   </div>
                   <div className="min-w-0">
-                    <p className="line-clamp-2 text-xs font-semibold">{item.title}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{item.author}</p>
-                    <p className="mt-1 text-xs font-bold">{formatPrice(item.price)}</p>
+                    <p className="line-clamp-2 text-xs font-semibold">
+                      {item.title}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {item.author}
+                    </p>
+                    <p className="mt-1 text-xs font-bold">
+                      {formatPrice(item.price)}
+                    </p>
                   </div>
                 </Link>
               ))}

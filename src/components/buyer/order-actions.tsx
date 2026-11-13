@@ -10,14 +10,22 @@ export function CancelOrderButton({ orderId }: { orderId: string }) {
   const [pending, setPending] = useState(false);
 
   async function cancel() {
-    if (!window.confirm("Cancel this order? Stock will be returned to the seller.")) return;
+    if (
+      !window.confirm(
+        "Cancel this order? Stock will be returned to the seller.",
+      )
+    )
+      return;
     setPending(true);
     const response = await fetch(`/api/orders/${orderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "CANCELLED", note: "Cancelled by buyer" }),
     });
-    const payload = (await response.json()) as { success: boolean; message?: string };
+    const payload = (await response.json()) as {
+      success: boolean;
+      message?: string;
+    };
     setPending(false);
     if (!response.ok || !payload.success) {
       toast.error(payload.message ?? "Unable to cancel this order.");

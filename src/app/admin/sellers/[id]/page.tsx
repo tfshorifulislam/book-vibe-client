@@ -55,8 +55,11 @@ export default async function AdminSellerDetailPage({
         description={`Owner: ${seller.name} (${seller.email}) · Joined ${formatDate(seller.createdAt.toISOString().slice(0, 10))}`}
         actions={
           <div className="flex items-center gap-2">
-            <StatusBadge status={seller.status} className="text-sm px-3 py-1" />
-            <UserStatusToggle userId={seller.id} currentStatus={seller.status} />
+            <StatusBadge status={seller.status} className="px-3 py-1 text-sm" />
+            <UserStatusToggle
+              userId={seller.id}
+              currentStatus={seller.status}
+            />
             {seller.shop ? (
               <Link
                 href={`/shops/${seller.shop.slug}`}
@@ -71,38 +74,59 @@ export default async function AdminSellerDetailPage({
       />
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+        <div className="space-y-3 rounded-xl border border-border bg-card p-5">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <Store className="size-4" /> Bookstore Profile
           </h2>
-          <div className="text-sm space-y-2">
-            <p className="text-xs text-muted-foreground">{seller.shop?.description || "No description provided."}</p>
-            <div className="border-t border-border pt-2 text-xs space-y-1">
-              <p><span className="font-semibold">Phone:</span> {seller.shop?.phone || seller.phone || "N/A"}</p>
-              <p><span className="font-semibold">Email:</span> {seller.shop?.email || seller.email}</p>
-              <p><span className="font-semibold">Address:</span> {seller.shop?.address || "N/A"}, {seller.shop?.city || ""}</p>
+          <div className="space-y-2 text-sm">
+            <p className="text-xs text-muted-foreground">
+              {seller.shop?.description || "No description provided."}
+            </p>
+            <div className="space-y-1 border-t border-border pt-2 text-xs">
+              <p>
+                <span className="font-semibold">Phone:</span>{" "}
+                {seller.shop?.phone || seller.phone || "N/A"}
+              </p>
+              <p>
+                <span className="font-semibold">Email:</span>{" "}
+                {seller.shop?.email || seller.email}
+              </p>
+              <p>
+                <span className="font-semibold">Address:</span>{" "}
+                {seller.shop?.address || "N/A"}, {seller.shop?.city || ""}
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+        <div className="space-y-3 rounded-xl border border-border bg-card p-5">
           <h2 className="flex items-center gap-2 text-base font-semibold">
-            <BookOpen className="size-4" /> Catalog Sample ({seller.shop?._count.books ?? 0} total)
+            <BookOpen className="size-4" /> Catalog Sample (
+            {seller.shop?._count.books ?? 0} total)
           </h2>
           {seller.shop?.books.length ? (
             <div className="divide-y divide-border text-xs">
               {seller.shop.books.map((b) => (
-                <div key={b.id} className="py-2 flex items-center justify-between">
+                <div
+                  key={b.id}
+                  className="flex items-center justify-between py-2"
+                >
                   <div>
-                    <p className="font-semibold text-foreground line-clamp-1">{b.title}</p>
-                    <p className="text-muted-foreground">{b.category.name} · {b.condition}</p>
+                    <p className="line-clamp-1 font-semibold text-foreground">
+                      {b.title}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {b.category.name} · {b.condition}
+                    </p>
                   </div>
                   <span className="font-bold">{b.stock} in stock</span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground">No books published by this seller yet.</p>
+            <p className="text-xs text-muted-foreground">
+              No books published by this seller yet.
+            </p>
           )}
         </div>
       </div>

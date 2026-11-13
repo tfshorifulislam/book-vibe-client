@@ -4,7 +4,6 @@ import { Eye, ShoppingBag } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { formatCurrency, formatDateDisplay } from "@/lib/utils";
 
-
 export default async function AdminOrdersPage() {
   const orders = await prisma.order.findMany({
     include: {
@@ -20,20 +19,25 @@ export default async function AdminOrdersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Orders Management</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Orders Management
+          </h1>
           <p className="text-sm text-muted-foreground">
             Monitor and oversee customer orders across all marketplace sellers.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-card px-3 py-1.5 rounded-lg border border-border">
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground">
           <ShoppingBag className="size-4 text-primary" />
-          <span>Total Orders: <strong className="text-foreground">{orders.length}</strong></span>
+          <span>
+            Total Orders:{" "}
+            <strong className="text-foreground">{orders.length}</strong>
+          </span>
         </div>
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-border bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <thead className="border-b border-border bg-muted/40 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
             <tr>
               <th className="px-4 py-3">Order Number</th>
               <th className="px-4 py-3">Date</th>
@@ -48,24 +52,34 @@ export default async function AdminOrdersPage() {
           <tbody className="divide-y divide-border">
             {orders.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
+                <td
+                  colSpan={8}
+                  className="px-4 py-8 text-center text-muted-foreground"
+                >
                   No orders found.
                 </td>
               </tr>
             ) : (
               orders.map((order) => {
-                const totalItems = order.items.reduce((acc, it) => acc + it.quantity, 0);
+                const totalItems = order.items.reduce(
+                  (acc, it) => acc + it.quantity,
+                  0,
+                );
                 return (
                   <tr key={order.id} className="hover:bg-muted/30">
                     <td className="px-4 py-3 font-semibold text-foreground">
                       {order.orderNumber}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs">
+                    <td className="px-4 py-3 text-xs text-muted-foreground">
                       {formatDateDisplay(order.createdAt)}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="font-medium text-foreground">{order.user.name}</div>
-                      <div className="text-xs text-muted-foreground">{order.user.email}</div>
+                      <div className="font-medium text-foreground">
+                        {order.user.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {order.user.email}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">
                       {totalItems} {totalItems === 1 ? "item" : "items"}
@@ -74,14 +88,16 @@ export default async function AdminOrdersPage() {
                       {formatCurrency(order.total)}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-xs font-medium text-foreground">{order.paymentMethod}</div>
+                      <div className="text-xs font-medium text-foreground">
+                        {order.paymentMethod}
+                      </div>
                       <span
-                        className={`inline-block text-[11px] font-semibold uppercase px-1.5 py-0.5 rounded ${
+                        className={`inline-block rounded px-1.5 py-0.5 text-[11px] font-semibold uppercase ${
                           order.paymentStatus === "PAID"
                             ? "bg-success/15 text-success"
                             : order.paymentStatus === "FAILED"
-                            ? "bg-destructive/15 text-destructive"
-                            : "bg-warning/15 text-warning"
+                              ? "bg-destructive/15 text-destructive"
+                              : "bg-warning/15 text-warning"
                         }`}
                       >
                         {order.paymentStatus}
@@ -89,14 +105,14 @@ export default async function AdminOrdersPage() {
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full ${
+                        className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
                           order.status === "DELIVERED"
                             ? "bg-success/15 text-success"
                             : order.status === "CANCELLED"
-                            ? "bg-destructive/15 text-destructive"
-                            : order.status === "SHIPPED"
-                            ? "bg-secondary text-secondary-foreground"
-                            : "bg-muted text-muted-foreground"
+                              ? "bg-destructive/15 text-destructive"
+                              : order.status === "SHIPPED"
+                                ? "bg-secondary text-secondary-foreground"
+                                : "bg-muted text-muted-foreground"
                         }`}
                       >
                         {order.status}

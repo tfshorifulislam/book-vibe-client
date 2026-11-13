@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Heart, LoaderCircle, Minus, Plus, ShoppingBag, ShoppingCart } from "lucide-react";
+import {
+  Heart,
+  LoaderCircle,
+  Minus,
+  Plus,
+  ShoppingBag,
+  ShoppingCart,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
@@ -28,11 +35,20 @@ export function PurchasePanel({
     let active = true;
     fetch("/api/wishlist")
       .then((response) => response.json())
-      .then((payload: { success?: boolean; data?: { items?: { book: { id: string } }[] } }) => {
-        if (active && payload.success) {
-          setWishlisted(Boolean(payload.data?.items?.some((item) => item.book.id === bookId)));
-        }
-      })
+      .then(
+        (payload: {
+          success?: boolean;
+          data?: { items?: { book: { id: string } }[] };
+        }) => {
+          if (active && payload.success) {
+            setWishlisted(
+              Boolean(
+                payload.data?.items?.some((item) => item.book.id === bookId),
+              ),
+            );
+          }
+        },
+      )
       .catch(() => {});
     return () => {
       active = false;
@@ -46,12 +62,18 @@ export function PurchasePanel({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bookId, quantity }),
     });
-    const payload = (await response.json()) as { success: boolean; message?: string };
+    const payload = (await response.json()) as {
+      success: boolean;
+      message?: string;
+    };
     setPending(false);
     if (!response.ok || !payload.success) {
       if (response.status === 401) {
         toast.error("Please sign in to add books to your cart.", {
-          action: { label: "Sign in", onClick: () => router.push(`/login?next=/books/${slug}`) },
+          action: {
+            label: "Sign in",
+            onClick: () => router.push(`/login?next=/books/${slug}`),
+          },
         });
       } else {
         toast.error(payload.message ?? "Unable to add this book to your cart.");
@@ -73,7 +95,10 @@ export function PurchasePanel({
         body: wishlisted ? undefined : JSON.stringify({ bookId }),
       },
     );
-    const payload = (await response.json()) as { success: boolean; message?: string };
+    const payload = (await response.json()) as {
+      success: boolean;
+      message?: string;
+    };
     setWishlistPending(false);
     if (!response.ok || !payload.success) {
       if (response.status === 401) {
@@ -101,7 +126,9 @@ export function PurchasePanel({
           >
             <Minus className="size-3.5" />
           </button>
-          <span className="w-9 text-center text-sm font-semibold">{quantity}</span>
+          <span className="w-9 text-center text-sm font-semibold">
+            {quantity}
+          </span>
           <button
             type="button"
             onClick={() => setQuantity((value) => Math.min(stock, value + 1))}
@@ -112,7 +139,12 @@ export function PurchasePanel({
             <Plus className="size-3.5" />
           </button>
         </div>
-        <span className={cn("text-xs", outOfStock ? "text-destructive" : "text-muted-foreground")}>
+        <span
+          className={cn(
+            "text-xs",
+            outOfStock ? "text-destructive" : "text-muted-foreground",
+          )}
+        >
           {outOfStock ? "Out of stock" : `${stock} available`}
         </span>
       </div>
@@ -124,7 +156,11 @@ export function PurchasePanel({
           disabled={outOfStock || pending}
           className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/10 text-sm font-semibold text-primary hover:bg-primary hover:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {pending ? <LoaderCircle className="size-4 animate-spin" /> : <ShoppingCart className="size-4" />}
+          {pending ? (
+            <LoaderCircle className="size-4 animate-spin" />
+          ) : (
+            <ShoppingCart className="size-4" />
+          )}
           Add to cart
         </button>
         <button
@@ -144,7 +180,9 @@ export function PurchasePanel({
         disabled={wishlistPending}
         className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary"
       >
-        <Heart className={cn("size-4", wishlisted && "fill-primary text-primary")} />
+        <Heart
+          className={cn("size-4", wishlisted && "fill-primary text-primary")}
+        />
         {wishlisted ? "Saved to wishlist" : "Add to wishlist"}
       </button>
 

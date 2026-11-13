@@ -1,4 +1,5 @@
-export type PaymentMethod = "COD" | "BKASH" | "SSLCOMMERZ" | "STRIPE" | "NAGAD" | "CARD";
+export type PaymentMethod =
+  "COD" | "BKASH" | "SSLCOMMERZ" | "STRIPE" | "NAGAD" | "CARD";
 
 export type PaymentInitiateInput = {
   orderId: string;

@@ -16,7 +16,10 @@ export async function POST(request: Request) {
     await requireApiUser("admin");
     const input = broadcastSchema.parse(await readJson(request));
 
-    const where = input.targetRole === "ALL" ? {} : { role: input.targetRole.toLowerCase() };
+    const where =
+      input.targetRole === "ALL"
+        ? {}
+        : { role: input.targetRole.toLowerCase() };
     const users = await prisma.user.findMany({
       where,
       select: { id: true },

@@ -4,7 +4,12 @@ import type { EmailOptions, EmailResult } from "./types";
 
 const FROM_EMAIL = process.env.EMAIL_FROM || "BookHand <noreply@bookhand.com>";
 
-export async function sendEmail({ to, subject, html, text }: EmailOptions): Promise<EmailResult> {
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  text,
+}: EmailOptions): Promise<EmailResult> {
   const resendApiKey = process.env.RESEND_API_KEY;
 
   if (resendApiKey) {
@@ -27,13 +32,19 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions): Prom
       const data = await response.json();
       if (!response.ok) {
         console.error("[Email] Resend API error:", data);
-        return { success: false, error: data.message || "Failed to deliver email" };
+        return {
+          success: false,
+          error: data.message || "Failed to deliver email",
+        };
       }
 
       return { success: true, messageId: data.id };
     } catch (err) {
       console.error("[Email] Delivery exception:", err);
-      return { success: false, error: err instanceof Error ? err.message : "Network error" };
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : "Network error",
+      };
     }
   }
 

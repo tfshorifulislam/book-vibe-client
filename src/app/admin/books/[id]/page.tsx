@@ -10,7 +10,9 @@ import { requireRole } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Book Moderation | Admin Dashboard" };
+export const metadata: Metadata = {
+  title: "Book Moderation | Admin Dashboard",
+};
 
 export default async function AdminBookDetailPage({
   params,
@@ -51,7 +53,10 @@ export default async function AdminBookDetailPage({
         description={`Published by ${book.shop.name} (${book.shop.owner.name})`}
         actions={
           <div className="flex items-center gap-2">
-            <StatusBadge status={book.isActive ? "ACTIVE" : "SUSPENDED"} className="text-sm px-3 py-1" />
+            <StatusBadge
+              status={book.isActive ? "ACTIVE" : "SUSPENDED"}
+              className="px-3 py-1 text-sm"
+            />
             <BookModerationActions
               bookId={book.id}
               isFeatured={book.isFeatured}
@@ -69,38 +74,79 @@ export default async function AdminBookDetailPage({
       />
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <BookOpen className="size-4" /> Book Specifications
           </h2>
-          <div className="text-sm space-y-2">
-            <p><span className="font-semibold text-muted-foreground">Author:</span> {book.author.name}</p>
-            <p><span className="font-semibold text-muted-foreground">Category:</span> {book.category.name}</p>
-            <p><span className="font-semibold text-muted-foreground">Publisher:</span> {book.publisher?.name ?? "N/A"}</p>
-            <p><span className="font-semibold text-muted-foreground">ISBN:</span> {book.isbn ?? "N/A"}</p>
-            <p><span className="font-semibold text-muted-foreground">Condition:</span> {book.condition} ({book.listingType})</p>
-            <p><span className="font-semibold text-muted-foreground">Price:</span> {formatPrice(book.price)}</p>
-            <p><span className="font-semibold text-muted-foreground">Current Stock:</span> {book.stock} units</p>
-            <p className="pt-2 text-xs text-muted-foreground">{book.description}</p>
+          <div className="space-y-2 text-sm">
+            <p>
+              <span className="font-semibold text-muted-foreground">
+                Author:
+              </span>{" "}
+              {book.author.name}
+            </p>
+            <p>
+              <span className="font-semibold text-muted-foreground">
+                Category:
+              </span>{" "}
+              {book.category.name}
+            </p>
+            <p>
+              <span className="font-semibold text-muted-foreground">
+                Publisher:
+              </span>{" "}
+              {book.publisher?.name ?? "N/A"}
+            </p>
+            <p>
+              <span className="font-semibold text-muted-foreground">ISBN:</span>{" "}
+              {book.isbn ?? "N/A"}
+            </p>
+            <p>
+              <span className="font-semibold text-muted-foreground">
+                Condition:
+              </span>{" "}
+              {book.condition} ({book.listingType})
+            </p>
+            <p>
+              <span className="font-semibold text-muted-foreground">
+                Price:
+              </span>{" "}
+              {formatPrice(book.price)}
+            </p>
+            <p>
+              <span className="font-semibold text-muted-foreground">
+                Current Stock:
+              </span>{" "}
+              {book.stock} units
+            </p>
+            <p className="pt-2 text-xs text-muted-foreground">
+              {book.description}
+            </p>
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <ShieldCheck className="size-4" /> Moderation Stats
           </h2>
           <div className="space-y-3 text-sm">
             <div className="flex justify-between border-b border-border pb-2">
               <span className="text-muted-foreground">Featured Pick:</span>
-              <span className="font-bold">{book.isFeatured ? "Yes" : "No"}</span>
+              <span className="font-bold">
+                {book.isFeatured ? "Yes" : "No"}
+              </span>
             </div>
             <div className="flex justify-between border-b border-border pb-2">
               <span className="text-muted-foreground">New Arrival:</span>
-              <span className="font-bold">{book.isNewArrival ? "Yes" : "No"}</span>
+              <span className="font-bold">
+                {book.isNewArrival ? "Yes" : "No"}
+              </span>
             </div>
             <div className="flex justify-between border-b border-border pb-2">
               <span className="text-muted-foreground">Best Seller:</span>
-              <span className="font-bold">{book.isBestSeller ? "Yes" : "No"}</span>
+              <span className="font-bold">
+                {book.isBestSeller ? "Yes" : "No"}
+              </span>
             </div>
             <div className="flex justify-between border-b border-border pb-2">
               <span className="text-muted-foreground">Total Sales:</span>

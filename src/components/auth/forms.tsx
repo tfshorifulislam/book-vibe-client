@@ -14,7 +14,10 @@ type ApiResponse<T> = {
   details?: unknown;
 };
 
-async function postJson<T>(url: string, body: unknown): Promise<ApiResponse<T>> {
+async function postJson<T>(
+  url: string,
+  body: unknown,
+): Promise<ApiResponse<T>> {
   const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -56,7 +59,13 @@ function Alert({
   );
 }
 
-function SubmitButton({ pending, children }: { pending: boolean; children: ReactNode }) {
+function SubmitButton({
+  pending,
+  children,
+}: {
+  pending: boolean;
+  children: ReactNode;
+}) {
   return (
     <button
       type="submit"
@@ -91,7 +100,8 @@ export function LoginForm() {
       setPending(false);
       return;
     }
-    const destination = next && next.startsWith("/") ? next : result.data.redirectTo;
+    const destination =
+      next && next.startsWith("/") ? next : result.data.redirectTo;
     router.push(destination);
     router.refresh();
   }
@@ -119,7 +129,10 @@ export function LoginForm() {
           <label htmlFor="password" className="text-sm font-medium">
             Password
           </label>
-          <Link href="/forgot-password" className="text-xs font-medium text-primary hover:underline">
+          <Link
+            href="/forgot-password"
+            className="text-xs font-medium text-primary hover:underline"
+          >
             Forgot password?
           </Link>
         </div>
@@ -134,10 +147,15 @@ export function LoginForm() {
           placeholder="Your password"
         />
       </div>
-      <SubmitButton pending={pending}>{pending ? "Signing in..." : "Sign in"}</SubmitButton>
+      <SubmitButton pending={pending}>
+        {pending ? "Signing in..." : "Sign in"}
+      </SubmitButton>
       <p className="text-center text-sm text-muted-foreground">
         New to BookHand?{" "}
-        <Link href="/register" className="font-medium text-primary hover:underline">
+        <Link
+          href="/register"
+          className="font-medium text-primary hover:underline"
+        >
           Create an account
         </Link>
       </p>
@@ -167,14 +185,17 @@ export function RegisterForm() {
     }
     setPending(true);
     setError(null);
-    const result = await postJson<{ user: { role: string } }>("/api/auth/register", {
-      name,
-      email,
-      phone,
-      password,
-      role,
-      shopName: role === "seller" ? shopName : undefined,
-    });
+    const result = await postJson<{ user: { role: string } }>(
+      "/api/auth/register",
+      {
+        name,
+        email,
+        phone,
+        password,
+        role,
+        shopName: role === "seller" ? shopName : undefined,
+      },
+    );
     if (!result.success || !result.data) {
       setError(result.message ?? "Unable to create your account.");
       setPending(false);
@@ -235,7 +256,10 @@ export function RegisterForm() {
       </div>
       {role === "seller" ? (
         <div>
-          <label htmlFor="shopName" className="mb-1.5 block text-sm font-medium">
+          <label
+            htmlFor="shopName"
+            className="mb-1.5 block text-sm font-medium"
+          >
             Shop name
           </label>
           <input
@@ -251,7 +275,8 @@ export function RegisterForm() {
       ) : null}
       <div>
         <label htmlFor="phone" className="mb-1.5 block text-sm font-medium">
-          Phone <span className="font-normal text-muted-foreground">(optional)</span>
+          Phone{" "}
+          <span className="font-normal text-muted-foreground">(optional)</span>
         </label>
         <input
           id="phone"
@@ -264,7 +289,10 @@ export function RegisterForm() {
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="reg-password" className="mb-1.5 block text-sm font-medium">
+          <label
+            htmlFor="reg-password"
+            className="mb-1.5 block text-sm font-medium"
+          >
             Password
           </label>
           <input
@@ -299,7 +327,10 @@ export function RegisterForm() {
       </SubmitButton>
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-primary hover:underline">
+        <Link
+          href="/login"
+          className="font-medium text-primary hover:underline"
+        >
           Sign in
         </Link>
       </p>
@@ -349,7 +380,10 @@ export function ForgotPasswordForm() {
         </Alert>
       ) : null}
       <div>
-        <label htmlFor="forgot-email" className="mb-1.5 block text-sm font-medium">
+        <label
+          htmlFor="forgot-email"
+          className="mb-1.5 block text-sm font-medium"
+        >
           Email
         </label>
         <input
@@ -366,7 +400,10 @@ export function ForgotPasswordForm() {
         {pending ? "Sending..." : "Send reset link"}
       </SubmitButton>
       <p className="text-center text-sm text-muted-foreground">
-        <Link href="/login" className="font-medium text-primary hover:underline">
+        <Link
+          href="/login"
+          className="font-medium text-primary hover:underline"
+        >
           Back to sign in
         </Link>
       </p>
@@ -427,7 +464,10 @@ export function ResetPasswordForm() {
     <form onSubmit={onSubmit} className="space-y-4">
       {error ? <Alert kind="error">{error}</Alert> : null}
       <div>
-        <label htmlFor="reset-password" className="mb-1.5 block text-sm font-medium">
+        <label
+          htmlFor="reset-password"
+          className="mb-1.5 block text-sm font-medium"
+        >
           New password
         </label>
         <input
@@ -441,7 +481,10 @@ export function ResetPasswordForm() {
         />
       </div>
       <div>
-        <label htmlFor="reset-confirm" className="mb-1.5 block text-sm font-medium">
+        <label
+          htmlFor="reset-confirm"
+          className="mb-1.5 block text-sm font-medium"
+        >
           Confirm new password
         </label>
         <input
@@ -471,9 +514,12 @@ export function VerifyEmailForm() {
   async function verify() {
     setPending(true);
     setError(null);
-    const result = await postJson<{ message: string }>("/api/auth/verify-email", {
-      token,
-    });
+    const result = await postJson<{ message: string }>(
+      "/api/auth/verify-email",
+      {
+        token,
+      },
+    );
     setPending(false);
     if (!result.success || !result.data) {
       setError(result.message ?? "Unable to verify your email.");
@@ -483,7 +529,9 @@ export function VerifyEmailForm() {
   }
 
   if (!token) {
-    return <Alert kind="error">This verification link is missing its token.</Alert>;
+    return (
+      <Alert kind="error">This verification link is missing its token.</Alert>
+    );
   }
 
   if (message) {

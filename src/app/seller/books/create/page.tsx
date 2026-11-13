@@ -11,9 +11,18 @@ export default async function CreateBookPage() {
   await requireRole("seller");
 
   const [authors, categories, publishers] = await Promise.all([
-    prisma.author.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
-    prisma.category.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
-    prisma.publisher.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    prisma.author.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.category.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.publisher.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
   ]);
 
   return (
@@ -23,7 +32,11 @@ export default async function CreateBookPage() {
         title="Add New Book"
         description="Publish a new or second-hand book to the BookHand marketplace."
       />
-      <BookForm authors={authors} categories={categories} publishers={publishers} />
+      <BookForm
+        authors={authors}
+        categories={categories}
+        publishers={publishers}
+      />
     </div>
   );
 }

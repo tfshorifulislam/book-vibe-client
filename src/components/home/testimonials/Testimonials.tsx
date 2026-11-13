@@ -27,10 +27,7 @@ export function Testimonials({ testimonials }: TestimonialsProps) {
             key={testimonial.id}
             className="flex h-full flex-col rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-card)]"
           >
-            <Quote
-              className="size-6 text-primary/30"
-              aria-hidden="true"
-            />
+            <Quote className="size-6 text-primary/30" aria-hidden="true" />
             <StarRating
               rating={testimonial.rating}
               variant="stars"

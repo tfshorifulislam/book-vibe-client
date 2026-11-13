@@ -9,7 +9,10 @@ export async function PATCH(request: Request, { params }: Params) {
     await requireApiUser("admin");
     const { id } = await params;
     const input = publisherSchema.parse(await readJson(request));
-    const publisher = await prisma.publisher.update({ where: { id }, data: input });
+    const publisher = await prisma.publisher.update({
+      where: { id },
+      data: input,
+    });
     return ok({ publisher });
   } catch (error) {
     return handleError(error);

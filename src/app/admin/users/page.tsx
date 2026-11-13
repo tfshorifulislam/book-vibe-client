@@ -78,11 +78,15 @@ export default async function AdminUsersPage({
                   <p className="font-semibold text-foreground">{u.name}</p>
                   <p className="text-xs text-muted-foreground">{u.email}</p>
                   {u.shop ? (
-                    <p className="text-[11px] text-primary">Shop: {u.shop.name}</p>
+                    <p className="text-[11px] text-primary">
+                      Shop: {u.shop.name}
+                    </p>
                   ) : null}
                 </td>
                 <td className="px-4 py-3 text-xs">
-                  <span className="rounded bg-muted px-2 py-0.5 font-bold uppercase">{u.role}</span>
+                  <span className="rounded bg-muted px-2 py-0.5 font-bold uppercase">
+                    {u.role}
+                  </span>
                 </td>
                 <td className="px-4 py-3">
                   <StatusBadge status={u.status} />

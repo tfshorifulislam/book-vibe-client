@@ -13,7 +13,9 @@ export default async function MessagesPage() {
     where: { participants: { some: { userId: user.id } } },
     include: {
       participants: {
-        include: { user: { select: { id: true, name: true, avatar: true, role: true } } },
+        include: {
+          user: { select: { id: true, name: true, avatar: true, role: true } },
+        },
       },
       messages: {
         include: { sender: { select: { id: true, name: true } } },
@@ -38,7 +40,10 @@ export default async function MessagesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Messages" description="Conversations with sellers and support." />
+      <PageHeader
+        title="Messages"
+        description="Conversations with sellers and support."
+      />
       <MessagesClient initialConversations={initial} currentUserId={user.id} />
     </div>
   );

@@ -56,7 +56,10 @@ export default async function SellerOrderDetailPage({
     }
   })();
 
-  const sellerSubtotal = order.items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const sellerSubtotal = order.items.reduce(
+    (sum, i) => sum + i.price * i.quantity,
+    0,
+  );
 
   return (
     <div className="space-y-6">
@@ -71,7 +74,9 @@ export default async function SellerOrderDetailPage({
         eyebrow={`Order ${order.orderNumber}`}
         title="Fulfillment Details"
         description={`Placed on ${formatDate(order.createdAt.toISOString().slice(0, 10))} · Payment ${order.paymentMethod}`}
-        actions={<StatusBadge status={order.status} className="text-sm px-3 py-1" />}
+        actions={
+          <StatusBadge status={order.status} className="px-3 py-1 text-sm" />
+        }
       />
 
       <div className="grid gap-6 lg:grid-cols-[1.8fr_1fr]">
@@ -83,30 +88,42 @@ export default async function SellerOrderDetailPage({
             </h2>
             <div className="mt-4 divide-y divide-border">
               {order.items.map((item) => (
-                <div key={item.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
+                >
                   <div className="min-w-0 flex-1 pr-4">
                     <Link
                       href={`/books/${item.book?.slug ?? ""}`}
                       target="_blank"
-                      className="font-medium text-foreground hover:text-primary line-clamp-1"
+                      className="line-clamp-1 font-medium text-foreground hover:text-primary"
                     >
                       {item.book?.title ?? "Unknown Book"}
                     </Link>
                     <p className="text-xs text-muted-foreground">
-                      Condition: {item.book?.condition ?? "Standard"} · Unit: {formatPrice(item.price)}
+                      Condition: {item.book?.condition ?? "Standard"} · Unit:{" "}
+                      {formatPrice(item.price)}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold">{formatPrice(item.price * item.quantity)}</p>
-                    <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                    <p className="font-semibold">
+                      {formatPrice(item.price * item.quantity)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Qty: {item.quantity}
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="mt-4 border-t border-border pt-4 flex justify-between items-center text-sm">
-              <span className="font-medium text-muted-foreground">Your Shop Total</span>
-              <span className="text-lg font-bold text-foreground">{formatPrice(sellerSubtotal)}</span>
+            <div className="mt-4 flex items-center justify-between border-t border-border pt-4 text-sm">
+              <span className="font-medium text-muted-foreground">
+                Your Shop Total
+              </span>
+              <span className="text-lg font-bold text-foreground">
+                {formatPrice(sellerSubtotal)}
+              </span>
             </div>
           </div>
 
@@ -119,25 +136,35 @@ export default async function SellerOrderDetailPage({
               <p className="font-semibold text-foreground">
                 {address?.recipientName || order.user.name}
               </p>
-              <p className="text-muted-foreground">Phone: {address?.phone || order.user.phone || "N/A"}</p>
               <p className="text-muted-foreground">
-                {[address?.area, address?.city, address?.district].filter(Boolean).join(", ")}
+                Phone: {address?.phone || order.user.phone || "N/A"}
+              </p>
+              <p className="text-muted-foreground">
+                {[address?.area, address?.city, address?.district]
+                  .filter(Boolean)
+                  .join(", ")}
                 {address?.postalCode ? ` - ${address.postalCode}` : ""}
               </p>
               {address?.instructions ? (
-                <p className="mt-2 text-xs italic text-muted-foreground bg-muted p-2 rounded">
+                <p className="mt-2 rounded bg-muted p-2 text-xs text-muted-foreground italic">
                   Note: {address.instructions}
                 </p>
               ) : null}
             </div>
 
             {order.shipment ? (
-              <div className="mt-4 rounded-lg bg-muted/40 p-3 text-xs space-y-1 border border-border">
-                <p className="font-semibold text-foreground">Carrier: {order.shipment.carrier ?? "Standard"}</p>
+              <div className="mt-4 space-y-1 rounded-lg border border-border bg-muted/40 p-3 text-xs">
+                <p className="font-semibold text-foreground">
+                  Carrier: {order.shipment.carrier ?? "Standard"}
+                </p>
                 {order.shipment.trackingNumber ? (
-                  <p className="font-mono text-primary font-bold">Tracking: {order.shipment.trackingNumber}</p>
+                  <p className="font-mono font-bold text-primary">
+                    Tracking: {order.shipment.trackingNumber}
+                  </p>
                 ) : null}
-                <p className="text-muted-foreground">Shipment status: {order.shipment.status}</p>
+                <p className="text-muted-foreground">
+                  Shipment status: {order.shipment.status}
+                </p>
               </div>
             ) : null}
           </div>

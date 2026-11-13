@@ -23,7 +23,9 @@ export function ContactMessageManager({
 }) {
   const router = useRouter();
   const [messages, setMessages] = useState<ContactItem[]>(initialMessages);
-  const [selectedMessage, setSelectedMessage] = useState<ContactItem | null>(null);
+  const [selectedMessage, setSelectedMessage] = useState<ContactItem | null>(
+    null,
+  );
 
   async function updateStatus(id: string, status: "READ" | "REPLIED") {
     try {
@@ -34,7 +36,7 @@ export function ContactMessageManager({
       });
       if (res.ok) {
         setMessages((prev) =>
-          prev.map((m) => (m.id === id ? { ...m, status } : m))
+          prev.map((m) => (m.id === id ? { ...m, status } : m)),
         );
         if (selectedMessage?.id === id) {
           setSelectedMessage((prev) => (prev ? { ...prev, status } : null));
@@ -67,11 +69,11 @@ export function ContactMessageManager({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {/* Messages list */}
-      <div className="lg:col-span-2 overflow-x-auto rounded-xl border border-border bg-card">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card lg:col-span-2">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-border bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <thead className="border-b border-border bg-muted/40 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
             <tr>
               <th className="px-4 py-3">Sender</th>
               <th className="px-4 py-3">Subject</th>
@@ -83,8 +85,11 @@ export function ContactMessageManager({
           <tbody className="divide-y divide-border">
             {messages.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                  <Mail className="mx-auto size-8 text-muted-foreground/50 mb-2" />
+                <td
+                  colSpan={5}
+                  className="px-4 py-8 text-center text-muted-foreground"
+                >
+                  <Mail className="mx-auto mb-2 size-8 text-muted-foreground/50" />
                   No customer contact inquiries yet.
                 </td>
               </tr>
@@ -96,35 +101,46 @@ export function ContactMessageManager({
                     setSelectedMessage(m);
                     if (m.status === "NEW") updateStatus(m.id, "READ");
                   }}
-                  className={`cursor-pointer hover:bg-muted/30 transition-colors ${
+                  className={`cursor-pointer transition-colors hover:bg-muted/30 ${
                     selectedMessage?.id === m.id ? "bg-muted/50" : ""
                   }`}
                 >
                   <td className="px-4 py-3">
-                    <div className="font-semibold text-foreground text-xs">{m.name}</div>
-                    <div className="text-[11px] text-muted-foreground">{m.email}</div>
+                    <div className="text-xs font-semibold text-foreground">
+                      {m.name}
+                    </div>
+                    <div className="text-[11px] text-muted-foreground">
+                      {m.email}
+                    </div>
                   </td>
-                  <td className="px-4 py-3 max-w-xs">
-                    <div className="font-medium text-foreground text-xs truncate">{m.subject}</div>
-                    <p className="text-[11px] text-muted-foreground truncate">{m.message}</p>
+                  <td className="max-w-xs px-4 py-3">
+                    <div className="truncate text-xs font-medium text-foreground">
+                      {m.subject}
+                    </div>
+                    <p className="truncate text-[11px] text-muted-foreground">
+                      {m.message}
+                    </p>
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                      className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                         m.status === "NEW"
                           ? "bg-primary/15 text-primary"
                           : m.status === "REPLIED"
-                          ? "bg-success/15 text-success"
-                          : "bg-muted text-muted-foreground"
+                            ? "bg-success/15 text-success"
+                            : "bg-muted text-muted-foreground"
                       }`}
                     >
                       {m.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                  <td className="px-4 py-3 text-xs whitespace-nowrap text-muted-foreground">
                     {formatDateDisplay(m.createdAt)}
                   </td>
-                  <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                  <td
+                    className="px-4 py-3 text-right"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <button
                       type="button"
                       onClick={() => handleDelete(m.id)}
@@ -142,18 +158,20 @@ export function ContactMessageManager({
       </div>
 
       {/* Detail Pane */}
-      <div className="rounded-xl border border-border bg-card p-5 space-y-4 h-fit">
+      <div className="h-fit space-y-4 rounded-xl border border-border bg-card p-5">
         {selectedMessage ? (
           <>
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div>
-                <h3 className="font-semibold text-foreground text-sm">{selectedMessage.subject}</h3>
-                <div className="text-xs text-muted-foreground mt-0.5">
+                <h3 className="text-sm font-semibold text-foreground">
+                  {selectedMessage.subject}
+                </h3>
+                <div className="mt-0.5 text-xs text-muted-foreground">
                   From: {selectedMessage.name} ({selectedMessage.email})
                 </div>
               </div>
               <span
-                className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                   selectedMessage.status === "REPLIED"
                     ? "bg-success/15 text-success"
                     : "bg-muted text-muted-foreground"
@@ -167,8 +185,10 @@ export function ContactMessageManager({
               <label className="block text-xs font-medium text-muted-foreground uppercase">
                 Received Date
               </label>
-              <p className="text-xs text-foreground mt-0.5">
-                {formatDateDisplay(selectedMessage.createdAt, { includeTime: true })}
+              <p className="mt-0.5 text-xs text-foreground">
+                {formatDateDisplay(selectedMessage.createdAt, {
+                  includeTime: true,
+                })}
               </p>
             </div>
 
@@ -176,15 +196,15 @@ export function ContactMessageManager({
               <label className="block text-xs font-medium text-muted-foreground uppercase">
                 Message Body
               </label>
-              <div className="mt-1 rounded-lg bg-muted/40 p-3 text-xs text-foreground whitespace-pre-wrap leading-relaxed">
+              <div className="mt-1 rounded-lg bg-muted/40 p-3 text-xs leading-relaxed whitespace-pre-wrap text-foreground">
                 {selectedMessage.message}
               </div>
             </div>
 
-            <div className="border-t border-border pt-4 flex items-center justify-between gap-2">
+            <div className="flex items-center justify-between gap-2 border-t border-border pt-4">
               <a
                 href={`mailto:${selectedMessage.email}?subject=Re: ${encodeURIComponent(
-                  selectedMessage.subject
+                  selectedMessage.subject,
                 )}`}
                 onClick={() => updateStatus(selectedMessage.id, "REPLIED")}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90"
@@ -205,7 +225,8 @@ export function ContactMessageManager({
           </>
         ) : (
           <div className="py-12 text-center text-sm text-muted-foreground">
-            Select an inquiry from the list to view its full message and details.
+            Select an inquiry from the list to view its full message and
+            details.
           </div>
         )}
       </div>

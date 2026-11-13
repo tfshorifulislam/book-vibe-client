@@ -28,7 +28,7 @@ export const formatCurrency = formatPrice;
 
 export function formatDateDisplay(
   date: Date | string | number,
-  options?: { includeTime?: boolean }
+  options?: { includeTime?: boolean },
 ): string {
   const d = date instanceof Date ? date : new Date(date);
   if (Number.isNaN(d.getTime())) return "";

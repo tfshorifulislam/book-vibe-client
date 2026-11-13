@@ -85,41 +85,50 @@ export function FaqManager({ initialFaqs }: { initialFaqs: FaqItem[] }) {
       </div>
 
       {open ? (
-        <form onSubmit={handleCreate} className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <form
+          onSubmit={handleCreate}
+          className="space-y-4 rounded-xl border border-border bg-card p-5"
+        >
           <h3 className="text-base font-semibold">New FAQ Entry</h3>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground uppercase">Question *</label>
+            <label className="block text-xs font-medium text-muted-foreground uppercase">
+              Question *
+            </label>
             <input
               type="text"
               required
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="e.g. How does delivery work across Bangladesh?"
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-muted-foreground uppercase">Answer *</label>
+            <label className="block text-xs font-medium text-muted-foreground uppercase">
+              Answer *
+            </label>
             <textarea
               required
               rows={3}
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               placeholder="Provide a helpful, clear answer for customers."
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
             />
           </div>
 
-          <div className="flex justify-between items-center pt-2">
+          <div className="flex items-center justify-between pt-2">
             <div className="w-32">
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Order</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Order
+              </label>
               <input
                 type="number"
                 min={0}
                 value={order}
                 onChange={(e) => setOrder(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
             <div className="flex gap-2">
@@ -135,7 +144,8 @@ export function FaqManager({ initialFaqs }: { initialFaqs: FaqItem[] }) {
                 disabled={loading}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow hover:opacity-90 disabled:opacity-60"
               >
-                {loading ? <Loader2 className="size-4 animate-spin" /> : null} Save FAQ
+                {loading ? <Loader2 className="size-4 animate-spin" /> : null}{" "}
+                Save FAQ
               </button>
             </div>
           </div>
@@ -144,19 +154,26 @@ export function FaqManager({ initialFaqs }: { initialFaqs: FaqItem[] }) {
 
       <div className="space-y-3">
         {faqs.map((f) => (
-          <div key={f.id} className="rounded-xl border border-border bg-card p-5 space-y-2">
+          <div
+            key={f.id}
+            className="space-y-2 rounded-xl border border-border bg-card p-5"
+          >
             <div className="flex items-start justify-between gap-4">
-              <h3 className="font-semibold text-foreground text-sm">{f.question}</h3>
+              <h3 className="text-sm font-semibold text-foreground">
+                {f.question}
+              </h3>
               <button
                 type="button"
                 onClick={() => handleDelete(f.id)}
-                className="text-muted-foreground hover:text-destructive shrink-0"
+                className="shrink-0 text-muted-foreground hover:text-destructive"
                 title="Delete FAQ"
               >
                 <Trash2 className="size-4" />
               </button>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">{f.answer}</p>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              {f.answer}
+            </p>
           </div>
         ))}
       </div>

@@ -8,7 +8,9 @@ import { requireRole } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Customer Questions | Seller Workspace" };
+export const metadata: Metadata = {
+  title: "Customer Questions | Seller Workspace",
+};
 
 export default async function SellerQuestionsPage() {
   const user = await requireRole("seller");
@@ -40,11 +42,14 @@ export default async function SellerQuestionsPage() {
       {questions.length ? (
         <div className="space-y-4">
           {questions.map((q) => (
-            <div key={q.id} className="rounded-xl border border-border bg-card p-5 space-y-3">
+            <div
+              key={q.id}
+              className="space-y-3 rounded-xl border border-border bg-card p-5"
+            >
               <div className="flex items-center justify-between text-xs">
                 <Link
                   href={`/books/${q.book.slug}`}
-                  className="font-semibold text-primary hover:underline line-clamp-1"
+                  className="line-clamp-1 font-semibold text-primary hover:underline"
                 >
                   Book: {q.book.title}
                 </Link>
@@ -54,12 +59,16 @@ export default async function SellerQuestionsPage() {
               </div>
 
               <div>
-                <p className="text-sm font-semibold text-foreground">{q.body}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Asked by {q.user.name}</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {q.body}
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Asked by {q.user.name}
+                </p>
               </div>
 
               {q.answers.length ? (
-                <div className="rounded-lg bg-muted/40 p-3 text-xs space-y-2 border border-border">
+                <div className="space-y-2 rounded-lg border border-border bg-muted/40 p-3 text-xs">
                   <p className="font-semibold text-foreground">Answers:</p>
                   {q.answers.map((a) => (
                     <div key={a.id} className="border-l-2 border-primary pl-2">

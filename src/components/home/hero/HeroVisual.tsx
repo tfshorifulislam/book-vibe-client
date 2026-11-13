@@ -43,7 +43,7 @@ export function HeroVisual({ books }: HeroVisualProps) {
         />
 
         {left ? (
-          <div className="absolute left-0 top-20 hidden w-28 -rotate-6 animate-float-delayed sm:block lg:left-2">
+          <div className="animate-float-delayed absolute top-20 left-0 hidden w-28 -rotate-6 sm:block lg:left-2">
             <BookCover
               book={left}
               className="shadow-[var(--shadow-book)]"
@@ -52,7 +52,7 @@ export function HeroVisual({ books }: HeroVisualProps) {
           </div>
         ) : null}
 
-        <div className="relative z-10 w-44 animate-float sm:w-48">
+        <div className="animate-float relative z-10 w-44 sm:w-48">
           <BookCover
             book={main}
             priority
@@ -61,7 +61,7 @@ export function HeroVisual({ books }: HeroVisualProps) {
           />
 
           {main.rating ? (
-            <div className="absolute -right-7 -top-4 flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-1 shadow-[var(--shadow-card)]">
+            <div className="absolute -top-4 -right-7 flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-1 shadow-[var(--shadow-card)]">
               <Star
                 className="size-3.5 fill-star text-star"
                 aria-hidden="true"
@@ -74,7 +74,7 @@ export function HeroVisual({ books }: HeroVisualProps) {
         </div>
 
         {right ? (
-          <div className="absolute right-0 top-14 hidden w-24 rotate-6 animate-float sm:block lg:right-2">
+          <div className="animate-float absolute top-14 right-0 hidden w-24 rotate-6 sm:block lg:right-2">
             <BookCover
               book={right}
               className="shadow-[var(--shadow-book)]"
@@ -84,7 +84,7 @@ export function HeroVisual({ books }: HeroVisualProps) {
         ) : null}
 
         <div className="absolute -bottom-1 left-0 z-20 max-w-[12rem] rounded-xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
+          <p className="text-[10px] font-semibold tracking-[0.14em] text-primary uppercase">
             Featured title
           </p>
           <p className="mt-1 line-clamp-1 text-xs font-semibold text-foreground">
@@ -98,8 +98,8 @@ export function HeroVisual({ books }: HeroVisualProps) {
           </p>
         </div>
 
-        <div className="absolute right-0 top-0 z-20 hidden max-w-[11rem] rounded-xl border border-border bg-card p-3 shadow-[var(--shadow-card)] sm:block">
-          <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        <div className="absolute top-0 right-0 z-20 hidden max-w-[11rem] rounded-xl border border-border bg-card p-3 shadow-[var(--shadow-card)] sm:block">
+          <p className="flex items-center gap-1 text-[10px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
             <Store className="size-3" aria-hidden="true" />
             Seller
           </p>

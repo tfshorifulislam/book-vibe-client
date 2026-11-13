@@ -3,7 +3,6 @@ import { Mail, Users } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { formatDateDisplay } from "@/lib/utils";
 
-
 export default async function AdminNewsletterPage() {
   const subscribers = await prisma.newsletterSubscription.findMany({
     orderBy: { createdAt: "desc" },
@@ -13,20 +12,26 @@ export default async function AdminNewsletterPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Newsletter Subscribers</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Newsletter Subscribers
+          </h1>
           <p className="text-sm text-muted-foreground">
-            View verified email subscribers from the BookHand homepage newsletter form.
+            View verified email subscribers from the BookHand homepage
+            newsletter form.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-card px-3 py-1.5 rounded-lg border border-border">
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground">
           <Users className="size-4 text-primary" />
-          <span>Total Subscribers: <strong className="text-foreground">{subscribers.length}</strong></span>
+          <span>
+            Total Subscribers:{" "}
+            <strong className="text-foreground">{subscribers.length}</strong>
+          </span>
         </div>
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-border bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <thead className="border-b border-border bg-muted/40 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
             <tr>
               <th className="px-4 py-3">Subscriber Email</th>
               <th className="px-4 py-3">Status</th>
@@ -36,8 +41,11 @@ export default async function AdminNewsletterPage() {
           <tbody className="divide-y divide-border">
             {subscribers.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">
-                  <Mail className="mx-auto size-8 text-muted-foreground/50 mb-2" />
+                <td
+                  colSpan={3}
+                  className="px-4 py-8 text-center text-muted-foreground"
+                >
+                  <Mail className="mx-auto mb-2 size-8 text-muted-foreground/50" />
                   No subscribers yet.
                 </td>
               </tr>
@@ -48,7 +56,7 @@ export default async function AdminNewsletterPage() {
                     {sub.email}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-success/15 text-success">
+                    <span className="inline-block rounded-full bg-success/15 px-2 py-0.5 text-xs font-semibold text-success">
                       Active
                     </span>
                   </td>

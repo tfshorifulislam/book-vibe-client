@@ -37,7 +37,11 @@ export async function PATCH(request: Request, { params }: Params) {
     const { id } = await params;
     const input = orderStatusSchema.parse(await readJson(request));
 
-    if (user.role !== "buyer" && user.role !== "seller" && user.role !== "admin") {
+    if (
+      user.role !== "buyer" &&
+      user.role !== "seller" &&
+      user.role !== "admin"
+    ) {
       return fail("Forbidden.", 403);
     }
 

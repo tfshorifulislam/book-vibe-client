@@ -23,8 +23,7 @@ export async function getCommerceSettings() {
     shippingFlat: Number(map.shipping_flat_rate) || DEFAULT_SHIPPING,
     freeShippingThreshold:
       Number(map.free_shipping_threshold) || DEFAULT_FREE_SHIPPING_THRESHOLD,
-    commissionRate:
-      Number(map.commission_rate) || DEFAULT_COMMISSION_RATE,
+    commissionRate: Number(map.commission_rate) || DEFAULT_COMMISSION_RATE,
   };
 }
 
@@ -33,9 +32,7 @@ export function calculateShipping(
   settings: { shippingFlat: number; freeShippingThreshold: number },
 ) {
   if (subtotal <= 0) return 0;
-  return subtotal >= settings.freeShippingThreshold
-    ? 0
-    : settings.shippingFlat;
+  return subtotal >= settings.freeShippingThreshold ? 0 : settings.shippingFlat;
 }
 
 export type CouponResult = {
@@ -63,13 +60,28 @@ export async function validateCoupon(
   });
 
   if (!coupon || !coupon.isActive) {
-    return { valid: false, message: "Coupon not found.", discount: 0, freeShipping: false };
+    return {
+      valid: false,
+      message: "Coupon not found.",
+      discount: 0,
+      freeShipping: false,
+    };
   }
   if (coupon.startsAt && coupon.startsAt.getTime() > Date.now()) {
-    return { valid: false, message: "This coupon is not active yet.", discount: 0, freeShipping: false };
+    return {
+      valid: false,
+      message: "This coupon is not active yet.",
+      discount: 0,
+      freeShipping: false,
+    };
   }
   if (coupon.expiresAt && coupon.expiresAt.getTime() < Date.now()) {
-    return { valid: false, message: "This coupon has expired.", discount: 0, freeShipping: false };
+    return {
+      valid: false,
+      message: "This coupon has expired.",
+      discount: 0,
+      freeShipping: false,
+    };
   }
   if (subtotal < coupon.minOrder) {
     return {
@@ -84,14 +96,24 @@ export async function validateCoupon(
       where: { couponId: coupon.id },
     });
     if (used >= coupon.usageLimit) {
-      return { valid: false, message: "This coupon is no longer available.", discount: 0, freeShipping: false };
+      return {
+        valid: false,
+        message: "This coupon is no longer available.",
+        discount: 0,
+        freeShipping: false,
+      };
     }
   }
   const userUsed = await prisma.couponUsage.count({
     where: { couponId: coupon.id, userId },
   });
   if (userUsed >= coupon.perUserLimit) {
-    return { valid: false, message: "You have already used this coupon.", discount: 0, freeShipping: false };
+    return {
+      valid: false,
+      message: "You have already used this coupon.",
+      discount: 0,
+      freeShipping: false,
+    };
   }
 
   let discount = 0;

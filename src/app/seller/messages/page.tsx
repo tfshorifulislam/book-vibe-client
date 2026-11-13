@@ -13,7 +13,9 @@ export default async function SellerMessagesPage() {
     where: { participants: { some: { userId: user.id } } },
     include: {
       participants: {
-        include: { user: { select: { id: true, name: true, avatar: true, role: true } } },
+        include: {
+          user: { select: { id: true, name: true, avatar: true, role: true } },
+        },
       },
       messages: {
         include: { sender: { select: { id: true, name: true } } },

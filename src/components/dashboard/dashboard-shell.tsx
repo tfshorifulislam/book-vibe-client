@@ -190,8 +190,10 @@ export function DashboardShell({
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const nav = role === "admin" ? ADMIN_NAV : role === "seller" ? SELLER_NAV : BUYER_NAV;
-  const roleLabel = role === "admin" ? "Administrator" : role === "seller" ? "Seller" : "Buyer";
+  const nav =
+    role === "admin" ? ADMIN_NAV : role === "seller" ? SELLER_NAV : BUYER_NAV;
+  const roleLabel =
+    role === "admin" ? "Administrator" : role === "seller" ? "Seller" : "Buyer";
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -202,7 +204,10 @@ export function DashboardShell({
   const sidebar = (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-2 border-b border-border px-4">
-        <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
+        <Link
+          href="/"
+          className="flex items-center gap-2 font-bold tracking-tight"
+        >
           <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <BookOpen className="size-4" />
           </span>
@@ -223,19 +228,28 @@ export function DashboardShell({
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
             {user.avatar ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={user.avatar} alt="" className="size-10 rounded-full object-cover" />
+              <img
+                src={user.avatar}
+                alt=""
+                className="size-10 rounded-full object-cover"
+              />
             ) : (
               getInitials(user.name)
             )}
           </span>
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold">{user.name}</p>
-            <p className="truncate text-xs capitalize text-muted-foreground">{roleLabel}</p>
+            <p className="truncate text-xs text-muted-foreground capitalize">
+              {roleLabel}
+            </p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label={`${roleLabel} dashboard`}>
+      <nav
+        className="flex-1 overflow-y-auto px-3 py-4"
+        aria-label={`${roleLabel} dashboard`}
+      >
         {nav.map((group) => (
           <div key={group.label} className="mb-5">
             <p className="mb-1.5 px-2 text-[10px] font-semibold tracking-[0.16em] text-muted-foreground uppercase">
@@ -245,7 +259,8 @@ export function DashboardShell({
               {group.items.map((item) => {
                 const active =
                   pathname === item.href ||
-                  (item.href.split("/").length > 2 && pathname.startsWith(`${item.href}/`));
+                  (item.href.split("/").length > 2 &&
+                    pathname.startsWith(`${item.href}/`));
                 return (
                   <li key={item.href}>
                     <Link
@@ -304,7 +319,9 @@ export function DashboardShell({
               onClick={() => setOpen(false)}
               aria-label="Close menu"
             />
-            <div className="absolute inset-y-0 left-0 w-72 bg-card shadow-xl">{sidebar}</div>
+            <div className="absolute inset-y-0 left-0 w-72 bg-card shadow-xl">
+              {sidebar}
+            </div>
           </div>
         ) : null}
 
@@ -322,10 +339,18 @@ export function DashboardShell({
               <p className="truncate text-sm font-medium text-foreground">
                 {roleLabel} workspace
               </p>
-              <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+              <p className="truncate text-xs text-muted-foreground">
+                {user.email}
+              </p>
             </div>
             <Link
-              href={role === "seller" ? "/seller/notifications" : role === "admin" ? "/admin/notifications" : "/buyer/notifications"}
+              href={
+                role === "seller"
+                  ? "/seller/notifications"
+                  : role === "admin"
+                    ? "/admin/notifications"
+                    : "/buyer/notifications"
+              }
               className="inline-flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
               aria-label="Notifications"
             >

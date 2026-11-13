@@ -26,24 +26,24 @@ export function SpecialOffers({ offer }: SpecialOffersProps) {
       />
 
       <div className="mt-8">
-        <div className="relative overflow-hidden rounded-2xl brand-gradient p-6 text-on-brand shadow-[var(--shadow-book)] sm:p-8 lg:p-10">
+        <div className="brand-gradient relative overflow-hidden rounded-2xl p-6 text-on-brand shadow-[var(--shadow-book)] sm:p-8 lg:p-10">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute -right-10 -top-10 size-48 rounded-full border border-on-brand/15"
+            className="pointer-events-none absolute -top-10 -right-10 size-48 rounded-full border border-on-brand/15"
           />
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute -bottom-16 right-24 size-56 rounded-full border border-on-brand/10"
+            className="pointer-events-none absolute right-24 -bottom-16 size-56 rounded-full border border-on-brand/10"
           />
 
           <div className="relative grid items-center gap-8 lg:grid-cols-[1.4fr_1fr]">
             <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-on-brand/30 bg-on-brand/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-on-brand/30 bg-on-brand/10 px-3 py-1 text-[11px] font-semibold tracking-[0.16em] uppercase">
                 <Tag className="size-3.5" aria-hidden="true" />
                 Active offer
               </span>
 
-              <h3 className="mt-4 text-balance text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+              <h3 className="mt-4 text-2xl font-bold tracking-tight text-balance sm:text-3xl lg:text-4xl">
                 {offer.title}
               </h3>
               <p className="mt-3 max-w-xl text-sm leading-6 opacity-90 sm:text-base">
@@ -66,7 +66,7 @@ export function SpecialOffers({ offer }: SpecialOffersProps) {
 
               <Link
                 href={`/books?offer=${offer.id}`}
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-transform hover:translate-x-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-brand focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-transform hover:translate-x-0.5 focus-visible:ring-2 focus-visible:ring-on-brand focus-visible:ring-offset-2 focus-visible:ring-offset-primary focus-visible:outline-none"
               >
                 Shop Now
                 <ArrowRight className="size-4" aria-hidden="true" />

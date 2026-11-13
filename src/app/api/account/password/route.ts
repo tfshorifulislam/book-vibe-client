@@ -11,7 +11,10 @@ export async function POST(request: Request) {
       where: { id: user.id },
       select: { passwordHash: true },
     });
-    if (!dbUser || !(await verifyPassword(input.currentPassword, dbUser.passwordHash))) {
+    if (
+      !dbUser ||
+      !(await verifyPassword(input.currentPassword, dbUser.passwordHash))
+    ) {
       return fail("Your current password is incorrect.", 400);
     }
     await prisma.user.update({

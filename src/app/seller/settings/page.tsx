@@ -24,7 +24,7 @@ export default async function SellerSettingsPage() {
       />
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <h2 className="text-base font-semibold">Account Profile</h2>
           {dbUser ? (
             <ProfileForm
@@ -39,7 +39,7 @@ export default async function SellerSettingsPage() {
           ) : null}
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <h2 className="text-base font-semibold">Password & Security</h2>
           <SettingsForm />
         </div>

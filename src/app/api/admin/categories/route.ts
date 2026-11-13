@@ -6,7 +6,10 @@ export async function GET() {
   try {
     await requireApiUser("admin");
     const categories = await prisma.category.findMany({
-      include: { _count: { select: { books: true } }, parent: { select: { name: true } } },
+      include: {
+        _count: { select: { books: true } },
+        parent: { select: { name: true } },
+      },
       orderBy: [{ parentId: "asc" }, { order: "asc" }],
     });
     return ok({ categories });

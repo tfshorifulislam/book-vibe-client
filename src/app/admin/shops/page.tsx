@@ -47,18 +47,22 @@ export default async function AdminShopsPage() {
               <tr key={s.id} className="hover:bg-muted/30">
                 <td className="px-4 py-3 font-semibold text-foreground">
                   <div className="flex items-center gap-2">
-                    <Store className="size-4 text-primary shrink-0" />
+                    <Store className="size-4 shrink-0 text-primary" />
                     <span>{s.name}</span>
                   </div>
                 </td>
                 <td className="px-4 py-3">
                   <p className="text-foreground">{s.owner.name}</p>
-                  <p className="text-xs text-muted-foreground">{s.owner.email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {s.owner.email}
+                  </p>
                 </td>
                 <td className="px-4 py-3 text-xs text-muted-foreground">
                   {s.city ? `${s.city}, ${s.district}` : "N/A"}
                 </td>
-                <td className="px-4 py-3 text-xs font-medium">{s._count.books} books</td>
+                <td className="px-4 py-3 text-xs font-medium">
+                  {s._count.books} books
+                </td>
                 <td className="px-4 py-3">
                   <StatusBadge status={s.status} />
                 </td>

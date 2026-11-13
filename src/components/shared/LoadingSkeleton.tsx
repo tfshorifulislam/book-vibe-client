@@ -9,7 +9,11 @@ export function Skeleton({ className }: { className?: string }) {
   );
 }
 
-export function SectionHeadingSkeleton({ align = "left" }: { align?: "left" | "center" }) {
+export function SectionHeadingSkeleton({
+  align = "left",
+}: {
+  align?: "left" | "center";
+}) {
   return (
     <div
       className={cn(

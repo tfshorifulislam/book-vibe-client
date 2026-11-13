@@ -8,7 +8,9 @@ const schema = z.record(z.string(), z.string());
 export async function GET() {
   try {
     await requireApiUser("admin");
-    const settings = await prisma.siteSetting.findMany({ orderBy: { key: "asc" } });
+    const settings = await prisma.siteSetting.findMany({
+      orderBy: { key: "asc" },
+    });
     return ok({ settings });
   } catch (error) {
     return handleError(error);

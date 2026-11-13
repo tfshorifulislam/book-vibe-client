@@ -11,10 +11,7 @@ export async function GET(request: Request) {
       where: {
         ...(q
           ? {
-              OR: [
-                { title: { contains: q } },
-                { isbn: { contains: q } },
-              ],
+              OR: [{ title: { contains: q } }, { isbn: { contains: q } }],
             }
           : {}),
         ...(status === "active"

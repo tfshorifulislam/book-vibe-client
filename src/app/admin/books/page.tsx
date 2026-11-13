@@ -49,17 +49,29 @@ export default async function AdminBooksPage() {
             {books.map((b) => (
               <tr key={b.id} className="hover:bg-muted/30">
                 <td className="px-4 py-3">
-                  <p className="font-semibold text-foreground line-clamp-1">{b.title}</p>
-                  <span className="text-xs text-muted-foreground">{b.condition}</span>
+                  <p className="line-clamp-1 font-semibold text-foreground">
+                    {b.title}
+                  </p>
+                  <span className="text-xs text-muted-foreground">
+                    {b.condition}
+                  </span>
                 </td>
                 <td className="px-4 py-3 text-xs">{b.author.name}</td>
-                <td className="px-4 py-3 text-xs text-muted-foreground">{b.category.name}</td>
+                <td className="px-4 py-3 text-xs text-muted-foreground">
+                  {b.category.name}
+                </td>
                 <td className="px-4 py-3 text-xs font-medium text-primary">
-                  <Link href={`/shops/${b.shop.slug}`} target="_blank" className="hover:underline">
+                  <Link
+                    href={`/shops/${b.shop.slug}`}
+                    target="_blank"
+                    className="hover:underline"
+                  >
                     {b.shop.name}
                   </Link>
                 </td>
-                <td className="px-4 py-3 font-semibold">{formatPrice(b.price)}</td>
+                <td className="px-4 py-3 font-semibold">
+                  {formatPrice(b.price)}
+                </td>
                 <td className="px-4 py-3 text-xs">{b.stock} units</td>
                 <td className="px-4 py-3">
                   <StatusBadge status={b.isActive ? "ACTIVE" : "SUSPENDED"} />

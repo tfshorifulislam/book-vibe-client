@@ -6,11 +6,17 @@ import { getBookCards } from "@/lib/data/books";
 
 export const metadata: Metadata = { title: "Search" };
 
-type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
+type Props = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
 export default function SearchPage({ searchParams }: Props) {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-7xl px-4 py-10">Searching books…</div>}>
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-7xl px-4 py-10">Searching books…</div>
+      }
+    >
       <SearchResults searchParams={searchParams} />
     </Suspense>
   );

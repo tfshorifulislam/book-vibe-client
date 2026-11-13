@@ -10,7 +10,10 @@ export default async function AddressesPage() {
   await requireRole("buyer");
   return (
     <div className="space-y-6">
-      <PageHeader title="Delivery addresses" description="Manage the addresses you use at checkout." />
+      <PageHeader
+        title="Delivery addresses"
+        description="Manage the addresses you use at checkout."
+      />
       <AddressManager />
     </div>
   );

@@ -12,7 +12,9 @@ export default function LoginPage() {
       title="Welcome back"
       description="Sign in to track orders, manage your wishlist, and keep reading."
     >
-      <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-muted" />}>
+      <Suspense
+        fallback={<div className="h-64 animate-pulse rounded-lg bg-muted" />}
+      >
         <LoginForm />
       </Suspense>
     </AuthShell>

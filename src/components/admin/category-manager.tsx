@@ -71,7 +71,10 @@ export function CategoryManager({
       }
 
       toast.success("Category created successfully.");
-      setCategories([...categories, { ...data.category, _count: { books: 0 } }]);
+      setCategories([
+        ...categories,
+        { ...data.category, _count: { books: 0 } },
+      ]);
       setOpen(false);
       setName("");
       setSlug("");
@@ -90,10 +93,14 @@ export function CategoryManager({
     if (!confirm("Are you sure you want to delete this category?")) return;
 
     try {
-      const res = await fetch(`/api/admin/categories/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/categories/${id}`, {
+        method: "DELETE",
+      });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error?.message || "Cannot delete category with active books.");
+        toast.error(
+          data.error?.message || "Cannot delete category with active books.",
+        );
         return;
       }
       toast.success("Category deleted.");
@@ -117,66 +124,85 @@ export function CategoryManager({
       </div>
 
       {open ? (
-        <form onSubmit={handleCreate} className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <form
+          onSubmit={handleCreate}
+          className="space-y-4 rounded-xl border border-border bg-card p-5"
+        >
           <h3 className="text-base font-semibold">New Category</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Category Name *</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Category Name *
+              </label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="e.g. Graphic Novels"
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Slug *</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Slug *
+              </label>
               <input
                 type="text"
                 required
                 value={slug}
-                onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9/-]/g, ""))}
+                onChange={(e) =>
+                  setSlug(
+                    e.target.value.toLowerCase().replace(/[^a-z0-9/-]/g, ""),
+                  )
+                }
                 placeholder="graphic-novels"
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Parent Category (optional)</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Parent Category (optional)
+              </label>
               <select
                 value={parentId}
                 onChange={(e) => setParentId(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 <option value="">None (Top-Level Category)</option>
                 {parentOptions.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Display Order</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Display Order
+              </label>
               <input
                 type="number"
                 min={0}
                 value={order}
                 onChange={(e) => setOrder(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-muted-foreground uppercase">Description</label>
+            <label className="block text-xs font-medium text-muted-foreground uppercase">
+              Description
+            </label>
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               placeholder="Illustrated storytelling, comic collections, and manga."
             />
           </div>
@@ -194,7 +220,8 @@ export function CategoryManager({
               disabled={loading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? <Loader2 className="size-4 animate-spin" /> : null} Save Category
+              {loading ? <Loader2 className="size-4 animate-spin" /> : null}{" "}
+              Save Category
             </button>
           </div>
         </form>
@@ -215,10 +242,18 @@ export function CategoryManager({
           <tbody className="divide-y divide-border">
             {categories.map((c) => (
               <tr key={c.id} className="hover:bg-muted/30">
-                <td className="px-4 py-3 font-semibold text-foreground">{c.name}</td>
-                <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{c.slug}</td>
-                <td className="px-4 py-3 text-xs text-muted-foreground">{c.parent?.name ?? "Top-level"}</td>
-                <td className="px-4 py-3 text-xs font-medium">{c._count.books} books</td>
+                <td className="px-4 py-3 font-semibold text-foreground">
+                  {c.name}
+                </td>
+                <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                  {c.slug}
+                </td>
+                <td className="px-4 py-3 text-xs text-muted-foreground">
+                  {c.parent?.name ?? "Top-level"}
+                </td>
+                <td className="px-4 py-3 text-xs font-medium">
+                  {c._count.books} books
+                </td>
                 <td className="px-4 py-3 text-xs">{c.order}</td>
                 <td className="px-4 py-3 text-right">
                   <button

@@ -6,7 +6,11 @@ import { getBookCards } from "@/lib/data/books";
 export const metadata: Metadata = { title: "Featured books" };
 
 export default async function FeaturedBooksPage() {
-  const { books, total } = await getBookCards({ featured: true, sort: "popular", limit: 100 });
+  const { books, total } = await getBookCards({
+    featured: true,
+    sort: "popular",
+    limit: 100,
+  });
   return (
     <CollectionPage
       eyebrow="Editor's picks"

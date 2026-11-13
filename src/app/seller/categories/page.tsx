@@ -29,23 +29,34 @@ export default async function SellerCategoriesPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {categories.map((c) => (
-          <div key={c.id} className="rounded-xl border border-border bg-card p-5">
+          <div
+            key={c.id}
+            className="rounded-xl border border-border bg-card p-5"
+          >
             <div className="flex items-center gap-3">
               <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <BookOpen className="size-4" />
               </span>
               <div>
-                <h3 className="text-sm font-semibold text-foreground">{c.name}</h3>
+                <h3 className="text-sm font-semibold text-foreground">
+                  {c.name}
+                </h3>
                 {c.parent ? (
-                  <p className="text-xs text-muted-foreground">In: {c.parent.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    In: {c.parent.name}
+                  </p>
                 ) : null}
               </div>
             </div>
             {c.description ? (
-              <p className="mt-3 text-xs text-muted-foreground line-clamp-2">{c.description}</p>
+              <p className="mt-3 line-clamp-2 text-xs text-muted-foreground">
+                {c.description}
+              </p>
             ) : null}
             <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs">
-              <span className="text-muted-foreground">{c._count.books} marketplace books</span>
+              <span className="text-muted-foreground">
+                {c._count.books} marketplace books
+              </span>
               <Link
                 href={`/categories/${c.slug}`}
                 target="_blank"

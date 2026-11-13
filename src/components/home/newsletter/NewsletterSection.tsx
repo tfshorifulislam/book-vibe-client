@@ -47,16 +47,16 @@ export function NewsletterSection() {
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full border border-primary/10"
+          className="pointer-events-none absolute -top-16 -right-16 size-48 rounded-full border border-primary/10"
         />
 
         <div className="relative grid gap-7 lg:grid-cols-[1.1fr_1fr] lg:items-center">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-[0.16em] text-primary uppercase">
               <Mail className="size-3.5" aria-hidden="true" />
               Newsletter
             </span>
-            <h2 className="mt-4 text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <h2 className="mt-4 text-2xl font-bold tracking-tight text-balance text-foreground sm:text-3xl">
               Stay Updated with BookHand
             </h2>
             <p className="mt-3 max-w-lg text-sm leading-6 text-muted-foreground sm:text-base">
@@ -74,7 +74,7 @@ export function NewsletterSection() {
             <div className="flex flex-col gap-2 sm:flex-row">
               <div className="relative min-w-0 flex-1">
                 <Mail
-                  className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                  className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
                   aria-hidden="true"
                 />
                 <input
@@ -87,14 +87,14 @@ export function NewsletterSection() {
                   placeholder="you@example.com"
                   aria-invalid={isError}
                   aria-describedby={feedbackId}
-                  className="h-11 w-full rounded-xl border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 aria-invalid:border-destructive"
+                  className="h-11 w-full rounded-xl border border-input bg-background pr-3 pl-9 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:outline-none aria-invalid:border-destructive"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={pending}
-                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {pending ? (
                   <LoaderCircle
@@ -130,9 +130,7 @@ export function NewsletterSection() {
                   <AlertCircle className="size-3.5" aria-hidden="true" />
                 )
               ) : null}
-              {result
-                ? result.message
-                : "No spam. Unsubscribe anytime."}
+              {result ? result.message : "No spam. Unsubscribe anytime."}
             </p>
           </form>
         </div>

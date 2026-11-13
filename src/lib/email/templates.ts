@@ -43,7 +43,10 @@ function baseLayout(title: string, content: string): string {
   `.trim();
 }
 
-export function verificationEmailTemplate(name: string, verificationUrl: string): { subject: string; html: string } {
+export function verificationEmailTemplate(
+  name: string,
+  verificationUrl: string,
+): { subject: string; html: string } {
   const content = `
     <h2>Welcome to BookHand, ${name}!</h2>
     <p>Thank you for creating an account. Please verify your email address to unlock your full bookstore experience.</p>
@@ -52,10 +55,16 @@ export function verificationEmailTemplate(name: string, verificationUrl: string)
     </div>
     <p style="font-size: 12px; color: #8c827a;">If you did not sign up for BookHand, you can safely ignore this email.</p>
   `;
-  return { subject: "Verify your BookHand Account", html: baseLayout("Verify your Account", content) };
+  return {
+    subject: "Verify your BookHand Account",
+    html: baseLayout("Verify your Account", content),
+  };
 }
 
-export function passwordResetEmailTemplate(name: string, resetUrl: string): { subject: string; html: string } {
+export function passwordResetEmailTemplate(
+  name: string,
+  resetUrl: string,
+): { subject: string; html: string } {
   const content = `
     <h2>Password Reset Request</h2>
     <p>Hello ${name},</p>
@@ -65,7 +74,10 @@ export function passwordResetEmailTemplate(name: string, resetUrl: string): { su
     </div>
     <p style="font-size: 12px; color: #8c827a;">This link will expire in 60 minutes. If you did not request a password reset, no action is required.</p>
   `;
-  return { subject: "Reset your BookHand Password", html: baseLayout("Password Reset", content) };
+  return {
+    subject: "Reset your BookHand Password",
+    html: baseLayout("Password Reset", content),
+  };
 }
 
 export function orderConfirmationEmailTemplate(order: {
@@ -82,7 +94,7 @@ export function orderConfirmationEmailTemplate(order: {
       <td style="text-align: center;">${item.quantity}</td>
       <td style="text-align: right;">${formatCurrency(item.price * item.quantity)}</td>
     </tr>
-  `
+  `,
     )
     .join("");
 
@@ -112,20 +124,36 @@ export function orderConfirmationEmailTemplate(order: {
       <a href="${BRAND_URL}/buyer/orders" class="button" style="color: #ffffff;">Track Your Order</a>
     </div>
   `;
-  return { subject: `Order Confirmed: ${order.orderNumber}`, html: baseLayout("Order Confirmed", content) };
+  return {
+    subject: `Order Confirmed: ${order.orderNumber}`,
+    html: baseLayout("Order Confirmed", content),
+  };
 }
 
-export function paymentConfirmationEmailTemplate(orderNumber: string, customerName: string, amount: number, method: string): { subject: string; html: string } {
+export function paymentConfirmationEmailTemplate(
+  orderNumber: string,
+  customerName: string,
+  amount: number,
+  method: string,
+): { subject: string; html: string } {
   const content = `
     <h2>Payment Received</h2>
     <p>Dear ${customerName},</p>
     <p>We have successfully received your payment of <strong>${formatCurrency(amount)}</strong> for Order <strong>${orderNumber}</strong> via <strong>${method}</strong>.</p>
     <p>Your order is now confirmed and our sellers are preparing it for shipment.</p>
   `;
-  return { subject: `Payment Confirmed for Order ${orderNumber}`, html: baseLayout("Payment Confirmed", content) };
+  return {
+    subject: `Payment Confirmed for Order ${orderNumber}`,
+    html: baseLayout("Payment Confirmed", content),
+  };
 }
 
-export function shippingNotificationEmailTemplate(orderNumber: string, customerName: string, carrier: string, trackingNumber?: string): { subject: string; html: string } {
+export function shippingNotificationEmailTemplate(
+  orderNumber: string,
+  customerName: string,
+  carrier: string,
+  trackingNumber?: string,
+): { subject: string; html: string } {
   const content = `
     <h2>Your Books are on the Way!</h2>
     <p>Dear ${customerName},</p>
@@ -136,15 +164,26 @@ export function shippingNotificationEmailTemplate(orderNumber: string, customerN
       <a href="${BRAND_URL}/buyer/orders" class="button" style="color: #ffffff;">View Live Tracking</a>
     </div>
   `;
-  return { subject: `Order Shipped: ${orderNumber}`, html: baseLayout("Order Shipped", content) };
+  return {
+    subject: `Order Shipped: ${orderNumber}`,
+    html: baseLayout("Order Shipped", content),
+  };
 }
 
-export function refundStatusEmailTemplate(orderNumber: string, customerName: string, status: string, amount: number): { subject: string; html: string } {
+export function refundStatusEmailTemplate(
+  orderNumber: string,
+  customerName: string,
+  status: string,
+  amount: number,
+): { subject: string; html: string } {
   const content = `
     <h2>Refund Update for Order ${orderNumber}</h2>
     <p>Dear ${customerName},</p>
     <p>Your refund request for Order <strong>${orderNumber}</strong> in the amount of <strong>${formatCurrency(amount)}</strong> has been updated to: <strong>${status}</strong>.</p>
     <p>If you have any questions regarding your refund settlement, please contact support.</p>
   `;
-  return { subject: `Refund Update: Order ${orderNumber}`, html: baseLayout("Refund Status", content) };
+  return {
+    subject: `Refund Update: Order ${orderNumber}`,
+    html: baseLayout("Refund Status", content),
+  };
 }

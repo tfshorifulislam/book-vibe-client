@@ -20,7 +20,10 @@ export default async function NotificationsPage() {
   }));
   return (
     <div className="space-y-6">
-      <PageHeader title="Notifications" description="Updates about your orders, questions, and messages." />
+      <PageHeader
+        title="Notifications"
+        description="Updates about your orders, questions, and messages."
+      />
       <NotificationsClient initial={initial} />
     </div>
   );

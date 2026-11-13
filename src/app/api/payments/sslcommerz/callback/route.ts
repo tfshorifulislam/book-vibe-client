@@ -29,15 +29,24 @@ export async function POST(request: Request) {
   if (valId) {
     const verified = await validateSslCommerzTransaction(valId);
     if (verified.success) {
-      const targetOrderId = orderId || (tranId?.startsWith("TXN-") ? tranId.replace("TXN-", "") : null);
+      const targetOrderId =
+        orderId ||
+        (tranId?.startsWith("TXN-") ? tranId.replace("TXN-", "") : null);
       if (targetOrderId) {
         await prisma.$transaction([
           prisma.order.updateMany({
-            where: { OR: [{ id: targetOrderId }, { orderNumber: targetOrderId }] },
+            where: {
+              OR: [{ id: targetOrderId }, { orderNumber: targetOrderId }],
+            },
             data: { paymentStatus: "PAID" },
           }),
           prisma.payment.updateMany({
-            where: { OR: [{ orderId: targetOrderId }, { order: { orderNumber: targetOrderId } }] },
+            where: {
+              OR: [
+                { orderId: targetOrderId },
+                { order: { orderNumber: targetOrderId } },
+              ],
+            },
             data: { status: "PAID", transactionRef: verified.transactionRef },
           }),
         ]);

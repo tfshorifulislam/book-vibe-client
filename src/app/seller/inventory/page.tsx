@@ -5,7 +5,9 @@ import { InventoryManager } from "@/components/seller/inventory-manager";
 import { requireRole } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 
-export const metadata: Metadata = { title: "Inventory Management | Seller Workspace" };
+export const metadata: Metadata = {
+  title: "Inventory Management | Seller Workspace",
+};
 
 export default async function SellerInventoryPage() {
   const user = await requireRole("seller");

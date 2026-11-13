@@ -47,7 +47,10 @@ export const addressSchema = z.object({
   district: z.string().trim().min(2).max(60),
   city: z.string().trim().min(2).max(60),
   area: z.string().trim().min(2).max(120),
-  postalCode: z.preprocess(emptyToUndefined, z.string().trim().max(12).optional()),
+  postalCode: z.preprocess(
+    emptyToUndefined,
+    z.string().trim().max(12).optional(),
+  ),
   instructions: z.preprocess(
     emptyToUndefined,
     z.string().trim().max(300).optional(),
@@ -81,11 +84,11 @@ export const bookSchema = z.object({
     (value) => (value === "" || value === null ? undefined : value),
     z.coerce.number().int().min(1).max(20000).optional(),
   ),
-  publicationDate: z.preprocess(
+  publicationDate: z.preprocess(emptyToUndefined, z.coerce.date().optional()),
+  coverImage: z.preprocess(
     emptyToUndefined,
-    z.coerce.date().optional(),
+    z.string().trim().max(500).optional(),
   ),
-  coverImage: z.preprocess(emptyToUndefined, z.string().trim().max(500).optional()),
   coverTone: z.coerce.number().int().min(1).max(6).default(1),
   condition: z.enum(["NEW", "LIKE_NEW", "GOOD", "ACCEPTABLE", "POOR"]),
   listingType: z.enum(["NEW", "USED"]),
@@ -104,14 +107,28 @@ export const bookSchema = z.object({
 
 export const shopSchema = z.object({
   name: z.string().trim().min(2).max(80),
-  slug: z.string().trim().min(2).max(80).regex(/^[a-z0-9-]+$/),
-  description: z.preprocess(emptyToUndefined, z.string().trim().max(1200).optional()),
+  slug: z
+    .string()
+    .trim()
+    .min(2)
+    .max(80)
+    .regex(/^[a-z0-9-]+$/),
+  description: z.preprocess(
+    emptyToUndefined,
+    z.string().trim().max(1200).optional(),
+  ),
   logo: z.preprocess(emptyToUndefined, z.string().trim().max(500).optional()),
   banner: z.preprocess(emptyToUndefined, z.string().trim().max(500).optional()),
   email: z.preprocess(emptyToUndefined, emailSchema.optional()),
   phone: z.preprocess(emptyToUndefined, z.string().trim().max(20).optional()),
-  address: z.preprocess(emptyToUndefined, z.string().trim().max(200).optional()),
-  district: z.preprocess(emptyToUndefined, z.string().trim().max(60).optional()),
+  address: z.preprocess(
+    emptyToUndefined,
+    z.string().trim().max(200).optional(),
+  ),
+  district: z.preprocess(
+    emptyToUndefined,
+    z.string().trim().max(60).optional(),
+  ),
   city: z.preprocess(emptyToUndefined, z.string().trim().max(60).optional()),
 });
 
@@ -129,7 +146,10 @@ export const checkoutSchema = z.object({
   addressId: z.preprocess(emptyToUndefined, z.string().optional()),
   address: addressSchema.optional(),
   paymentMethod: z.enum(["COD", "BKASH", "NAGAD", "CARD"]).default("COD"),
-  couponCode: z.preprocess(emptyToUndefined, z.string().trim().max(30).optional()),
+  couponCode: z.preprocess(
+    emptyToUndefined,
+    z.string().trim().max(30).optional(),
+  ),
   notes: z.preprocess(emptyToUndefined, z.string().trim().max(500).optional()),
 });
 
@@ -158,7 +178,10 @@ export const messageSchema = z.object({
 
 export const couponSchema = z.object({
   code: z.string().trim().min(2).max(30).toUpperCase(),
-  description: z.preprocess(emptyToUndefined, z.string().trim().max(300).optional()),
+  description: z.preprocess(
+    emptyToUndefined,
+    z.string().trim().max(300).optional(),
+  ),
   type: z.enum(["FIXED", "PERCENT", "FREE_SHIPPING"]),
   value: z.coerce.number().int().min(0).max(1000000),
   minOrder: z.coerce.number().int().min(0).max(10000000).default(0),
@@ -176,8 +199,16 @@ export const couponSchema = z.object({
 
 export const categorySchema = z.object({
   name: z.string().trim().min(2).max(80),
-  slug: z.string().trim().min(2).max(100).regex(/^[a-z0-9/-]+$/),
-  description: z.preprocess(emptyToUndefined, z.string().trim().max(500).optional()),
+  slug: z
+    .string()
+    .trim()
+    .min(2)
+    .max(100)
+    .regex(/^[a-z0-9/-]+$/),
+  description: z.preprocess(
+    emptyToUndefined,
+    z.string().trim().max(500).optional(),
+  ),
   icon: z.preprocess(emptyToUndefined, z.string().trim().max(60).optional()),
   parentId: z.preprocess(emptyToUndefined, z.string().optional()),
   order: z.coerce.number().int().min(0).max(1000).default(0),
@@ -186,15 +217,28 @@ export const categorySchema = z.object({
 
 export const authorSchema = z.object({
   name: z.string().trim().min(2).max(120),
-  slug: z.string().trim().min(2).max(140).regex(/^[a-z0-9-]+$/),
+  slug: z
+    .string()
+    .trim()
+    .min(2)
+    .max(140)
+    .regex(/^[a-z0-9-]+$/),
   bio: z.preprocess(emptyToUndefined, z.string().trim().max(2000).optional()),
   image: z.preprocess(emptyToUndefined, z.string().trim().max(500).optional()),
 });
 
 export const publisherSchema = z.object({
   name: z.string().trim().min(2).max(120),
-  slug: z.string().trim().min(2).max(140).regex(/^[a-z0-9-]+$/),
-  description: z.preprocess(emptyToUndefined, z.string().trim().max(2000).optional()),
+  slug: z
+    .string()
+    .trim()
+    .min(2)
+    .max(140)
+    .regex(/^[a-z0-9-]+$/),
+  description: z.preprocess(
+    emptyToUndefined,
+    z.string().trim().max(2000).optional(),
+  ),
   logo: z.preprocess(emptyToUndefined, z.string().trim().max(500).optional()),
 });
 
@@ -209,7 +253,10 @@ export const orderStatusSchema = z.object({
     "REFUNDED",
   ]),
   note: z.preprocess(emptyToUndefined, z.string().trim().max(500).optional()),
-  trackingNumber: z.preprocess(emptyToUndefined, z.string().trim().max(80).optional()),
+  trackingNumber: z.preprocess(
+    emptyToUndefined,
+    z.string().trim().max(80).optional(),
+  ),
   carrier: z.preprocess(emptyToUndefined, z.string().trim().max(80).optional()),
 });
 
@@ -231,12 +278,20 @@ export const contactSchema = z.object({
 
 export const refundRequestSchema = z.object({
   orderId: z.string().min(1, "Order ID is required"),
-  reason: z.string().trim().min(5, "Please provide a detailed reason (at least 5 characters).").max(500),
+  reason: z
+    .string()
+    .trim()
+    .min(5, "Please provide a detailed reason (at least 5 characters).")
+    .max(500),
   amount: z.coerce.number().int().positive().optional(),
   note: z.string().trim().max(300).optional(),
 });
 
 export const disputeRequestSchema = z.object({
   orderId: z.string().min(1, "Order ID is required"),
-  reason: z.string().trim().min(5, "Please provide dispute details (at least 5 characters).").max(1000),
+  reason: z
+    .string()
+    .trim()
+    .min(5, "Please provide dispute details (at least 5 characters).")
+    .max(1000),
 });

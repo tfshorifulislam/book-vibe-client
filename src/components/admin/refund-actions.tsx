@@ -36,14 +36,19 @@ export function AdminRefundActions({ refundId }: { refundId: string }) {
   }
 
   return (
-    <div className="flex items-center gap-1.5 justify-end">
+    <div className="flex items-center justify-end gap-1.5">
       <button
         type="button"
         disabled={loading}
         onClick={() => updateRefund("APPROVED")}
         className="inline-flex items-center gap-1 rounded bg-success/10 px-2.5 py-1 text-xs font-semibold text-success hover:bg-success/20 disabled:opacity-50"
       >
-        {loading ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />} Approve Refund
+        {loading ? (
+          <Loader2 className="size-3 animate-spin" />
+        ) : (
+          <Check className="size-3" />
+        )}{" "}
+        Approve Refund
       </button>
       <button
         type="button"

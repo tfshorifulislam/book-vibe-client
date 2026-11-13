@@ -21,7 +21,10 @@ export async function POST(request: Request) {
     }
 
     const activeRefund = order.refunds.find(
-      (r) => r.status === "REQUESTED" || r.status === "APPROVED" || r.status === "PROCESSED",
+      (r) =>
+        r.status === "REQUESTED" ||
+        r.status === "APPROVED" ||
+        r.status === "PROCESSED",
     );
     if (activeRefund) {
       return fail(
@@ -30,7 +33,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const refundAmount = input.amount && input.amount <= order.total ? input.amount : order.total;
+    const refundAmount =
+      input.amount && input.amount <= order.total ? input.amount : order.total;
 
     const refund = await prisma.refund.create({
       data: {
@@ -65,7 +69,11 @@ export async function POST(request: Request) {
         action: "REFUND_REQUESTED",
         entity: "Refund",
         entityId: refund.id,
-        metadata: JSON.stringify({ orderId: order.id, amount: refundAmount, reason: input.reason }),
+        metadata: JSON.stringify({
+          orderId: order.id,
+          amount: refundAmount,
+          reason: input.reason,
+        }),
       },
     });
 

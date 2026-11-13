@@ -114,7 +114,8 @@ export async function updateOrderStatus(input: UpdateOrderInput) {
             }
           : {
               create: {
-                status: input.status === "DELIVERED" ? "DELIVERED" : "PROCESSING",
+                status:
+                  input.status === "DELIVERED" ? "DELIVERED" : "PROCESSING",
                 trackingNumber: input.trackingNumber,
                 carrier: input.carrier,
               },
@@ -157,7 +158,7 @@ export async function updateOrderStatus(input: UpdateOrderInput) {
           order.orderNumber,
           buyer.name,
           input.carrier ?? "Standard Courier",
-          input.trackingNumber
+          input.trackingNumber,
         );
         await sendEmail({
           to: buyer.email,

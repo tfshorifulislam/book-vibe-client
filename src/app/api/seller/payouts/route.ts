@@ -81,7 +81,10 @@ export async function POST(request: Request) {
         action: "PAYOUT_REQUESTED",
         entity: "Payout",
         entityId: payout.id,
-        metadata: JSON.stringify({ amount: payout.amount, method: payout.method }),
+        metadata: JSON.stringify({
+          amount: payout.amount,
+          method: payout.method,
+        }),
       },
     });
 

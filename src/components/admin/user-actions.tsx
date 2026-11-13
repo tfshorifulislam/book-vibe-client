@@ -18,9 +18,7 @@ export function UserStatusToggle({
 
   async function handleToggle() {
     if (
-      !confirm(
-        `Are you sure you want to change user status to ${nextStatus}?`,
-      )
+      !confirm(`Are you sure you want to change user status to ${nextStatus}?`)
     )
       return;
 
@@ -60,7 +58,7 @@ export function UserStatusToggle({
       }`}
     >
       {loading ? (
-        <Loader2 className="size-3 animate-spin inline" />
+        <Loader2 className="inline size-3 animate-spin" />
       ) : currentStatus === "ACTIVE" ? (
         "Suspend"
       ) : (

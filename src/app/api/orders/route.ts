@@ -112,9 +112,7 @@ export async function POST(request: Request) {
           },
         });
         if (updated.count === 0) {
-          throw new Error(
-            `INSUFFICIENT_STOCK:${item.book.title}`,
-          );
+          throw new Error(`INSUFFICIENT_STOCK:${item.book.title}`);
         }
       }
 
@@ -202,7 +200,10 @@ export async function POST(request: Request) {
           action: "ORDER_CREATED",
           entity: "Order",
           entityId: created.id,
-          metadata: JSON.stringify({ total, paymentMethod: input.paymentMethod }),
+          metadata: JSON.stringify({
+            total,
+            paymentMethod: input.paymentMethod,
+          }),
         },
       });
 
@@ -213,7 +214,11 @@ export async function POST(request: Request) {
       orderNumber: order.orderNumber,
       customerName: user.name,
       total: order.total,
-      items: order.items.map((i) => ({ title: i.title, quantity: i.quantity, price: i.price })),
+      items: order.items.map((i) => ({
+        title: i.title,
+        quantity: i.quantity,
+        price: i.price,
+      })),
     });
     await sendEmail({
       to: user.email,
@@ -232,7 +237,10 @@ export async function POST(request: Request) {
         customerPhone: address.phone,
       });
       if (p.success && p.paymentUrl) paymentUrl = p.paymentUrl;
-    } else if (input.paymentMethod === "CARD" && process.env.STRIPE_SECRET_KEY) {
+    } else if (
+      input.paymentMethod === "CARD" &&
+      process.env.STRIPE_SECRET_KEY
+    ) {
       const p = await initiateStripePayment({
         orderId: order.id,
         orderNumber: order.orderNumber,
@@ -245,7 +253,10 @@ export async function POST(request: Request) {
 
     return ok({ order, paymentUrl }, { status: 201 });
   } catch (error) {
-    if (error instanceof Error && error.message.startsWith("INSUFFICIENT_STOCK:")) {
+    if (
+      error instanceof Error &&
+      error.message.startsWith("INSUFFICIENT_STOCK:")
+    ) {
       return fail(
         `${error.message.split(":")[1]} no longer has enough stock.`,
         409,

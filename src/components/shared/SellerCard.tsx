@@ -55,7 +55,7 @@ export function SellerCard({ seller, rank }: SellerCardProps) {
 
       <Link
         href={`/shops/${seller.shopSlug}`}
-        className="mt-5 inline-flex h-9 items-center justify-center rounded-lg border border-border bg-background text-xs font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="mt-5 inline-flex h-9 items-center justify-center rounded-lg border border-border bg-background text-xs font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         Visit Shop
       </Link>

@@ -7,7 +7,9 @@ import { requireRole } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Store Analytics | Seller Workspace" };
+export const metadata: Metadata = {
+  title: "Store Analytics | Seller Workspace",
+};
 
 export default async function SellerAnalyticsPage() {
   const user = await requireRole("seller");
@@ -25,7 +27,13 @@ export default async function SellerAnalyticsPage() {
     }),
     prisma.book.findMany({
       where: { shop: { ownerId: user.id } },
-      select: { id: true, title: true, price: true, salesCount: true, stock: true },
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        salesCount: true,
+        stock: true,
+      },
       orderBy: { salesCount: "desc" },
       take: 5,
     }),
@@ -38,7 +46,10 @@ export default async function SellerAnalyticsPage() {
     }),
   ]);
 
-  const grossSales = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const grossSales = orderItems.reduce(
+    (sum, i) => sum + i.price * i.quantity,
+    0,
+  );
   const unitsSold = orderItems.reduce((sum, i) => sum + i.quantity, 0);
   const avgOrderValue = completedOrders.length
     ? Math.round(grossSales / completedOrders.length)
@@ -91,21 +102,28 @@ export default async function SellerAnalyticsPage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Top Selling Books */}
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <h2 className="text-base font-semibold">Top Performing Books</h2>
           {books.length ? (
             <div className="divide-y divide-border">
               {books.map((b, i) => (
-                <div key={b.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
-                  <div className="flex items-center gap-3 min-w-0 pr-2">
+                <div
+                  key={b.id}
+                  className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
+                >
+                  <div className="flex min-w-0 items-center gap-3 pr-2">
                     <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                       {i + 1}
                     </span>
-                    <p className="truncate text-sm font-medium text-foreground">{b.title}</p>
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {b.title}
+                    </p>
                   </div>
-                  <div className="text-right shrink-0">
+                  <div className="shrink-0 text-right">
                     <p className="text-sm font-bold">{b.salesCount} sold</p>
-                    <p className="text-xs text-muted-foreground">{formatPrice(b.price)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatPrice(b.price)}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -116,27 +134,35 @@ export default async function SellerAnalyticsPage() {
         </div>
 
         {/* Sales by Category */}
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <h2 className="text-base font-semibold">Demand by Category</h2>
           {topCategories.length ? (
             <div className="space-y-3">
               {topCategories.map((c) => {
-                const pct = unitsSold > 0 ? Math.round((c.count / unitsSold) * 100) : 0;
+                const pct =
+                  unitsSold > 0 ? Math.round((c.count / unitsSold) * 100) : 0;
                 return (
                   <div key={c.name} className="space-y-1">
                     <div className="flex justify-between text-xs font-medium">
                       <span>{c.name}</span>
-                      <span className="text-muted-foreground">{c.count} units ({pct}%)</span>
+                      <span className="text-muted-foreground">
+                        {c.count} units ({pct}%)
+                      </span>
                     </div>
                     <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                      <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
+                      <div
+                        className="h-full rounded-full bg-primary"
+                        style={{ width: `${pct}%` }}
+                      />
                     </div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground">No category sales recorded yet.</p>
+            <p className="text-xs text-muted-foreground">
+              No category sales recorded yet.
+            </p>
           )}
         </div>
       </div>

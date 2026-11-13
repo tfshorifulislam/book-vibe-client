@@ -12,7 +12,9 @@ export default function RegisterPage() {
       title="Join BookHand"
       description="Buy books from trusted sellers, or open a shop and sell your own."
     >
-      <Suspense fallback={<div className="h-96 animate-pulse rounded-lg bg-muted" />}>
+      <Suspense
+        fallback={<div className="h-96 animate-pulse rounded-lg bg-muted" />}
+      >
         <RegisterForm />
       </Suspense>
     </AuthShell>

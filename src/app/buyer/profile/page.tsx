@@ -15,7 +15,10 @@ export default async function ProfilePage() {
   });
   return (
     <div className="space-y-6">
-      <PageHeader title="Your profile" description="Keep your contact details up to date." />
+      <PageHeader
+        title="Your profile"
+        description="Keep your contact details up to date."
+      />
       <ProfileForm
         initial={{
           name: profile.name,

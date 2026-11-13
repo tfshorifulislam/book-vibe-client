@@ -19,7 +19,9 @@ export async function POST(request: Request) {
   try {
     await requireApiUser("admin");
     const input = publisherSchema.parse(await readJson(request));
-    const existing = await prisma.publisher.findUnique({ where: { slug: input.slug } });
+    const existing = await prisma.publisher.findUnique({
+      where: { slug: input.slug },
+    });
     if (existing) return fail("That publisher slug is already in use.", 409);
     const publisher = await prisma.publisher.create({ data: input });
     return ok({ publisher }, { status: 201 });

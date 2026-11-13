@@ -58,7 +58,9 @@ export default async function SellerOrdersPage({
         {statuses.map((s) => (
           <Link
             key={s.value}
-            href={s.value ? `/seller/orders?status=${s.value}` : "/seller/orders"}
+            href={
+              s.value ? `/seller/orders?status=${s.value}` : "/seller/orders"
+            }
             className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
               (status ?? "") === s.value
                 ? "bg-primary text-primary-foreground"
@@ -87,20 +89,29 @@ export default async function SellerOrdersPage({
             </thead>
             <tbody className="divide-y divide-border">
               {orders.map((o) => {
-                const sellerSubtotal = o.items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+                const sellerSubtotal = o.items.reduce(
+                  (sum, i) => sum + i.price * i.quantity,
+                  0,
+                );
                 return (
                   <tr key={o.id} className="hover:bg-muted/30">
                     <td className="px-4 py-3 font-mono font-semibold text-primary">
                       {o.orderNumber}
                     </td>
                     <td className="px-4 py-3">
-                      <p className="font-medium text-foreground">{o.user.name}</p>
-                      <p className="text-xs text-muted-foreground">{o.user.email}</p>
+                      <p className="font-medium text-foreground">
+                        {o.user.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {o.user.email}
+                      </p>
                     </td>
                     <td className="px-4 py-3 text-xs">
                       {o.items.length} {o.items.length === 1 ? "book" : "books"}
                     </td>
-                    <td className="px-4 py-3 font-semibold">{formatPrice(sellerSubtotal)}</td>
+                    <td className="px-4 py-3 font-semibold">
+                      {formatPrice(sellerSubtotal)}
+                    </td>
                     <td className="px-4 py-3 text-xs">
                       <StatusBadge status={o.payment?.status ?? "UNPAID"} />
                     </td>
@@ -127,7 +138,11 @@ export default async function SellerOrdersPage({
       ) : (
         <EmptyPanel
           title="No orders found"
-          description={status ? `No orders in "${status}" status.` : "You have not received any customer orders yet."}
+          description={
+            status
+              ? `No orders in "${status}" status.`
+              : "You have not received any customer orders yet."
+          }
         />
       )}
     </div>

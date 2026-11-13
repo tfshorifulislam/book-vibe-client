@@ -12,10 +12,15 @@ export default async function CategoriesPage() {
   const categories = await getCategories();
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">Discover</p>
-      <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Browse by category</h1>
+      <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
+        Discover
+      </p>
+      <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
+        Browse by category
+      </h1>
       <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-        Find new and used books across fiction, academic, business, history, and more.
+        Find new and used books across fiction, academic, business, history, and
+        more.
       </p>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {categories.map((category) => (
@@ -35,7 +40,8 @@ export default async function CategoriesPage() {
                     href={`/categories/${child.slug}`}
                     className="rounded-full border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground hover:border-primary/40 hover:text-primary"
                   >
-                    {child.name} <span className="text-xs">({child.bookCount})</span>
+                    {child.name}{" "}
+                    <span className="text-xs">({child.bookCount})</span>
                   </a>
                 ))}
               </div>

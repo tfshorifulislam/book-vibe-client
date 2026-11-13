@@ -14,7 +14,11 @@ type Banner = {
   isActive: boolean;
 };
 
-export function BannerManager({ initialBanners }: { initialBanners: Banner[] }) {
+export function BannerManager({
+  initialBanners,
+}: {
+  initialBanners: Banner[];
+}) {
   const router = useRouter();
   const [banners, setBanners] = useState(initialBanners);
   const [open, setOpen] = useState(false);
@@ -67,7 +71,9 @@ export function BannerManager({ initialBanners }: { initialBanners: Banner[] }) 
   async function handleDelete(id: string) {
     if (!confirm("Delete this banner?")) return;
     try {
-      const res = await fetch(`/api/admin/banners?id=${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/banners?id=${id}`, {
+        method: "DELETE",
+      });
       if (res.ok) {
         setBanners(banners.filter((b) => b.id !== id));
         toast.success("Banner deleted.");
@@ -91,51 +97,62 @@ export function BannerManager({ initialBanners }: { initialBanners: Banner[] }) 
       </div>
 
       {open ? (
-        <form onSubmit={handleCreate} className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <form
+          onSubmit={handleCreate}
+          className="space-y-4 rounded-xl border border-border bg-card p-5"
+        >
           <h3 className="text-base font-semibold">New Promotional Banner</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Headline *</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Headline *
+              </label>
               <input
                 type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Winter Book Festival - Up to 40% Off"
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Target Link URL</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Target Link URL
+              </label>
               <input
                 type="text"
                 value={href}
                 onChange={(e) => setHref(e.target.value)}
                 placeholder="/deals or /categories/fiction"
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Subtitle / Callout</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Subtitle / Callout
+              </label>
               <input
                 type="text"
                 value={subtitle}
                 onChange={(e) => setSubtitle(e.target.value)}
                 placeholder="Explore thousands of bestselling novels and academic titles."
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Display Order</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Display Order
+              </label>
               <input
                 type="number"
                 min={0}
                 value={order}
                 onChange={(e) => setOrder(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
           </div>
@@ -153,7 +170,8 @@ export function BannerManager({ initialBanners }: { initialBanners: Banner[] }) 
               disabled={loading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? <Loader2 className="size-4 animate-spin" /> : null} Save Banner
+              {loading ? <Loader2 className="size-4 animate-spin" /> : null}{" "}
+              Save Banner
             </button>
           </div>
         </form>
@@ -174,9 +192,15 @@ export function BannerManager({ initialBanners }: { initialBanners: Banner[] }) 
             <tbody className="divide-y divide-border">
               {banners.map((b) => (
                 <tr key={b.id} className="hover:bg-muted/30">
-                  <td className="px-4 py-3 font-semibold text-foreground">{b.title}</td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{b.subtitle || "None"}</td>
-                  <td className="px-4 py-3 text-xs font-mono text-primary">{b.href || "/"}</td>
+                  <td className="px-4 py-3 font-semibold text-foreground">
+                    {b.title}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    {b.subtitle || "None"}
+                  </td>
+                  <td className="px-4 py-3 font-mono text-xs text-primary">
+                    {b.href || "/"}
+                  </td>
                   <td className="px-4 py-3 text-xs">{b.order}</td>
                   <td className="px-4 py-3 text-right">
                     <button
@@ -193,7 +217,9 @@ export function BannerManager({ initialBanners }: { initialBanners: Banner[] }) 
             </tbody>
           </table>
         ) : (
-          <div className="p-8 text-center text-sm text-muted-foreground">No promotional banners active.</div>
+          <div className="p-8 text-center text-sm text-muted-foreground">
+            No promotional banners active.
+          </div>
         )}
       </div>
     </div>

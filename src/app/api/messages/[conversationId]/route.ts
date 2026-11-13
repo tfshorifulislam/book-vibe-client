@@ -16,10 +16,16 @@ export async function GET(_request: Request, { params }: Params) {
       where: { id: conversationId },
       include: {
         participants: {
-          include: { user: { select: { id: true, name: true, avatar: true, role: true } } },
+          include: {
+            user: {
+              select: { id: true, name: true, avatar: true, role: true },
+            },
+          },
         },
         messages: {
-          include: { sender: { select: { id: true, name: true, avatar: true } } },
+          include: {
+            sender: { select: { id: true, name: true, avatar: true } },
+          },
           orderBy: { createdAt: "asc" },
         },
       },

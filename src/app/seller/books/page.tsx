@@ -61,20 +61,38 @@ export default async function SellerBooksPage() {
               {books.map((b) => (
                 <tr key={b.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3">
-                    <p className="font-semibold text-foreground line-clamp-1">{b.title}</p>
-                    <p className="text-xs text-muted-foreground">{b.author.name}</p>
+                    <p className="line-clamp-1 font-semibold text-foreground">
+                      {b.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {b.author.name}
+                    </p>
                   </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{b.category.name}</td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    {b.category.name}
+                  </td>
                   <td className="px-4 py-3 text-xs">
-                    <span className="rounded bg-muted px-2 py-0.5 font-medium">{b.condition}</span>
+                    <span className="rounded bg-muted px-2 py-0.5 font-medium">
+                      {b.condition}
+                    </span>
                   </td>
-                  <td className="px-4 py-3 font-semibold">{formatPrice(b.price)}</td>
+                  <td className="px-4 py-3 font-semibold">
+                    {formatPrice(b.price)}
+                  </td>
                   <td className="px-4 py-3">
-                    <span className={b.stock <= b.lowStockAlert ? "text-warning font-bold" : ""}>
+                    <span
+                      className={
+                        b.stock <= b.lowStockAlert
+                          ? "font-bold text-warning"
+                          : ""
+                      }
+                    >
                       {b.stock} left
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{b.salesCount} sold</td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    {b.salesCount} sold
+                  </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={b.isActive ? "ACTIVE" : "SUSPENDED"} />
                   </td>

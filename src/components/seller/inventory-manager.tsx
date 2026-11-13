@@ -17,7 +17,11 @@ type BookItem = {
   category: { name: string };
 };
 
-export function InventoryManager({ initialBooks }: { initialBooks: BookItem[] }) {
+export function InventoryManager({
+  initialBooks,
+}: {
+  initialBooks: BookItem[];
+}) {
   const [books, setBooks] = useState(initialBooks);
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -69,22 +73,26 @@ export function InventoryManager({ initialBooks }: { initialBooks: BookItem[] })
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3 justify-between items-center">
+      <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
         <input
           type="search"
           placeholder="Filter by title or category..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full sm:w-72 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none sm:w-72"
         />
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-destructive" /> Out of stock (
-            {books.filter((b) => b.stock === 0).length})
+            <span className="size-2 rounded-full bg-destructive" /> Out of stock
+            ({books.filter((b) => b.stock === 0).length})
           </span>
           <span className="flex items-center gap-1.5">
             <span className="size-2 rounded-full bg-warning" /> Low stock (
-            {books.filter((b) => b.stock > 0 && b.stock <= b.lowStockAlert).length})
+            {
+              books.filter((b) => b.stock > 0 && b.stock <= b.lowStockAlert)
+                .length
+            }
+            )
           </span>
         </div>
       </div>
@@ -111,13 +119,22 @@ export function InventoryManager({ initialBooks }: { initialBooks: BookItem[] })
                 return (
                   <tr key={b.id} className="hover:bg-muted/30">
                     <td className="px-4 py-3">
-                      <Link href={`/books/${b.slug}`} className="font-medium hover:text-primary line-clamp-1">
+                      <Link
+                        href={`/books/${b.slug}`}
+                        className="line-clamp-1 font-medium hover:text-primary"
+                      >
                         {b.title}
                       </Link>
-                      <span className="text-xs text-muted-foreground">{b.condition}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {b.condition}
+                      </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">{b.category.name}</td>
-                    <td className="px-4 py-3 font-semibold">{formatPrice(b.price)}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">
+                      {b.category.name}
+                    </td>
+                    <td className="px-4 py-3 font-semibold">
+                      {formatPrice(b.price)}
+                    </td>
                     <td className="px-4 py-3">
                       {isOutOfStock ? (
                         <span className="inline-flex items-center gap-1 text-xs font-semibold text-destructive">
@@ -128,7 +145,9 @@ export function InventoryManager({ initialBooks }: { initialBooks: BookItem[] })
                           <TriangleAlert className="size-3" /> Low Stock
                         </span>
                       ) : (
-                        <span className="text-xs font-medium text-success">Healthy</span>
+                        <span className="text-xs font-medium text-success">
+                          Healthy
+                        </span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -139,7 +158,7 @@ export function InventoryManager({ initialBooks }: { initialBooks: BookItem[] })
                             min={0}
                             value={newStock}
                             onChange={(e) => setNewStock(e.target.value)}
-                            className="w-16 rounded border border-primary px-2 py-1 text-sm font-bold bg-background text-foreground focus:outline-none"
+                            className="w-16 rounded border border-primary bg-background px-2 py-1 text-sm font-bold text-foreground focus:outline-none"
                             autoFocus
                           />
                           <button
@@ -149,11 +168,17 @@ export function InventoryManager({ initialBooks }: { initialBooks: BookItem[] })
                             className="rounded p-1 text-primary hover:bg-primary/10"
                             aria-label="Confirm stock"
                           >
-                            {loading ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
+                            {loading ? (
+                              <Loader2 className="size-4 animate-spin" />
+                            ) : (
+                              <Check className="size-4" />
+                            )}
                           </button>
                         </div>
                       ) : (
-                        <span className="font-bold text-foreground">{b.stock} units</span>
+                        <span className="font-bold text-foreground">
+                          {b.stock} units
+                        </span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -184,7 +209,9 @@ export function InventoryManager({ initialBooks }: { initialBooks: BookItem[] })
             </tbody>
           </table>
         ) : (
-          <div className="p-8 text-center text-sm text-muted-foreground">No books matching search.</div>
+          <div className="p-8 text-center text-sm text-muted-foreground">
+            No books matching search.
+          </div>
         )}
       </div>
     </div>

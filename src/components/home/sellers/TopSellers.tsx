@@ -29,11 +29,7 @@ export function TopSellers({ sellers }: TopSellersProps) {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {sellers.map((seller, index) => (
-              <SellerCard
-                key={seller.id}
-                seller={seller}
-                rank={index + 1}
-              />
+              <SellerCard key={seller.id} seller={seller} rank={index + 1} />
             ))}
           </div>
         )}

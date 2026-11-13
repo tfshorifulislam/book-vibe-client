@@ -8,7 +8,9 @@ import { requireRole } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Customer Reviews | Seller Workspace" };
+export const metadata: Metadata = {
+  title: "Customer Reviews | Seller Workspace",
+};
 
 export default async function SellerReviewsPage() {
   const user = await requireRole("seller");
@@ -36,11 +38,14 @@ export default async function SellerReviewsPage() {
       {reviews.length ? (
         <div className="grid gap-4 sm:grid-cols-2">
           {reviews.map((r) => (
-            <div key={r.id} className="rounded-xl border border-border bg-card p-5 space-y-2">
+            <div
+              key={r.id}
+              className="space-y-2 rounded-xl border border-border bg-card p-5"
+            >
               <div className="flex items-center justify-between">
                 <Link
                   href={`/books/${r.book.slug}`}
-                  className="font-semibold text-foreground hover:text-primary line-clamp-1 text-sm"
+                  className="line-clamp-1 text-sm font-semibold text-foreground hover:text-primary"
                 >
                   {r.book.title}
                 </Link>
@@ -50,12 +55,18 @@ export default async function SellerReviewsPage() {
                 </div>
               </div>
 
-              {r.title ? <p className="text-xs font-semibold text-foreground">{r.title}</p> : null}
+              {r.title ? (
+                <p className="text-xs font-semibold text-foreground">
+                  {r.title}
+                </p>
+              ) : null}
               <p className="text-xs text-muted-foreground">{r.body}</p>
 
               <div className="flex items-center justify-between border-t border-border pt-2 text-[11px] text-muted-foreground">
                 <span>By {r.user.name}</span>
-                <span>{formatDate(r.createdAt.toISOString().slice(0, 10))}</span>
+                <span>
+                  {formatDate(r.createdAt.toISOString().slice(0, 10))}
+                </span>
               </div>
             </div>
           ))}

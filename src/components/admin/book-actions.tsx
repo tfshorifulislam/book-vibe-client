@@ -19,7 +19,10 @@ export function BookModerationActions({
   const [active, setActive] = useState(isActive);
   const [loading, setLoading] = useState(false);
 
-  async function handleUpdate(patch: { isFeatured?: boolean; isActive?: boolean }) {
+  async function handleUpdate(patch: {
+    isFeatured?: boolean;
+    isActive?: boolean;
+  }) {
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/books/${bookId}`, {
@@ -47,13 +50,15 @@ export function BookModerationActions({
   }
 
   return (
-    <div className="flex items-center gap-1.5 justify-end">
+    <div className="flex items-center justify-end gap-1.5">
       <button
         type="button"
         disabled={loading}
         onClick={() => handleUpdate({ isFeatured: !featured })}
         className={`rounded p-1 text-xs transition-colors ${
-          featured ? "text-amber-500 fill-amber-500 hover:bg-amber-500/10" : "text-muted-foreground hover:bg-muted"
+          featured
+            ? "fill-amber-500 text-amber-500 hover:bg-amber-500/10"
+            : "text-muted-foreground hover:bg-muted"
         }`}
         title={featured ? "Remove from Featured" : "Mark as Featured"}
       >
@@ -65,11 +70,17 @@ export function BookModerationActions({
         disabled={loading}
         onClick={() => handleUpdate({ isActive: !active })}
         className={`rounded p-1 text-xs transition-colors ${
-          active ? "text-destructive hover:bg-destructive/10" : "text-success hover:bg-success/10"
+          active
+            ? "text-destructive hover:bg-destructive/10"
+            : "text-success hover:bg-success/10"
         }`}
         title={active ? "Unpublish / Suspend Book" : "Publish / Approve Book"}
       >
-        {active ? <ShieldAlert className="size-4" /> : <ShieldCheck className="size-4" />}
+        {active ? (
+          <ShieldAlert className="size-4" />
+        ) : (
+          <ShieldCheck className="size-4" />
+        )}
       </button>
     </div>
   );

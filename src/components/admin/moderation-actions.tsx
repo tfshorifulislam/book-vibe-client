@@ -20,7 +20,8 @@ export function ModerationButton({
   const [loading, setLoading] = useState(false);
 
   async function handleAction() {
-    if (action === "delete" && !confirm("Permanently delete this entry?")) return;
+    if (action === "delete" && !confirm("Permanently delete this entry?"))
+      return;
 
     setLoading(true);
     try {
@@ -53,7 +54,12 @@ export function ModerationButton({
         onClick={handleAction}
         className="inline-flex items-center gap-1 rounded bg-success/10 px-2 py-1 text-xs font-semibold text-success hover:bg-success/20 disabled:opacity-50"
       >
-        {loading ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />} Approve
+        {loading ? (
+          <Loader2 className="size-3 animate-spin" />
+        ) : (
+          <Check className="size-3" />
+        )}{" "}
+        Approve
       </button>
     );
   }
@@ -66,7 +72,12 @@ export function ModerationButton({
         onClick={handleAction}
         className="inline-flex items-center gap-1 rounded bg-warning/15 px-2 py-1 text-xs font-semibold text-warning hover:bg-warning/25 disabled:opacity-50"
       >
-        {loading ? <Loader2 className="size-3 animate-spin" /> : <X className="size-3" />} Reject
+        {loading ? (
+          <Loader2 className="size-3 animate-spin" />
+        ) : (
+          <X className="size-3" />
+        )}{" "}
+        Reject
       </button>
     );
   }
@@ -79,7 +90,12 @@ export function ModerationButton({
         onClick={handleAction}
         className="inline-flex items-center gap-1 rounded bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
       >
-        {loading ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />} Resolve
+        {loading ? (
+          <Loader2 className="size-3 animate-spin" />
+        ) : (
+          <Check className="size-3" />
+        )}{" "}
+        Resolve
       </button>
     );
   }
@@ -92,7 +108,11 @@ export function ModerationButton({
       className="rounded p-1 text-muted-foreground hover:text-destructive disabled:opacity-50"
       title="Delete"
     >
-      {loading ? <Loader2 className="size-3 animate-spin" /> : <Trash2 className="size-3.5" />}
+      {loading ? (
+        <Loader2 className="size-3 animate-spin" />
+      ) : (
+        <Trash2 className="size-3.5" />
+      )}
     </button>
   );
 }

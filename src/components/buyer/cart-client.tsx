@@ -44,7 +44,8 @@ export function CartClient() {
     fetch("/api/cart")
       .then((response) => response.json())
       .then((payload: { success: boolean; data?: Cart }) => {
-        if (active) setCart(payload.success && payload.data ? payload.data : EMPTY);
+        if (active)
+          setCart(payload.success && payload.data ? payload.data : EMPTY);
       })
       .catch(() => {
         if (active) setCart(EMPTY);
@@ -61,7 +62,11 @@ export function CartClient() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ itemId, quantity }),
     });
-    const payload = (await response.json()) as { success: boolean; data?: Cart; message?: string };
+    const payload = (await response.json()) as {
+      success: boolean;
+      data?: Cart;
+      message?: string;
+    };
     setPendingItem(null);
     if (!response.ok || !payload.success || !payload.data) {
       toast.error(payload.message ?? "Unable to update your cart.");
@@ -72,8 +77,14 @@ export function CartClient() {
 
   async function remove(itemId: string) {
     setPendingItem(itemId);
-    const response = await fetch(`/api/cart?itemId=${itemId}`, { method: "DELETE" });
-    const payload = (await response.json()) as { success: boolean; data?: Cart; message?: string };
+    const response = await fetch(`/api/cart?itemId=${itemId}`, {
+      method: "DELETE",
+    });
+    const payload = (await response.json()) as {
+      success: boolean;
+      data?: Cart;
+      message?: string;
+    };
     setPendingItem(null);
     if (!response.ok || !payload.success || !payload.data) {
       toast.error(payload.message ?? "Unable to remove this item.");
@@ -96,15 +107,23 @@ export function CartClient() {
       <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
         <ShoppingBag className="mx-auto size-10 text-muted-foreground" />
         <h2 className="mt-3 text-base font-semibold">Your cart is empty</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Find a book you love and add it here.</p>
-        <Link href="/books" className="mt-5 inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground">
+        <p className="mt-1 text-sm text-muted-foreground">
+          Find a book you love and add it here.
+        </p>
+        <Link
+          href="/books"
+          className="mt-5 inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground"
+        >
           Browse books
         </Link>
       </div>
     );
   }
 
-  const remaining = Math.max(0, cart.settings.freeShippingThreshold - cart.subtotal);
+  const remaining = Math.max(
+    0,
+    cart.settings.freeShippingThreshold - cart.subtotal,
+  );
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
@@ -112,25 +131,41 @@ export function CartClient() {
         <div className="rounded-lg border border-border bg-card p-3 text-sm">
           {remaining > 0 ? (
             <p className="text-muted-foreground">
-              Add <strong className="text-foreground">{formatPrice(remaining)}</strong> more for free delivery.
+              Add{" "}
+              <strong className="text-foreground">
+                {formatPrice(remaining)}
+              </strong>{" "}
+              more for free delivery.
             </p>
           ) : (
-            <p className="font-medium text-success">You qualify for free delivery.</p>
+            <p className="font-medium text-success">
+              You qualify for free delivery.
+            </p>
           )}
         </div>
         {cart.items.map((item) => (
-          <div key={item.itemId} className="flex gap-4 rounded-xl border border-border bg-card p-4">
+          <div
+            key={item.itemId}
+            className="flex gap-4 rounded-xl border border-border bg-card p-4"
+          >
             <Link href={`/books/${item.book.slug}`} className="w-20 shrink-0">
               <BookCover book={item.book} sizes="80px" />
             </Link>
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <Link href={`/books/${item.book.slug}`} className="line-clamp-2 text-sm font-semibold hover:text-primary">
+                  <Link
+                    href={`/books/${item.book.slug}`}
+                    className="line-clamp-2 text-sm font-semibold hover:text-primary"
+                  >
                     {item.book.title}
                   </Link>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{item.book.author}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">Sold by {item.book.sellerName}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {item.book.author}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Sold by {item.book.sellerName}
+                  </p>
                 </div>
                 <button
                   type="button"
@@ -144,15 +179,41 @@ export function CartClient() {
               </div>
               <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                 <div className="inline-flex h-9 items-center rounded-lg border border-border">
-                  <button type="button" onClick={() => update(item.itemId, Math.max(1, item.quantity - 1))} disabled={item.quantity <= 1 || pendingItem === item.itemId} className="inline-flex size-8 items-center justify-center disabled:opacity-40" aria-label="Decrease quantity">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      update(item.itemId, Math.max(1, item.quantity - 1))
+                    }
+                    disabled={item.quantity <= 1 || pendingItem === item.itemId}
+                    className="inline-flex size-8 items-center justify-center disabled:opacity-40"
+                    aria-label="Decrease quantity"
+                  >
                     <Minus className="size-3.5" />
                   </button>
-                  <span className="w-8 text-center text-sm font-semibold">{item.quantity}</span>
-                  <button type="button" onClick={() => update(item.itemId, Math.min(item.availableStock, item.quantity + 1))} disabled={item.quantity >= item.availableStock || pendingItem === item.itemId} className="inline-flex size-8 items-center justify-center disabled:opacity-40" aria-label="Increase quantity">
+                  <span className="w-8 text-center text-sm font-semibold">
+                    {item.quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      update(
+                        item.itemId,
+                        Math.min(item.availableStock, item.quantity + 1),
+                      )
+                    }
+                    disabled={
+                      item.quantity >= item.availableStock ||
+                      pendingItem === item.itemId
+                    }
+                    className="inline-flex size-8 items-center justify-center disabled:opacity-40"
+                    aria-label="Increase quantity"
+                  >
                     <Plus className="size-3.5" />
                   </button>
                 </div>
-                <p className="text-sm font-bold">{formatPrice(item.subtotal)}</p>
+                <p className="text-sm font-bold">
+                  {formatPrice(item.subtotal)}
+                </p>
               </div>
             </div>
           </div>
@@ -162,17 +223,36 @@ export function CartClient() {
       <aside className="h-fit rounded-xl border border-border bg-card p-5 xl:sticky xl:top-20">
         <h2 className="text-base font-bold">Order summary</h2>
         <dl className="mt-4 space-y-2 text-sm">
-          <div className="flex justify-between"><dt className="text-muted-foreground">Subtotal ({cart.count} items)</dt><dd>{formatPrice(cart.subtotal)}</dd></div>
-          <div className="flex justify-between"><dt className="text-muted-foreground">Delivery</dt><dd>{cart.shipping ? formatPrice(cart.shipping) : "Free"}</dd></div>
-          <div className="flex justify-between border-t border-border pt-3 text-base font-bold"><dt>Total</dt><dd>{formatPrice(cart.total)}</dd></div>
+          <div className="flex justify-between">
+            <dt className="text-muted-foreground">
+              Subtotal ({cart.count} items)
+            </dt>
+            <dd>{formatPrice(cart.subtotal)}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-muted-foreground">Delivery</dt>
+            <dd>{cart.shipping ? formatPrice(cart.shipping) : "Free"}</dd>
+          </div>
+          <div className="flex justify-between border-t border-border pt-3 text-base font-bold">
+            <dt>Total</dt>
+            <dd>{formatPrice(cart.total)}</dd>
+          </div>
         </dl>
-        <Link href="/buyer/checkout" className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground hover:opacity-90">
+        <Link
+          href="/buyer/checkout"
+          className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground hover:opacity-90"
+        >
           Proceed to checkout
         </Link>
-        <Link href="/books" className="mt-2 inline-flex h-10 w-full items-center justify-center rounded-lg border border-border text-sm font-medium hover:bg-muted">
+        <Link
+          href="/books"
+          className="mt-2 inline-flex h-10 w-full items-center justify-center rounded-lg border border-border text-sm font-medium hover:bg-muted"
+        >
           Continue shopping
         </Link>
-        <p className="mt-3 text-center text-xs text-muted-foreground">Taxes and any coupon discounts are applied at checkout.</p>
+        <p className="mt-3 text-center text-xs text-muted-foreground">
+          Taxes and any coupon discounts are applied at checkout.
+        </p>
       </aside>
     </div>
   );

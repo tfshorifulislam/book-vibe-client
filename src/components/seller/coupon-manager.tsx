@@ -27,7 +27,9 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
 
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
-  const [discountType, setDiscountType] = useState<"PERCENTAGE" | "FIXED">("PERCENTAGE");
+  const [discountType, setDiscountType] = useState<"PERCENTAGE" | "FIXED">(
+    "PERCENTAGE",
+  );
   const [discountValue, setDiscountValue] = useState("");
   const [minOrderAmount, setMinOrderAmount] = useState("");
   const [maxDiscount, setMaxDiscount] = useState("");
@@ -85,7 +87,9 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
   async function handleDelete(id: string) {
     if (!confirm("Are you sure you want to remove this coupon?")) return;
     try {
-      const res = await fetch(`/api/seller/coupons/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/seller/coupons/${id}`, {
+        method: "DELETE",
+      });
       if (res.ok) {
         setCoupons(coupons.filter((c) => c.id !== id));
         toast.success("Coupon removed.");
@@ -108,26 +112,35 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
       </div>
 
       {open ? (
-        <form onSubmit={handleCreate} className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <form
+          onSubmit={handleCreate}
+          className="space-y-4 rounded-xl border border-border bg-card p-5"
+        >
           <h3 className="text-base font-semibold">New Shop Coupon</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Coupon Code *</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Coupon Code *
+              </label>
               <input
                 type="text"
                 required
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 placeholder="e.g. SUMMER15"
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary uppercase font-mono font-bold"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 font-mono text-sm font-bold text-foreground uppercase focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Discount Type</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Discount Type
+              </label>
               <select
                 value={discountType}
-                onChange={(e) => setDiscountType(e.target.value as "PERCENTAGE" | "FIXED")}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                onChange={(e) =>
+                  setDiscountType(e.target.value as "PERCENTAGE" | "FIXED")
+                }
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 <option value="PERCENTAGE">Percentage (%)</option>
                 <option value="FIXED">Fixed Amount (BDT)</option>
@@ -138,7 +151,9 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <label className="block text-xs font-medium text-muted-foreground uppercase">
-                {discountType === "PERCENTAGE" ? "Discount Percentage (%) *" : "Discount Amount (BDT) *"}
+                {discountType === "PERCENTAGE"
+                  ? "Discount Percentage (%) *"
+                  : "Discount Amount (BDT) *"}
               </label>
               <input
                 type="number"
@@ -147,29 +162,33 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
                 max={discountType === "PERCENTAGE" ? 100 : 10000}
                 value={discountValue}
                 onChange={(e) => setDiscountValue(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
                 placeholder={discountType === "PERCENTAGE" ? "15" : "100"}
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Min Order Amount (BDT)</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Min Order Amount (BDT)
+              </label>
               <input
                 type="number"
                 min={0}
                 value={minOrderAmount}
                 onChange={(e) => setMinOrderAmount(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
                 placeholder="500"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Max Discount Cap (BDT)</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Max Discount Cap (BDT)
+              </label>
               <input
                 type="number"
                 min={0}
                 value={maxDiscount}
                 onChange={(e) => setMaxDiscount(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
                 placeholder="200"
               />
             </div>
@@ -177,22 +196,26 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Description</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Description
+              </label>
               <input
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
                 placeholder="15% discount on all books"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Expiration Date</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Expiration Date
+              </label>
               <input
                 type="date"
                 value={expiresAt}
                 onChange={(e) => setExpiresAt(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
           </div>
@@ -210,7 +233,8 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
               disabled={loading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? <Loader2 className="size-4 animate-spin" /> : null} Save Coupon
+              {loading ? <Loader2 className="size-4 animate-spin" /> : null}{" "}
+              Save Coupon
             </button>
           </div>
         </form>
@@ -232,16 +256,24 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
             <tbody className="divide-y divide-border">
               {coupons.map((c) => (
                 <tr key={c.id} className="hover:bg-muted/30">
-                  <td className="px-4 py-3 font-mono font-bold text-primary">{c.code}</td>
+                  <td className="px-4 py-3 font-mono font-bold text-primary">
+                    {c.code}
+                  </td>
                   <td className="px-4 py-3 font-medium">
-                    {c.type === "PERCENTAGE" ? `${c.value}% off` : `${formatPrice(c.value)} off`}
+                    {c.type === "PERCENTAGE"
+                      ? `${c.value}% off`
+                      : `${formatPrice(c.value)} off`}
                   </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">
                     {c.minOrder ? `Min ${formatPrice(c.minOrder)}` : "No min"}
                   </td>
-                  <td className="px-4 py-3 text-xs">{c._count?.usages ?? 0} times</td>
+                  <td className="px-4 py-3 text-xs">
+                    {c._count?.usages ?? 0} times
+                  </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">
-                    {c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : "Never"}
+                    {c.expiresAt
+                      ? new Date(c.expiresAt).toLocaleDateString()
+                      : "Never"}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button
@@ -259,7 +291,8 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
           </table>
         ) : (
           <div className="p-8 text-center text-sm text-muted-foreground">
-            No coupons created yet. Create discounts to drive more sales for your shop.
+            No coupons created yet. Create discounts to drive more sales for
+            your shop.
           </div>
         )}
       </div>

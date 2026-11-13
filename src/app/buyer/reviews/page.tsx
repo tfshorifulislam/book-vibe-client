@@ -27,7 +27,10 @@ export default async function ReviewsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="My reviews" description={`${initial.length} review${initial.length === 1 ? "" : "s"} written`} />
+      <PageHeader
+        title="My reviews"
+        description={`${initial.length} review${initial.length === 1 ? "" : "s"} written`}
+      />
       <ReviewsClient initial={initial} />
     </div>
   );

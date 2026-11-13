@@ -63,13 +63,14 @@ export async function getTopSellers(limit = 6): Promise<TopSeller[]> {
 export async function getActiveOffers(): Promise<Offer[]> {
   "use cache";
   cacheLife("hours");
-  const { books } = await getBookCards({ onSale: true, limit: 4, sort: "popular" });
+  const { books } = await getBookCards({
+    onSale: true,
+    limit: 4,
+    sort: "popular",
+  });
   if (!books.length) return [];
 
-  const maxDiscount = Math.max(
-    ...books.map((book) => book.discount ?? 0),
-    0,
-  );
+  const maxDiscount = Math.max(...books.map((book) => book.discount ?? 0), 0);
 
   return [
     {
@@ -79,7 +80,9 @@ export async function getActiveOffers(): Promise<Offer[]> {
         "Limited-time savings on new and used books from trusted BookHand sellers.",
       discountPercent: maxDiscount || undefined,
       startDate: new Date(Date.now() - 86400000).toISOString().slice(0, 10),
-      expiryDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+      expiryDate: new Date(Date.now() + 30 * 86400000)
+        .toISOString()
+        .slice(0, 10),
       isActive: true,
       books,
     },

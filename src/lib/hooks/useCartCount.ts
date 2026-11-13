@@ -8,7 +8,11 @@ import {
 } from "@/lib/client/guest-library";
 
 export function useCartCount(): number {
-  const localCount = useSyncExternalStore(subscribeToLibrary, getCartCount, () => 0);
+  const localCount = useSyncExternalStore(
+    subscribeToLibrary,
+    getCartCount,
+    () => 0,
+  );
   const [serverCount, setServerCount] = useState<number | null>(null);
   const [refresh, setRefresh] = useState(0);
 
@@ -26,7 +30,8 @@ export function useCartCount(): number {
     fetch("/api/cart")
       .then((response) => response.json())
       .then((payload: { success?: boolean; data?: { count?: number } }) => {
-        if (active) setServerCount(payload.success ? (payload.data?.count ?? 0) : null);
+        if (active)
+          setServerCount(payload.success ? (payload.data?.count ?? 0) : null);
       })
       .catch(() => {
         if (active) setServerCount(null);

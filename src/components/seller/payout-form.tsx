@@ -23,7 +23,9 @@ export function PayoutForm({ availableBalance }: { availableBalance: number }) {
       return;
     }
     if (parsedAmount > availableBalance) {
-      toast.error(`Cannot withdraw more than available balance of ${formatPrice(availableBalance)}.`);
+      toast.error(
+        `Cannot withdraw more than available balance of ${formatPrice(availableBalance)}.`,
+      );
       return;
     }
 
@@ -61,12 +63,14 @@ export function PayoutForm({ availableBalance }: { availableBalance: number }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+          <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             Available For Withdrawal
           </span>
-          <p className="text-2xl font-bold text-foreground">{formatPrice(availableBalance)}</p>
+          <p className="text-2xl font-bold text-foreground">
+            {formatPrice(availableBalance)}
+          </p>
         </div>
         <button
           type="button"
@@ -79,7 +83,10 @@ export function PayoutForm({ availableBalance }: { availableBalance: number }) {
       </div>
 
       {open ? (
-        <form onSubmit={handleSubmit} className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 rounded-xl border border-border bg-card p-5"
+        >
           <div className="flex items-center gap-2 border-b border-border pb-3">
             <CircleDollarSign className="size-4 text-primary" />
             <h3 className="text-sm font-semibold">Request Balance Payout</h3>
@@ -87,7 +94,9 @@ export function PayoutForm({ availableBalance }: { availableBalance: number }) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Payout Amount (BDT) *</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Payout Amount (BDT) *
+              </label>
               <input
                 type="number"
                 required
@@ -96,22 +105,30 @@ export function PayoutForm({ availableBalance }: { availableBalance: number }) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="e.g. 5000"
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Payout Channel</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Payout Channel
+              </label>
               <select
                 value={method}
                 onChange={(e) => setMethod(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 <option value="bKash Merchant">bKash Merchant</option>
                 <option value="Nagad Business">Nagad Business</option>
-                <option value="City Bank Account">Bank Transfer (City Bank)</option>
-                <option value="Brac Bank Account">Bank Transfer (BRAC Bank)</option>
-                <option value="Islami Bank Account">Bank Transfer (Islami Bank)</option>
+                <option value="City Bank Account">
+                  Bank Transfer (City Bank)
+                </option>
+                <option value="Brac Bank Account">
+                  Bank Transfer (BRAC Bank)
+                </option>
+                <option value="Islami Bank Account">
+                  Bank Transfer (Islami Bank)
+                </option>
               </select>
             </div>
           </div>
@@ -127,18 +144,20 @@ export function PayoutForm({ availableBalance }: { availableBalance: number }) {
                 value={accountNumber}
                 onChange={(e) => setAccountNumber(e.target.value)}
                 placeholder="e.g. 01712345678 or Account No."
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Note (optional)</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Note (optional)
+              </label>
               <input
                 type="text"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="e.g. November week 1 earnings"
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
           </div>
@@ -156,7 +175,8 @@ export function PayoutForm({ availableBalance }: { availableBalance: number }) {
               disabled={loading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? <Loader2 className="size-4 animate-spin" /> : null} Submit Request
+              {loading ? <Loader2 className="size-4 animate-spin" /> : null}{" "}
+              Submit Request
             </button>
           </div>
         </form>

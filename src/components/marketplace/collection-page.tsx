@@ -26,12 +26,19 @@ export function CollectionPage({
 }) {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
-        <Link href="/" className="hover:text-primary">Home</Link>
+      <nav
+        aria-label="Breadcrumb"
+        className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
+      >
+        <Link href="/" className="hover:text-primary">
+          Home
+        </Link>
         {breadcrumbs.map((crumb) => (
           <span key={crumb.href} className="flex items-center gap-1">
             <ChevronRight className="size-3" />
-            <Link href={crumb.href} className="hover:text-primary">{crumb.label}</Link>
+            <Link href={crumb.href} className="hover:text-primary">
+              {crumb.label}
+            </Link>
           </span>
         ))}
       </nav>
@@ -39,10 +46,18 @@ export function CollectionPage({
       <div className="mt-5 flex flex-col gap-5 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl">
           {eyebrow ? (
-            <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">{eyebrow}</p>
+            <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
+              {eyebrow}
+            </p>
           ) : null}
-          <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
-          {description ? <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p> : null}
+          <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
+            {title}
+          </h1>
+          {description ? (
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              {description}
+            </p>
+          ) : null}
           {count !== undefined ? (
             <p className="mt-2 text-xs text-muted-foreground">{count} books</p>
           ) : null}

@@ -7,7 +7,9 @@ import { requireRole } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { formatDate, formatPrice } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Payout Requests | Seller Workspace" };
+export const metadata: Metadata = {
+  title: "Payout Requests | Seller Workspace",
+};
 
 export default async function SellerPayoutsPage() {
   const user = await requireRole("seller");
@@ -26,7 +28,10 @@ export default async function SellerPayoutsPage() {
     }),
   ]);
 
-  const deliveredGross = deliveredItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const deliveredGross = deliveredItems.reduce(
+    (sum, i) => sum + i.price * i.quantity,
+    0,
+  );
   const deliveredNet = Math.round(deliveredGross * 0.9);
   const withdrawnOrPending = payouts
     .filter((p) => p.status === "PENDING" || p.status === "PAID")
@@ -43,7 +48,7 @@ export default async function SellerPayoutsPage() {
 
       <PayoutForm availableBalance={availableBalance} />
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-border bg-card">
         <div className="border-b border-border p-4">
           <h2 className="text-base font-semibold">Payout History</h2>
         </div>
@@ -61,23 +66,31 @@ export default async function SellerPayoutsPage() {
             <tbody className="divide-y divide-border">
               {payouts.map((p) => (
                 <tr key={p.id} className="hover:bg-muted/30">
-                  <td className="px-4 py-3 font-bold text-foreground">{formatPrice(p.amount)}</td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{p.method ?? "Standard Bank"}</td>
+                  <td className="px-4 py-3 font-bold text-foreground">
+                    {formatPrice(p.amount)}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    {p.method ?? "Standard Bank"}
+                  </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={p.status} />
                   </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">
                     {formatDate(p.createdAt.toISOString().slice(0, 10))}
                   </td>
-                  <td className="px-4 py-3 text-xs text-right text-muted-foreground">
-                    {p.processedAt ? formatDate(p.processedAt.toISOString().slice(0, 10)) : "Pending"}
+                  <td className="px-4 py-3 text-right text-xs text-muted-foreground">
+                    {p.processedAt
+                      ? formatDate(p.processedAt.toISOString().slice(0, 10))
+                      : "Pending"}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         ) : (
-          <div className="p-8 text-center text-sm text-muted-foreground">No payout requests made yet.</div>
+          <div className="p-8 text-center text-sm text-muted-foreground">
+            No payout requests made yet.
+          </div>
         )}
       </div>
     </div>

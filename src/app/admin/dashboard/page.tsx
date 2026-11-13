@@ -99,11 +99,18 @@ export default async function AdminDashboardPage() {
               <div className="flex items-center gap-3">
                 <ShieldAlert className="size-5 text-warning" />
                 <div>
-                  <p className="text-sm font-semibold">{disputesCount} Open Disputes Pending</p>
-                  <p className="text-xs text-muted-foreground">Buyer issues requiring platform arbitration</p>
+                  <p className="text-sm font-semibold">
+                    {disputesCount} Open Disputes Pending
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Buyer issues requiring platform arbitration
+                  </p>
                 </div>
               </div>
-              <Link href="/admin/disputes" className="text-xs font-semibold text-primary hover:underline">
+              <Link
+                href="/admin/disputes"
+                className="text-xs font-semibold text-primary hover:underline"
+              >
                 Review disputes →
               </Link>
             </div>
@@ -114,11 +121,18 @@ export default async function AdminDashboardPage() {
               <div className="flex items-center gap-3">
                 <Wallet className="size-5 text-primary" />
                 <div>
-                  <p className="text-sm font-semibold">{payoutsCount} Payout Requests Pending</p>
-                  <p className="text-xs text-muted-foreground">Seller withdrawal claims awaiting clearance</p>
+                  <p className="text-sm font-semibold">
+                    {payoutsCount} Payout Requests Pending
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Seller withdrawal claims awaiting clearance
+                  </p>
                 </div>
               </div>
-              <Link href="/admin/payouts" className="text-xs font-semibold text-primary hover:underline">
+              <Link
+                href="/admin/payouts"
+                className="text-xs font-semibold text-primary hover:underline"
+              >
                 Process payouts →
               </Link>
             </div>
@@ -129,27 +143,39 @@ export default async function AdminDashboardPage() {
       <div className="grid gap-6 lg:grid-cols-[1.8fr_1fr]">
         {/* Recent Orders */}
         <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between pb-3 border-b border-border">
+          <div className="flex items-center justify-between border-b border-border pb-3">
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <Package className="size-4" /> Recent Marketplace Orders
             </h2>
-            <Link href="/admin/orders" className="text-xs font-medium text-primary hover:underline">
+            <Link
+              href="/admin/orders"
+              className="text-xs font-medium text-primary hover:underline"
+            >
               View all orders
             </Link>
           </div>
           <div className="divide-y divide-border">
             {recentOrders.map((o) => (
-              <div key={o.id} className="flex items-center justify-between py-3">
+              <div
+                key={o.id}
+                className="flex items-center justify-between py-3"
+              >
                 <div className="min-w-0 pr-4">
-                  <Link href={`/admin/orders/${o.id}`} className="font-mono text-xs font-bold text-primary hover:underline">
+                  <Link
+                    href={`/admin/orders/${o.id}`}
+                    className="font-mono text-xs font-bold text-primary hover:underline"
+                  >
                     {o.orderNumber}
                   </Link>
                   <p className="text-xs text-muted-foreground">
-                    {o.user.name} · {formatDate(o.createdAt.toISOString().slice(0, 10))}
+                    {o.user.name} ·{" "}
+                    {formatDate(o.createdAt.toISOString().slice(0, 10))}
                   </p>
                 </div>
-                <div className="text-right flex items-center gap-3">
-                  <span className="font-semibold text-sm">{formatPrice(o.total)}</span>
+                <div className="flex items-center gap-3 text-right">
+                  <span className="text-sm font-semibold">
+                    {formatPrice(o.total)}
+                  </span>
                   <StatusBadge status={o.status} />
                 </div>
               </div>
@@ -159,22 +185,34 @@ export default async function AdminDashboardPage() {
 
         {/* Active Shops */}
         <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between pb-3 border-b border-border">
+          <div className="flex items-center justify-between border-b border-border pb-3">
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <Building2 className="size-4" /> Bookstores
             </h2>
-            <Link href="/admin/shops" className="text-xs font-medium text-primary hover:underline">
+            <Link
+              href="/admin/shops"
+              className="text-xs font-medium text-primary hover:underline"
+            >
               All shops
             </Link>
           </div>
           <div className="divide-y divide-border">
             {topShops.map((s) => (
-              <div key={s.id} className="flex items-center justify-between py-3">
+              <div
+                key={s.id}
+                className="flex items-center justify-between py-3"
+              >
                 <div className="min-w-0 pr-2">
-                  <p className="font-medium text-sm text-foreground line-clamp-1">{s.name}</p>
-                  <p className="text-xs text-muted-foreground">Owner: {s.owner.name}</p>
+                  <p className="line-clamp-1 text-sm font-medium text-foreground">
+                    {s.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Owner: {s.owner.name}
+                  </p>
                 </div>
-                <span className="text-xs text-muted-foreground shrink-0">{s._count.books} books</span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {s._count.books} books
+                </span>
               </div>
             ))}
           </div>

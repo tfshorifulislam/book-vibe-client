@@ -35,7 +35,10 @@ export async function POST(request: Request) {
               action: "STRIPE_PAYMENT_CONFIRMED",
               entity: "Order",
               entityId: orderId,
-              metadata: JSON.stringify({ sessionId: session.id, paymentIntentId }),
+              metadata: JSON.stringify({
+                sessionId: session.id,
+                paymentIntentId,
+              }),
             },
           }),
         ]);
@@ -45,8 +48,10 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify({ received: true }), { status: 200 });
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : "Webhook processing failed" }),
-      { status: 400 }
+      JSON.stringify({
+        error: err instanceof Error ? err.message : "Webhook processing failed",
+      }),
+      { status: 400 },
     );
   }
 }

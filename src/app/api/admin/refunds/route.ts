@@ -60,7 +60,10 @@ export async function PATCH(request: Request) {
         action: `REFUND_${input.status}`,
         entity: "Refund",
         entityId: refund.id,
-        metadata: JSON.stringify({ amount: refund.amount, orderId: refund.orderId }),
+        metadata: JSON.stringify({
+          amount: refund.amount,
+          orderId: refund.orderId,
+        }),
       },
     });
 
@@ -73,7 +76,7 @@ export async function PATCH(request: Request) {
         refund.order.orderNumber,
         buyer.name,
         input.status,
-        refund.amount
+        refund.amount,
       );
       await sendEmail({
         to: buyer.email,

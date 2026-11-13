@@ -5,7 +5,6 @@ import { prisma } from "@/lib/db";
 import { formatDateDisplay } from "@/lib/utils";
 import { ModerationButton } from "@/components/admin/moderation-actions";
 
-
 export default async function AdminQuestionsPage() {
   const questions = await prisma.question.findMany({
     include: {
@@ -20,20 +19,25 @@ export default async function AdminQuestionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Questions Moderation</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Questions Moderation
+          </h1>
           <p className="text-sm text-muted-foreground">
             Monitor and moderate buyer book questions and seller replies.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-card px-3 py-1.5 rounded-lg border border-border">
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground">
           <HelpCircle className="size-4 text-primary" />
-          <span>Total Questions: <strong className="text-foreground">{questions.length}</strong></span>
+          <span>
+            Total Questions:{" "}
+            <strong className="text-foreground">{questions.length}</strong>
+          </span>
         </div>
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-border bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <thead className="border-b border-border bg-muted/40 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
             <tr>
               <th className="px-4 py-3">Book</th>
               <th className="px-4 py-3">Asked By</th>
@@ -47,7 +51,10 @@ export default async function AdminQuestionsPage() {
           <tbody className="divide-y divide-border">
             {questions.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
+                <td
+                  colSpan={7}
+                  className="px-4 py-8 text-center text-muted-foreground"
+                >
                   No questions asked yet.
                 </td>
               </tr>
@@ -57,25 +64,34 @@ export default async function AdminQuestionsPage() {
                   <td className="px-4 py-3">
                     <Link
                       href={`/books/${q.book.slug}`}
-                      className="font-medium text-foreground hover:text-primary transition-colors max-w-xs block truncate"
+                      className="block max-w-xs truncate font-medium text-foreground transition-colors hover:text-primary"
                     >
                       {q.book.title}
                     </Link>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="font-medium text-foreground">{q.user.name}</div>
-                    <div className="text-xs text-muted-foreground">{q.user.email}</div>
+                    <div className="font-medium text-foreground">
+                      {q.user.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {q.user.email}
+                    </div>
                   </td>
-                  <td className="px-4 py-3 max-w-sm">
-                    <p className="text-xs text-foreground line-clamp-2">{q.body}</p>
+                  <td className="max-w-sm px-4 py-3">
+                    <p className="line-clamp-2 text-xs text-foreground">
+                      {q.body}
+                    </p>
                   </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">
-                    {q.answers.length} {q.answers.length === 1 ? "answer" : "answers"}
+                    {q.answers.length}{" "}
+                    {q.answers.length === 1 ? "answer" : "answers"}
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full ${
-                        q.isApproved ? "bg-success/15 text-success" : "bg-warning/15 text-warning"
+                      className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+                        q.isApproved
+                          ? "bg-success/15 text-success"
+                          : "bg-warning/15 text-warning"
                       }`}
                     >
                       {q.isApproved ? "Approved" : "Pending"}
@@ -85,13 +101,25 @@ export default async function AdminQuestionsPage() {
                     {formatDateDisplay(q.createdAt)}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <div className="flex items-center gap-1.5 justify-end">
+                    <div className="flex items-center justify-end gap-1.5">
                       {q.isApproved ? (
-                        <ModerationButton type="question" id={q.id} action="reject" />
+                        <ModerationButton
+                          type="question"
+                          id={q.id}
+                          action="reject"
+                        />
                       ) : (
-                        <ModerationButton type="question" id={q.id} action="approve" />
+                        <ModerationButton
+                          type="question"
+                          id={q.id}
+                          action="approve"
+                        />
                       )}
-                      <ModerationButton type="question" id={q.id} action="delete" />
+                      <ModerationButton
+                        type="question"
+                        id={q.id}
+                        action="delete"
+                      />
                     </div>
                   </td>
                 </tr>

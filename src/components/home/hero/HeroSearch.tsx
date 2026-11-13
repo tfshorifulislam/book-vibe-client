@@ -1,12 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import {
-  useId,
-  useState,
-  type FormEvent,
-  type KeyboardEvent,
-} from "react";
+import { useId, useState, type FormEvent, type KeyboardEvent } from "react";
 import { Search } from "lucide-react";
 import { SEARCH_HELP_TEXT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -16,10 +11,7 @@ interface HeroSearchProps {
   popularSearches: string[];
 }
 
-export function HeroSearch({
-  suggestions,
-  popularSearches,
-}: HeroSearchProps) {
+export function HeroSearch({ suggestions, popularSearches }: HeroSearchProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -67,9 +59,7 @@ export function HeroSearch({
 
     if (event.key === "ArrowUp") {
       event.preventDefault();
-      setActiveIndex((index) =>
-        index <= 0 ? matches.length - 1 : index - 1,
-      );
+      setActiveIndex((index) => (index <= 0 ? matches.length - 1 : index - 1));
     }
   }
 
@@ -119,11 +109,11 @@ export function HeroSearch({
                 ? `${listId}-option-${activeIndex}`
                 : undefined
             }
-            className="min-w-0 flex-1 bg-transparent py-3.5 pl-3 pr-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+            className="min-w-0 flex-1 bg-transparent py-3.5 pr-2 pl-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           <button
             type="submit"
-            className="m-1.5 shrink-0 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card sm:px-5"
+            className="m-1.5 shrink-0 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card focus-visible:outline-none sm:px-5"
           >
             Search
           </button>
@@ -134,7 +124,7 @@ export function HeroSearch({
               role="listbox"
               aria-label="Search suggestions"
               onMouseDown={(event) => event.preventDefault()}
-              className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-xl border border-border bg-popover py-1 shadow-xl animate-in fade-in-0 slide-in-from-top-1 duration-150"
+              className="absolute top-full right-0 left-0 z-30 mt-2 animate-in overflow-hidden rounded-xl border border-border bg-popover py-1 shadow-xl duration-150 fade-in-0 slide-in-from-top-1"
             >
               {matches.map((match, index) => (
                 <li
@@ -151,9 +141,7 @@ export function HeroSearch({
                   }}
                   className={cn(
                     "flex cursor-pointer items-center gap-2 px-4 py-2 text-left text-sm text-foreground transition-colors",
-                    index === activeIndex
-                      ? "bg-muted"
-                      : "hover:bg-muted",
+                    index === activeIndex ? "bg-muted" : "hover:bg-muted",
                   )}
                 >
                   <Search
@@ -181,7 +169,7 @@ export function HeroSearch({
               type="button"
               onClick={() => navigate(keyword)}
               className={cn(
-                "rounded-full border border-border bg-card px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "rounded-full border border-border bg-card px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
               )}
             >
               {keyword}

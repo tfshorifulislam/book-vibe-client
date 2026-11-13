@@ -10,7 +10,10 @@ export default async function CheckoutPage() {
   await requireRole("buyer");
   return (
     <div className="space-y-6">
-      <PageHeader title="Checkout" description="Confirm your delivery details and place the order." />
+      <PageHeader
+        title="Checkout"
+        description="Confirm your delivery details and place the order."
+      />
       <CheckoutClient />
     </div>
   );

@@ -52,16 +52,24 @@ export default async function AdminSellersPage() {
             {sellers.map((s) => (
               <tr key={s.id} className="hover:bg-muted/30">
                 <td className="px-4 py-3">
-                  <p className="font-semibold text-foreground">{s.shop?.name ?? "No Shop Created"}</p>
-                  <p className="text-xs text-muted-foreground">{s.name} ({s.email})</p>
+                  <p className="font-semibold text-foreground">
+                    {s.shop?.name ?? "No Shop Created"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {s.name} ({s.email})
+                  </p>
                 </td>
                 <td className="px-4 py-3 text-xs text-muted-foreground">
-                  {s.shop?.city ? `${s.shop.city}, ${s.shop.district}` : "Not provided"}
+                  {s.shop?.city
+                    ? `${s.shop.city}, ${s.shop.district}`
+                    : "Not provided"}
                 </td>
                 <td className="px-4 py-3 text-xs font-medium">
                   {s.shop?._count.books ?? 0} books
                 </td>
-                <td className="px-4 py-3 text-xs">{s.orderItemsSold.length} units</td>
+                <td className="px-4 py-3 text-xs">
+                  {s.orderItemsSold.length} units
+                </td>
                 <td className="px-4 py-3">
                   <StatusBadge status={s.status} />
                 </td>

@@ -59,7 +59,9 @@ export function toBookCard(book: BookCardRow): Book {
     originalPrice: book.originalPrice ?? undefined,
     discount:
       book.originalPrice && book.originalPrice > book.price
-        ? Math.round(((book.originalPrice - book.price) / book.originalPrice) * 100)
+        ? Math.round(
+            ((book.originalPrice - book.price) / book.originalPrice) * 100,
+          )
         : undefined,
     rating,
     reviewCount: book.ratingCount,
@@ -247,7 +249,9 @@ export async function getRelatedBooks(book: {
   return books.map(toBookCard);
 }
 
-export async function getCategories(includeInactive = false): Promise<Category[]> {
+export async function getCategories(
+  includeInactive = false,
+): Promise<Category[]> {
   const categories = await prisma.category.findMany({
     where: includeInactive ? {} : { isActive: true },
     include: {
@@ -368,7 +372,10 @@ export async function getShops() {
   });
 
   return shops.map((shop) => {
-    const ratingCount = shop.books.reduce((sum, book) => sum + book.ratingCount, 0);
+    const ratingCount = shop.books.reduce(
+      (sum, book) => sum + book.ratingCount,
+      0,
+    );
     const ratingSum = shop.books.reduce((sum, book) => sum + book.ratingSum, 0);
     return {
       id: shop.id,
@@ -383,7 +390,8 @@ export async function getShops() {
       district: shop.district,
       status: shop.status,
       bookCount: shop._count.books,
-      rating: ratingCount > 0 ? Math.round((ratingSum / ratingCount) * 10) / 10 : 0,
+      rating:
+        ratingCount > 0 ? Math.round((ratingSum / ratingCount) * 10) / 10 : 0,
       reviewCount: ratingCount,
       location: [shop.city, shop.district].filter(Boolean).join(", "),
     };
@@ -454,32 +462,30 @@ export async function getPopularSearches(): Promise<string[]> {
     }),
   ]);
   return Array.from(
-    new Set([...categories.map((category) => category.name), ...authors.map((author) => author.name)]),
+    new Set([
+      ...categories.map((category) => category.name),
+      ...authors.map((author) => author.name),
+    ]),
   );
 }
 
 export async function getFeaturedBooks(limit = 8) {
-  return (
-    await getBookCards({ featured: true, limit, sort: "popular" })
-  ).books;
+  return (await getBookCards({ featured: true, limit, sort: "popular" })).books;
 }
 
 export async function getBestSellingBooks(limit = 4) {
-  return (
-    await getBookCards({ bestSeller: true, limit, sort: "popular" })
-  ).books;
+  return (await getBookCards({ bestSeller: true, limit, sort: "popular" }))
+    .books;
 }
 
 export async function getNewArrivals(limit = 4) {
-  return (
-    await getBookCards({ newArrival: true, limit, sort: "newest" })
-  ).books;
+  return (await getBookCards({ newArrival: true, limit, sort: "newest" }))
+    .books;
 }
 
 export async function getUsedBooks(limit = 4) {
-  return (
-    await getBookCards({ listingType: "USED", limit, sort: "popular" })
-  ).books;
+  return (await getBookCards({ listingType: "USED", limit, sort: "popular" }))
+    .books;
 }
 
 export async function getPriceRange() {

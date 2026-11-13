@@ -10,14 +10,14 @@ interface FinalCTAProps {
 export function FinalCTA({ content }: FinalCTAProps) {
   return (
     <SectionContainer>
-      <div className="relative overflow-hidden rounded-2xl brand-gradient px-6 py-12 text-on-brand shadow-[var(--shadow-book)] sm:px-10 sm:py-14 lg:px-14">
+      <div className="brand-gradient relative overflow-hidden rounded-2xl px-6 py-12 text-on-brand shadow-[var(--shadow-book)] sm:px-10 sm:py-14 lg:px-14">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -left-10 -top-10 size-48 rounded-full border border-on-brand/15"
+          className="pointer-events-none absolute -top-10 -left-10 size-48 rounded-full border border-on-brand/15"
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -bottom-16 -right-10 size-64 rounded-full border border-on-brand/10"
+          className="pointer-events-none absolute -right-10 -bottom-16 size-64 rounded-full border border-on-brand/10"
         />
         <BookOpen
           aria-hidden="true"
@@ -25,7 +25,7 @@ export function FinalCTA({ content }: FinalCTAProps) {
         />
 
         <div className="relative max-w-2xl">
-          <h2 className="text-balance text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+          <h2 className="text-2xl font-bold tracking-tight text-balance sm:text-3xl lg:text-4xl">
             {content.heading}
           </h2>
           <p className="mt-3 text-sm leading-6 opacity-90 sm:text-base">
@@ -35,14 +35,14 @@ export function FinalCTA({ content }: FinalCTAProps) {
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               href={content.primaryCta.href}
-              className="inline-flex items-center gap-2 rounded-xl bg-background px-6 py-3 text-sm font-semibold text-foreground transition-transform hover:translate-x-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-brand focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+              className="inline-flex items-center gap-2 rounded-xl bg-background px-6 py-3 text-sm font-semibold text-foreground transition-transform hover:translate-x-0.5 focus-visible:ring-2 focus-visible:ring-on-brand focus-visible:ring-offset-2 focus-visible:ring-offset-primary focus-visible:outline-none"
             >
               {content.primaryCta.label}
               <ArrowRight className="size-4" aria-hidden="true" />
             </Link>
             <Link
               href={content.secondaryCta.href}
-              className="inline-flex items-center gap-2 rounded-xl border border-on-brand/40 px-6 py-3 text-sm font-semibold text-on-brand transition-colors hover:bg-on-brand/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-brand focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+              className="inline-flex items-center gap-2 rounded-xl border border-on-brand/40 px-6 py-3 text-sm font-semibold text-on-brand transition-colors hover:bg-on-brand/10 focus-visible:ring-2 focus-visible:ring-on-brand focus-visible:ring-offset-2 focus-visible:ring-offset-primary focus-visible:outline-none"
             >
               {content.secondaryCta.label}
             </Link>

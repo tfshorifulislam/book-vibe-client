@@ -30,7 +30,8 @@ export default async function ShopPage({ params }: Props) {
         <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 text-xs">
           <span className="flex items-center gap-1">
             <Star className="size-3.5 fill-secondary text-secondary" />
-            <strong>{shop.rating.toFixed(1)}</strong> ({formatNumber(shop.reviewCount)})
+            <strong>{shop.rating.toFixed(1)}</strong> (
+            {formatNumber(shop.reviewCount)})
           </span>
           {shop.location ? (
             <span className="flex items-center gap-1 text-muted-foreground">

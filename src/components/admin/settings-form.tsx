@@ -13,13 +13,27 @@ export function AdminSettingsForm({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const [commission, setCommission] = useState(initialSettings["commission_rate"] ?? "10");
-  const [shippingDhaka, setShippingDhaka] = useState(initialSettings["shipping_dhaka"] ?? "60");
-  const [shippingOutside, setShippingOutside] = useState(initialSettings["shipping_outside"] ?? "120");
-  const [codEnabled, setCodEnabled] = useState(initialSettings["cod_enabled"] ?? "true");
-  const [bkashEnabled, setBkashEnabled] = useState(initialSettings["bkash_enabled"] ?? "true");
-  const [supportEmail, setSupportEmail] = useState(initialSettings["support_email"] ?? "support@bookhand.com");
-  const [supportPhone, setSupportPhone] = useState(initialSettings["support_phone"] ?? "+880 1700-000000");
+  const [commission, setCommission] = useState(
+    initialSettings["commission_rate"] ?? "10",
+  );
+  const [shippingDhaka, setShippingDhaka] = useState(
+    initialSettings["shipping_dhaka"] ?? "60",
+  );
+  const [shippingOutside, setShippingOutside] = useState(
+    initialSettings["shipping_outside"] ?? "120",
+  );
+  const [codEnabled, setCodEnabled] = useState(
+    initialSettings["cod_enabled"] ?? "true",
+  );
+  const [bkashEnabled, setBkashEnabled] = useState(
+    initialSettings["bkash_enabled"] ?? "true",
+  );
+  const [supportEmail, setSupportEmail] = useState(
+    initialSettings["support_email"] ?? "support@bookhand.com",
+  );
+  const [supportPhone, setSupportPhone] = useState(
+    initialSettings["support_phone"] ?? "+880 1700-000000",
+  );
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -56,11 +70,11 @@ export function AdminSettingsForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
+    <form onSubmit={handleSubmit} className="max-w-4xl space-y-6">
       <div className="grid gap-6 md:grid-cols-2">
         {/* Financial & Commission */}
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
-          <h2 className="text-base font-semibold flex items-center gap-2">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
+          <h2 className="flex items-center gap-2 text-base font-semibold">
             <Settings className="size-4" /> Marketplace Commission
           </h2>
           <div>
@@ -74,14 +88,16 @@ export function AdminSettingsForm({
               required
               value={commission}
               onChange={(e) => setCommission(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
             />
-            <p className="mt-1 text-xs text-muted-foreground">Standard commission deducted from seller orders upon delivery.</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Standard commission deducted from seller orders upon delivery.
+            </p>
           </div>
         </div>
 
         {/* Shipping Rates */}
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <h2 className="text-base font-semibold">Delivery Rates</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -94,7 +110,7 @@ export function AdminSettingsForm({
                 required
                 value={shippingDhaka}
                 onChange={(e) => setShippingDhaka(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
             <div>
@@ -107,21 +123,23 @@ export function AdminSettingsForm({
                 required
                 value={shippingOutside}
                 onChange={(e) => setShippingOutside(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
           </div>
         </div>
 
         {/* Payment Gateways */}
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <h2 className="text-base font-semibold">Payment Channels</h2>
           <div className="space-y-3">
             <label className="flex items-center gap-3 text-sm">
               <input
                 type="checkbox"
                 checked={codEnabled === "true"}
-                onChange={(e) => setCodEnabled(e.target.checked ? "true" : "false")}
+                onChange={(e) =>
+                  setCodEnabled(e.target.checked ? "true" : "false")
+                }
                 className="size-4 rounded border-border text-primary focus:ring-primary"
               />
               <span>Cash on Delivery (COD)</span>
@@ -130,7 +148,9 @@ export function AdminSettingsForm({
               <input
                 type="checkbox"
                 checked={bkashEnabled === "true"}
-                onChange={(e) => setBkashEnabled(e.target.checked ? "true" : "false")}
+                onChange={(e) =>
+                  setBkashEnabled(e.target.checked ? "true" : "false")
+                }
                 className="size-4 rounded border-border text-primary focus:ring-primary"
               />
               <span>bKash Online Payment</span>
@@ -139,24 +159,28 @@ export function AdminSettingsForm({
         </div>
 
         {/* Support & Contact */}
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <h2 className="text-base font-semibold">Support Coordinates</h2>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground uppercase">Support Email</label>
+            <label className="block text-xs font-medium text-muted-foreground uppercase">
+              Support Email
+            </label>
             <input
               type="email"
               value={supportEmail}
               onChange={(e) => setSupportEmail(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground uppercase">Helpdesk Hotline</label>
+            <label className="block text-xs font-medium text-muted-foreground uppercase">
+              Helpdesk Hotline
+            </label>
             <input
               type="text"
               value={supportPhone}
               onChange={(e) => setSupportPhone(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
             />
           </div>
         </div>

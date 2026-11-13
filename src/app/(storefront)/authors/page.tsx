@@ -11,7 +11,9 @@ export default async function AuthorsPage() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Authors</h1>
-      <p className="mt-2 text-sm text-muted-foreground">Discover books by the authors readers love.</p>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Discover books by the authors readers love.
+      </p>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {authors.map((author) => (
           <Link

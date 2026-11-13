@@ -1,8 +1,12 @@
-import { ArrowDownLeft, ArrowUpRight, DollarSign, RefreshCw } from "lucide-react";
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  DollarSign,
+  RefreshCw,
+} from "lucide-react";
 
 import { prisma } from "@/lib/db";
 import { formatCurrency, formatDateDisplay } from "@/lib/utils";
-
 
 export default async function AdminTransactionsPage() {
   const [payments, payouts, refunds] = await Promise.all([
@@ -77,59 +81,74 @@ export default async function AdminTransactionsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Transactions Ledger</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          Transactions Ledger
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Comprehensive financial movement ledger across platform sales, seller disbursements, and refunds.
+          Comprehensive financial movement ledger across platform sales, seller
+          disbursements, and refunds.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between text-muted-foreground text-xs font-semibold uppercase">
+          <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase">
             <span>Gross Sales Volume</span>
             <DollarSign className="size-4 text-primary" />
           </div>
-          <div className="text-2xl font-bold text-foreground mt-2">{formatCurrency(totalGMV)}</div>
-          <p className="text-xs text-muted-foreground mt-1">Paid customer checkouts</p>
+          <div className="mt-2 text-2xl font-bold text-foreground">
+            {formatCurrency(totalGMV)}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Paid customer checkouts
+          </p>
         </div>
 
         <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between text-muted-foreground text-xs font-semibold uppercase">
+          <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase">
             <span>Platform Commission</span>
             <DollarSign className="size-4 text-success" />
           </div>
-          <div className="text-2xl font-bold text-success mt-2">
+          <div className="mt-2 text-2xl font-bold text-success">
             {formatCurrency(estimatedCommission)}
           </div>
-          <p className="text-xs text-muted-foreground mt-1">10% marketplace fee</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            10% marketplace fee
+          </p>
         </div>
 
         <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between text-muted-foreground text-xs font-semibold uppercase">
+          <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase">
             <span>Seller Payouts</span>
             <ArrowUpRight className="size-4 text-warning" />
           </div>
-          <div className="text-2xl font-bold text-foreground mt-2">
+          <div className="mt-2 text-2xl font-bold text-foreground">
             {formatCurrency(totalPayoutsPaid)}
           </div>
-          <p className="text-xs text-muted-foreground mt-1">Disbursed earnings</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Disbursed earnings
+          </p>
         </div>
 
         <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between text-muted-foreground text-xs font-semibold uppercase">
+          <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase">
             <span>Refunds Settled</span>
             <RefreshCw className="size-4 text-destructive" />
           </div>
-          <div className="text-2xl font-bold text-foreground mt-2">
+          <div className="mt-2 text-2xl font-bold text-foreground">
             {formatCurrency(totalRefundsApproved)}
           </div>
-          <p className="text-xs text-muted-foreground mt-1">Returned payments</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Returned payments
+          </p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
-        <div className="px-5 py-4 border-b border-border bg-muted/20">
-          <h2 className="text-sm font-semibold text-foreground">Recent Financial Activity</h2>
+      <div className="overflow-hidden rounded-xl border border-border bg-card">
+        <div className="border-b border-border bg-muted/20 px-5 py-4">
+          <h2 className="text-sm font-semibold text-foreground">
+            Recent Financial Activity
+          </h2>
         </div>
         <div className="divide-y divide-border">
           {feed.length === 0 ? (
@@ -138,15 +157,18 @@ export default async function AdminTransactionsPage() {
             </div>
           ) : (
             feed.map((entry) => (
-              <div key={entry.id} className="p-4 flex items-center justify-between gap-4 hover:bg-muted/30">
+              <div
+                key={entry.id}
+                className="flex items-center justify-between gap-4 p-4 hover:bg-muted/30"
+              >
                 <div className="flex items-center gap-3">
                   <div
-                    className={`size-9 rounded-lg flex items-center justify-center ${
+                    className={`flex size-9 items-center justify-center rounded-lg ${
                       entry.type === "PAYMENT"
                         ? "bg-success/15 text-success"
                         : entry.type === "PAYOUT"
-                        ? "bg-warning/15 text-warning"
-                        : "bg-destructive/15 text-destructive"
+                          ? "bg-warning/15 text-warning"
+                          : "bg-destructive/15 text-destructive"
                     }`}
                   >
                     {entry.type === "PAYMENT" ? (
@@ -158,7 +180,9 @@ export default async function AdminTransactionsPage() {
                     )}
                   </div>
                   <div>
-                    <div className="font-medium text-foreground text-sm">{entry.label}</div>
+                    <div className="text-sm font-medium text-foreground">
+                      {entry.label}
+                    </div>
                     <div className="text-xs text-muted-foreground">
                       {formatDateDisplay(entry.date, { includeTime: true })}
                     </div>
@@ -171,14 +195,14 @@ export default async function AdminTransactionsPage() {
                       entry.type === "PAYMENT"
                         ? "text-success"
                         : entry.type === "PAYOUT"
-                        ? "text-foreground"
-                        : "text-destructive"
+                          ? "text-foreground"
+                          : "text-destructive"
                     }`}
                   >
                     {entry.type === "PAYMENT" ? "+" : "-"}
                     {formatCurrency(entry.amount)}
                   </div>
-                  <span className="text-[11px] font-semibold uppercase text-muted-foreground">
+                  <span className="text-[11px] font-semibold text-muted-foreground uppercase">
                     {entry.status}
                   </span>
                 </div>

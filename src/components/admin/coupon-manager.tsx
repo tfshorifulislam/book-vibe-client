@@ -27,7 +27,9 @@ export function AdminCouponManager({ initial }: { initial: Coupon[] }) {
 
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
-  const [type, setType] = useState<"FIXED" | "PERCENT" | "FREE_SHIPPING">("PERCENT");
+  const [type, setType] = useState<"FIXED" | "PERCENT" | "FREE_SHIPPING">(
+    "PERCENT",
+  );
   const [value, setValue] = useState("");
   const [minOrder, setMinOrder] = useState("");
   const [maxDiscount, setMaxDiscount] = useState("");
@@ -103,29 +105,40 @@ export function AdminCouponManager({ initial }: { initial: Coupon[] }) {
       </div>
 
       {open ? (
-        <form onSubmit={handleCreate} className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <form
+          onSubmit={handleCreate}
+          className="space-y-4 rounded-xl border border-border bg-card p-5"
+        >
           <div className="flex items-center gap-2 text-base font-semibold text-foreground">
             <Tag className="size-4 text-primary" /> Create New Coupon
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Coupon Code *</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Coupon Code *
+              </label>
               <input
                 type="text"
                 required
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 placeholder="e.g. BOOKHAND20"
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono font-bold uppercase text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 font-mono text-sm font-bold text-foreground uppercase focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Discount Type</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Discount Type
+              </label>
               <select
                 value={type}
-                onChange={(e) => setType(e.target.value as "FIXED" | "PERCENT" | "FREE_SHIPPING")}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                onChange={(e) =>
+                  setType(
+                    e.target.value as "FIXED" | "PERCENT" | "FREE_SHIPPING",
+                  )
+                }
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 <option value="PERCENT">Percentage Discount (%)</option>
                 <option value="FIXED">Fixed Amount (BDT)</option>
@@ -137,7 +150,9 @@ export function AdminCouponManager({ initial }: { initial: Coupon[] }) {
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <label className="block text-xs font-medium text-muted-foreground uppercase">
-                {type === "PERCENT" ? "Discount Percentage (%) *" : "Discount Amount (BDT) *"}
+                {type === "PERCENT"
+                  ? "Discount Percentage (%) *"
+                  : "Discount Amount (BDT) *"}
               </label>
               <input
                 type="number"
@@ -147,41 +162,47 @@ export function AdminCouponManager({ initial }: { initial: Coupon[] }) {
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 placeholder={type === "PERCENT" ? "20" : "150"}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Minimum Order (BDT)</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Minimum Order (BDT)
+              </label>
               <input
                 type="number"
                 min={0}
                 value={minOrder}
                 onChange={(e) => setMinOrder(e.target.value)}
                 placeholder="500"
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Max Discount Cap (BDT)</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Max Discount Cap (BDT)
+              </label>
               <input
                 type="number"
                 min={0}
                 value={maxDiscount}
                 onChange={(e) => setMaxDiscount(e.target.value)}
                 placeholder="300"
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-muted-foreground uppercase">Description</label>
+            <label className="block text-xs font-medium text-muted-foreground uppercase">
+              Description
+            </label>
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g. Special nationwide promotional discount"
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
             />
           </div>
 
@@ -198,7 +219,8 @@ export function AdminCouponManager({ initial }: { initial: Coupon[] }) {
               disabled={loading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? <Loader2 className="size-4 animate-spin" /> : null} Save Coupon
+              {loading ? <Loader2 className="size-4 animate-spin" /> : null}{" "}
+              Save Coupon
             </button>
           </div>
         </form>
@@ -206,7 +228,7 @@ export function AdminCouponManager({ initial }: { initial: Coupon[] }) {
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-border bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <thead className="border-b border-border bg-muted/40 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
             <tr>
               <th className="px-4 py-3">Code</th>
               <th className="px-4 py-3">Discount</th>
@@ -220,29 +242,38 @@ export function AdminCouponManager({ initial }: { initial: Coupon[] }) {
           <tbody className="divide-y divide-border">
             {coupons.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
+                <td
+                  colSpan={7}
+                  className="px-4 py-8 text-center text-muted-foreground"
+                >
                   No coupons created yet.
                 </td>
               </tr>
             ) : (
               coupons.map((c) => (
                 <tr key={c.id} className="hover:bg-muted/30">
-                  <td className="px-4 py-3 font-mono font-bold text-primary">{c.code}</td>
+                  <td className="px-4 py-3 font-mono font-bold text-primary">
+                    {c.code}
+                  </td>
                   <td className="px-4 py-3 font-semibold text-foreground">
                     {c.type === "PERCENT" || c.type === "PERCENTAGE"
                       ? `${c.value}% off`
                       : c.type === "FREE_SHIPPING"
-                      ? "Free Shipping"
-                      : `${formatCurrency(c.value)} off`}
+                        ? "Free Shipping"
+                        : `${formatCurrency(c.value)} off`}
                   </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">
                     {c.minOrder ? formatCurrency(c.minOrder) : "No minimum"}
                   </td>
                   <td className="px-4 py-3 text-xs">
                     {c.shop ? (
-                      <span className="text-foreground font-medium">{c.shop.name}</span>
+                      <span className="font-medium text-foreground">
+                        {c.shop.name}
+                      </span>
                     ) : (
-                      <span className="font-semibold text-primary">Marketplace-wide</span>
+                      <span className="font-semibold text-primary">
+                        Marketplace-wide
+                      </span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">
@@ -250,8 +281,10 @@ export function AdminCouponManager({ initial }: { initial: Coupon[] }) {
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full ${
-                        c.isActive ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"
+                      className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+                        c.isActive
+                          ? "bg-success/15 text-success"
+                          : "bg-muted text-muted-foreground"
                       }`}
                     >
                       {c.isActive ? "Active" : "Disabled"}

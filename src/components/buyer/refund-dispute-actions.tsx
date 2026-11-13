@@ -26,7 +26,10 @@ export function RefundRequestModal({
     return (
       <div className="inline-flex items-center gap-1.5 rounded-lg bg-warning/15 px-3 py-1.5 text-xs font-semibold text-warning">
         <RotateCcw className="size-3.5" />
-        <span>Refund {existingRefund.status} ({formatCurrency(existingRefund.amount)})</span>
+        <span>
+          Refund {existingRefund.status} (
+          {formatCurrency(existingRefund.amount)})
+        </span>
       </div>
     );
   }
@@ -75,8 +78,8 @@ export function RefundRequestModal({
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl space-y-4">
+        <div className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/60 p-4 backdrop-blur-sm duration-200 fade-in">
+          <div className="w-full max-w-md space-y-4 rounded-2xl border border-border bg-card p-6 shadow-xl">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2 font-bold text-foreground">
                 <RotateCcw className="size-4 text-warning" />
@@ -100,14 +103,24 @@ export function RefundRequestModal({
                   required
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
                 >
                   <option value="">Select a reason...</option>
-                  <option value="Damaged or defective book received">Damaged or defective book received</option>
-                  <option value="Wrong book edition or title received">Wrong book edition or title received</option>
-                  <option value="Book condition did not match description">Book condition did not match description</option>
-                  <option value="Missing pages or major printing error">Missing pages or major printing error</option>
-                  <option value="Other return/refund reason">Other return/refund reason</option>
+                  <option value="Damaged or defective book received">
+                    Damaged or defective book received
+                  </option>
+                  <option value="Wrong book edition or title received">
+                    Wrong book edition or title received
+                  </option>
+                  <option value="Book condition did not match description">
+                    Book condition did not match description
+                  </option>
+                  <option value="Missing pages or major printing error">
+                    Missing pages or major printing error
+                  </option>
+                  <option value="Other return/refund reason">
+                    Other return/refund reason
+                  </option>
                 </select>
               </div>
 
@@ -121,10 +134,11 @@ export function RefundRequestModal({
                   max={orderTotal}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
                 />
                 <p className="mt-1 text-[11px] text-muted-foreground">
-                  Maximum refundable amount for this order is {formatCurrency(orderTotal)}.
+                  Maximum refundable amount for this order is{" "}
+                  {formatCurrency(orderTotal)}.
                 </p>
               </div>
 
@@ -137,11 +151,11 @@ export function RefundRequestModal({
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Provide additional details regarding the condition or issue..."
-                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-border">
+              <div className="flex justify-end gap-2 border-t border-border pt-2">
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
@@ -154,7 +168,9 @@ export function RefundRequestModal({
                   disabled={loading || !reason}
                   className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
                 >
-                  {loading ? <Loader2 className="size-3.5 animate-spin" /> : null}
+                  {loading ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : null}
                   Submit Request
                 </button>
               </div>
@@ -171,7 +187,11 @@ export function DisputeRequestModal({
   existingDispute,
 }: {
   orderId: string;
-  existingDispute?: { status: string; reason: string; resolution?: string | null } | null;
+  existingDispute?: {
+    status: string;
+    reason: string;
+    resolution?: string | null;
+  } | null;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -226,8 +246,8 @@ export function DisputeRequestModal({
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl space-y-4">
+        <div className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/60 p-4 backdrop-blur-sm duration-200 fade-in">
+          <div className="w-full max-w-md space-y-4 rounded-2xl border border-border bg-card p-6 shadow-xl">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2 font-bold text-destructive">
                 <ShieldAlert className="size-4" />
@@ -244,7 +264,9 @@ export function DisputeRequestModal({
 
             <form onSubmit={handleSubmit} className="space-y-4 text-sm">
               <p className="text-xs text-muted-foreground">
-                If the seller failed to deliver your book or refused a legitimate return, submit this claim for marketplace admin arbitration.
+                If the seller failed to deliver your book or refused a
+                legitimate return, submit this claim for marketplace admin
+                arbitration.
               </p>
 
               <div>
@@ -257,11 +279,11 @@ export function DisputeRequestModal({
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="Describe what occurred with the order and your requested resolution..."
-                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-border">
+              <div className="flex justify-end gap-2 border-t border-border pt-2">
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
@@ -272,9 +294,11 @@ export function DisputeRequestModal({
                 <button
                   type="submit"
                   disabled={loading || reason.trim().length < 5}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-4 py-2 text-xs font-semibold text-destructive-foreground hover:opacity-90 disabled:opacity-50"
+                  className="text-destructive-foreground inline-flex items-center gap-1.5 rounded-lg bg-destructive px-4 py-2 text-xs font-semibold hover:opacity-90 disabled:opacity-50"
                 >
-                  {loading ? <Loader2 className="size-3.5 animate-spin" /> : null}
+                  {loading ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : null}
                   File Dispute
                 </button>
               </div>

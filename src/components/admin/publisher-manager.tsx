@@ -13,7 +13,11 @@ type Publisher = {
   _count: { books: number };
 };
 
-export function PublisherManager({ initialPublishers }: { initialPublishers: Publisher[] }) {
+export function PublisherManager({
+  initialPublishers,
+}: {
+  initialPublishers: Publisher[];
+}) {
   const router = useRouter();
   const [publishers, setPublishers] = useState(initialPublishers);
   const [open, setOpen] = useState(false);
@@ -57,7 +61,10 @@ export function PublisherManager({ initialPublishers }: { initialPublishers: Pub
       }
 
       toast.success("Publisher created successfully.");
-      setPublishers([...publishers, { ...data.publisher, _count: { books: 0 } }]);
+      setPublishers([
+        ...publishers,
+        { ...data.publisher, _count: { books: 0 } },
+      ]);
       setOpen(false);
       setName("");
       setSlug("");
@@ -74,10 +81,15 @@ export function PublisherManager({ initialPublishers }: { initialPublishers: Pub
     if (!confirm("Are you sure you want to delete this publisher?")) return;
 
     try {
-      const res = await fetch(`/api/admin/publishers/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/publishers/${id}`, {
+        method: "DELETE",
+      });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error?.message || "Cannot delete publisher with associated books.");
+        toast.error(
+          data.error?.message ||
+            "Cannot delete publisher with associated books.",
+        );
         return;
       }
       toast.success("Publisher deleted.");
@@ -101,40 +113,53 @@ export function PublisherManager({ initialPublishers }: { initialPublishers: Pub
       </div>
 
       {open ? (
-        <form onSubmit={handleCreate} className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <form
+          onSubmit={handleCreate}
+          className="space-y-4 rounded-xl border border-border bg-card p-5"
+        >
           <h3 className="text-base font-semibold">New Publisher Profile</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Publisher Name *</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Publisher Name *
+              </label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="e.g. Sheba Prokashoni"
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Slug *</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Slug *
+              </label>
               <input
                 type="text"
                 required
                 value={slug}
-                onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                onChange={(e) =>
+                  setSlug(
+                    e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
+                  )
+                }
                 placeholder="sheba-prokashoni"
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-muted-foreground uppercase">Description</label>
+            <label className="block text-xs font-medium text-muted-foreground uppercase">
+              Description
+            </label>
             <textarea
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               placeholder="Leading paperback publishing house in Bangladesh..."
             />
           </div>
@@ -152,7 +177,8 @@ export function PublisherManager({ initialPublishers }: { initialPublishers: Pub
               disabled={loading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? <Loader2 className="size-4 animate-spin" /> : null} Save Publisher
+              {loading ? <Loader2 className="size-4 animate-spin" /> : null}{" "}
+              Save Publisher
             </button>
           </div>
         </form>
@@ -171,9 +197,15 @@ export function PublisherManager({ initialPublishers }: { initialPublishers: Pub
           <tbody className="divide-y divide-border">
             {publishers.map((p) => (
               <tr key={p.id} className="hover:bg-muted/30">
-                <td className="px-4 py-3 font-semibold text-foreground">{p.name}</td>
-                <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{p.slug}</td>
-                <td className="px-4 py-3 text-xs font-medium">{p._count.books} books</td>
+                <td className="px-4 py-3 font-semibold text-foreground">
+                  {p.name}
+                </td>
+                <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                  {p.slug}
+                </td>
+                <td className="px-4 py-3 text-xs font-medium">
+                  {p._count.books} books
+                </td>
                 <td className="px-4 py-3 text-right">
                   <button
                     type="button"

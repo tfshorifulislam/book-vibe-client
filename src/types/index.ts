@@ -25,11 +25,7 @@ export interface FooterSection {
   links: FooterLink[];
 }
 
-export type {
-  Book,
-  BookCondition,
-  ListingType,
-} from "./book";
+export type { Book, BookCondition, ListingType } from "./book";
 export type { Category } from "./category";
 export type { Offer } from "./offer";
 export type { Seller, TopSeller } from "./seller";

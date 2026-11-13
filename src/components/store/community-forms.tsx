@@ -22,7 +22,10 @@ export function BookReviewForm({ bookId }: { bookId: string }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bookId, rating, title, body }),
     });
-    const payload = (await response.json()) as { success: boolean; message?: string };
+    const payload = (await response.json()) as {
+      success: boolean;
+      message?: string;
+    };
     setPending(false);
     if (!response.ok || !payload.success) {
       toast.error(
@@ -39,7 +42,10 @@ export function BookReviewForm({ bookId }: { bookId: string }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="rounded-xl border border-border bg-card p-4">
+    <form
+      onSubmit={onSubmit}
+      className="rounded-xl border border-border bg-card p-4"
+    >
       <h3 className="text-sm font-semibold">Write a review</h3>
       <div className="mt-3 flex items-center gap-1">
         {[1, 2, 3, 4, 5].map((value) => (
@@ -53,7 +59,9 @@ export function BookReviewForm({ bookId }: { bookId: string }) {
             <Star
               className={cn(
                 "size-5",
-                value <= rating ? "fill-secondary text-secondary" : "text-muted-foreground",
+                value <= rating
+                  ? "fill-secondary text-secondary"
+                  : "text-muted-foreground",
               )}
             />
           </button>
@@ -79,7 +87,11 @@ export function BookReviewForm({ bookId }: { bookId: string }) {
         disabled={pending}
         className="mt-2 inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-60"
       >
-        {pending ? <LoaderCircle className="size-4 animate-spin" /> : <Send className="size-3.5" />}
+        {pending ? (
+          <LoaderCircle className="size-4 animate-spin" />
+        ) : (
+          <Send className="size-3.5" />
+        )}
         Submit review
       </button>
     </form>
@@ -99,7 +111,10 @@ export function BookQuestionForm({ bookId }: { bookId: string }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bookId, body }),
     });
-    const payload = (await response.json()) as { success: boolean; message?: string };
+    const payload = (await response.json()) as {
+      success: boolean;
+      message?: string;
+    };
     setPending(false);
     if (!response.ok || !payload.success) {
       toast.error(
@@ -115,7 +130,10 @@ export function BookQuestionForm({ bookId }: { bookId: string }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="rounded-xl border border-border bg-card p-4">
+    <form
+      onSubmit={onSubmit}
+      className="rounded-xl border border-border bg-card p-4"
+    >
       <h3 className="text-sm font-semibold">Ask the seller a question</h3>
       <textarea
         required
@@ -131,7 +149,11 @@ export function BookQuestionForm({ bookId }: { bookId: string }) {
         disabled={pending}
         className="mt-2 inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-60"
       >
-        {pending ? <LoaderCircle className="size-4 animate-spin" /> : <Send className="size-3.5" />}
+        {pending ? (
+          <LoaderCircle className="size-4 animate-spin" />
+        ) : (
+          <Send className="size-3.5" />
+        )}
         Send question
       </button>
     </form>

@@ -8,7 +8,9 @@ import { requireRole } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { formatDate, formatPrice } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Earnings & Finances | Seller Workspace" };
+export const metadata: Metadata = {
+  title: "Earnings & Finances | Seller Workspace",
+};
 
 export default async function SellerEarningsPage() {
   const user = await requireRole("seller");
@@ -19,7 +21,9 @@ export default async function SellerEarningsPage() {
         sellerId: user.id,
         order: { status: { notIn: ["CANCELLED", "REFUNDED"] } },
       },
-      include: { order: { select: { orderNumber: true, status: true, createdAt: true } } },
+      include: {
+        order: { select: { orderNumber: true, status: true, createdAt: true } },
+      },
       orderBy: { createdAt: "desc" },
     }),
     prisma.orderItem.findMany({
@@ -35,11 +39,17 @@ export default async function SellerEarningsPage() {
     }),
   ]);
 
-  const grossSales = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const grossSales = orderItems.reduce(
+    (sum, i) => sum + i.price * i.quantity,
+    0,
+  );
   const platformFee = Math.round(grossSales * 0.1); // 10% marketplace commission
   const netEarnings = grossSales - platformFee;
 
-  const deliveredGross = deliveredItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const deliveredGross = deliveredItems.reduce(
+    (sum, i) => sum + i.price * i.quantity,
+    0,
+  );
   const deliveredNet = Math.round(deliveredGross * 0.9);
   const withdrawnOrPending = payouts.reduce((sum, p) => sum + p.amount, 0);
   const availableBalance = Math.max(0, deliveredNet - withdrawnOrPending);
@@ -88,9 +98,11 @@ export default async function SellerEarningsPage() {
         />
       </div>
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-border bg-card">
         <div className="border-b border-border p-4">
-          <h2 className="text-base font-semibold">Sales Transactions History</h2>
+          <h2 className="text-base font-semibold">
+            Sales Transactions History
+          </h2>
         </div>
         {orderItems.length ? (
           <table className="w-full text-left text-sm">
@@ -115,13 +127,21 @@ export default async function SellerEarningsPage() {
                     <td className="px-4 py-3 font-mono font-semibold text-primary">
                       {item.order.orderNumber}
                     </td>
-                    <td className="px-4 py-3 font-medium">{formatPrice(itemGross)}</td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">-{formatPrice(itemFee)}</td>
-                    <td className="px-4 py-3 font-bold text-success">{formatPrice(itemNet)}</td>
-                    <td className="px-4 py-3 text-xs">
-                      <span className="rounded bg-muted px-2 py-0.5 font-medium">{item.order.status}</span>
+                    <td className="px-4 py-3 font-medium">
+                      {formatPrice(itemGross)}
                     </td>
-                    <td className="px-4 py-3 text-xs text-right text-muted-foreground">
+                    <td className="px-4 py-3 text-xs text-muted-foreground">
+                      -{formatPrice(itemFee)}
+                    </td>
+                    <td className="px-4 py-3 font-bold text-success">
+                      {formatPrice(itemNet)}
+                    </td>
+                    <td className="px-4 py-3 text-xs">
+                      <span className="rounded bg-muted px-2 py-0.5 font-medium">
+                        {item.order.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right text-xs text-muted-foreground">
                       {formatDate(item.createdAt.toISOString().slice(0, 10))}
                     </td>
                   </tr>
@@ -130,7 +150,9 @@ export default async function SellerEarningsPage() {
             </tbody>
           </table>
         ) : (
-          <div className="p-8 text-center text-sm text-muted-foreground">No earnings recorded yet.</div>
+          <div className="p-8 text-center text-sm text-muted-foreground">
+            No earnings recorded yet.
+          </div>
         )}
       </div>
     </div>

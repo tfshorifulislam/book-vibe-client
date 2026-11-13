@@ -5,12 +5,19 @@ import { useRouter } from "next/navigation";
 import { LoaderCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
 
-const input = "h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-primary";
+const input =
+  "h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-primary";
 
 export function ProfileForm({
   initial,
 }: {
-  initial: { name: string; email: string; phone: string; avatar: string; bio: string };
+  initial: {
+    name: string;
+    email: string;
+    phone: string;
+    avatar: string;
+    bio: string;
+  };
 }) {
   const router = useRouter();
   const [form, setForm] = useState(initial);
@@ -22,7 +29,11 @@ export function ProfileForm({
     const data = new FormData();
     data.append("file", file);
     const response = await fetch("/api/upload", { method: "POST", body: data });
-    const payload = (await response.json()) as { success: boolean; data?: { url: string }; message?: string };
+    const payload = (await response.json()) as {
+      success: boolean;
+      data?: { url: string };
+      message?: string;
+    };
     setUploading(false);
     if (!response.ok || !payload.success || !payload.data) {
       toast.error(payload.message ?? "Unable to upload the image.");
@@ -44,7 +55,10 @@ export function ProfileForm({
         bio: form.bio || undefined,
       }),
     });
-    const payload = (await response.json()) as { success: boolean; message?: string };
+    const payload = (await response.json()) as {
+      success: boolean;
+      message?: string;
+    };
     setPending(false);
     if (!response.ok || !payload.success) {
       toast.error(payload.message ?? "Unable to update your profile.");
@@ -55,7 +69,10 @@ export function ProfileForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="max-w-2xl space-y-4 rounded-xl border border-border bg-card p-5">
+    <form
+      onSubmit={onSubmit}
+      className="max-w-2xl space-y-4 rounded-xl border border-border bg-card p-5"
+    >
       <div className="flex items-center gap-4">
         <span className="flex size-16 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-xl font-bold text-primary">
           {form.avatar ? (
@@ -66,19 +83,64 @@ export function ProfileForm({
           )}
         </span>
         <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted">
-          {uploading ? <LoaderCircle className="size-4 animate-spin" /> : <Upload className="size-4" />}
+          {uploading ? (
+            <LoaderCircle className="size-4 animate-spin" />
+          ) : (
+            <Upload className="size-4" />
+          )}
           Upload photo
-          <input type="file" accept="image/*" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) uploadAvatar(file); }} />
+          <input
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) uploadAvatar(file);
+            }}
+          />
         </label>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block"><span className="mb-1 block text-xs font-medium">Full name</span><input required className={input} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></label>
-        <label className="block"><span className="mb-1 block text-xs font-medium">Email</span><input disabled className={input} value={form.email} /></label>
-        <label className="block"><span className="mb-1 block text-xs font-medium">Phone</span><input className={input} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></label>
+        <label className="block">
+          <span className="mb-1 block text-xs font-medium">Full name</span>
+          <input
+            required
+            className={input}
+            value={form.name}
+            onChange={(event) => setForm({ ...form, name: event.target.value })}
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-xs font-medium">Email</span>
+          <input disabled className={input} value={form.email} />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-xs font-medium">Phone</span>
+          <input
+            className={input}
+            value={form.phone}
+            onChange={(event) =>
+              setForm({ ...form, phone: event.target.value })
+            }
+          />
+        </label>
       </div>
-      <label className="block"><span className="mb-1 block text-xs font-medium">Bio</span><textarea rows={3} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary" value={form.bio} onChange={(event) => setForm({ ...form, bio: event.target.value })} /></label>
-      <button type="submit" disabled={pending} className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60">
-        {pending ? <LoaderCircle className="size-4 animate-spin" /> : null} Save changes
+      <label className="block">
+        <span className="mb-1 block text-xs font-medium">Bio</span>
+        <textarea
+          rows={3}
+          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+          value={form.bio}
+          onChange={(event) => setForm({ ...form, bio: event.target.value })}
+        />
+      </label>
+      <button
+        type="submit"
+        disabled={pending}
+        className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+      >
+        {pending ? <LoaderCircle className="size-4 animate-spin" /> : null} Save
+        changes
       </button>
     </form>
   );

@@ -18,7 +18,9 @@ export async function PATCH(request: Request) {
 
     if (input.type === "review") {
       if (input.action === "delete") {
-        const review = await prisma.review.findUnique({ where: { id: input.id } });
+        const review = await prisma.review.findUnique({
+          where: { id: input.id },
+        });
         if (!review) return fail("Review not found.", 404);
         await prisma.review.delete({ where: { id: input.id } });
         await refreshBookRating(review.bookId);
@@ -27,7 +29,9 @@ export async function PATCH(request: Request) {
           where: { id: input.id },
           data: { isApproved: input.action === "approve" },
         });
-        const review = await prisma.review.findUnique({ where: { id: input.id } });
+        const review = await prisma.review.findUnique({
+          where: { id: input.id },
+        });
         if (review) await refreshBookRating(review.bookId);
       }
     }

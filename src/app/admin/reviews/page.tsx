@@ -5,7 +5,6 @@ import { prisma } from "@/lib/db";
 import { formatDateDisplay } from "@/lib/utils";
 import { ModerationButton } from "@/components/admin/moderation-actions";
 
-
 export default async function AdminReviewsPage() {
   const reviews = await prisma.review.findMany({
     include: {
@@ -19,20 +18,25 @@ export default async function AdminReviewsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Reviews Moderation</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Reviews Moderation
+          </h1>
           <p className="text-sm text-muted-foreground">
             Approve, moderate, or remove customer book reviews and ratings.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-card px-3 py-1.5 rounded-lg border border-border">
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground">
           <MessageSquare className="size-4 text-primary" />
-          <span>Total Reviews: <strong className="text-foreground">{reviews.length}</strong></span>
+          <span>
+            Total Reviews:{" "}
+            <strong className="text-foreground">{reviews.length}</strong>
+          </span>
         </div>
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-border bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <thead className="border-b border-border bg-muted/40 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
             <tr>
               <th className="px-4 py-3">Book</th>
               <th className="px-4 py-3">Customer</th>
@@ -46,7 +50,10 @@ export default async function AdminReviewsPage() {
           <tbody className="divide-y divide-border">
             {reviews.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
+                <td
+                  colSpan={7}
+                  className="px-4 py-8 text-center text-muted-foreground"
+                >
                   No reviews submitted yet.
                 </td>
               </tr>
@@ -56,29 +63,41 @@ export default async function AdminReviewsPage() {
                   <td className="px-4 py-3">
                     <Link
                       href={`/books/${r.book.slug}`}
-                      className="font-medium text-foreground hover:text-primary transition-colors max-w-xs block truncate"
+                      className="block max-w-xs truncate font-medium text-foreground transition-colors hover:text-primary"
                     >
                       {r.book.title}
                     </Link>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="font-medium text-foreground">{r.user.name}</div>
-                    <div className="text-xs text-muted-foreground">{r.user.email}</div>
+                    <div className="font-medium text-foreground">
+                      {r.user.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {r.user.email}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-1 font-semibold text-warning text-xs">
+                    <div className="flex items-center gap-1 text-xs font-semibold text-warning">
                       <Star className="size-3.5 fill-current" />
                       <span>{r.rating}/5</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 max-w-xs">
-                    {r.title ? <div className="font-medium text-foreground text-xs">{r.title}</div> : null}
-                    <p className="text-xs text-muted-foreground line-clamp-2">{r.body}</p>
+                  <td className="max-w-xs px-4 py-3">
+                    {r.title ? (
+                      <div className="text-xs font-medium text-foreground">
+                        {r.title}
+                      </div>
+                    ) : null}
+                    <p className="line-clamp-2 text-xs text-muted-foreground">
+                      {r.body}
+                    </p>
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full ${
-                        r.isApproved ? "bg-success/15 text-success" : "bg-warning/15 text-warning"
+                      className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+                        r.isApproved
+                          ? "bg-success/15 text-success"
+                          : "bg-warning/15 text-warning"
                       }`}
                     >
                       {r.isApproved ? "Approved" : "Pending / Hidden"}
@@ -88,13 +107,25 @@ export default async function AdminReviewsPage() {
                     {formatDateDisplay(r.createdAt)}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <div className="flex items-center gap-1.5 justify-end">
+                    <div className="flex items-center justify-end gap-1.5">
                       {r.isApproved ? (
-                        <ModerationButton type="review" id={r.id} action="reject" />
+                        <ModerationButton
+                          type="review"
+                          id={r.id}
+                          action="reject"
+                        />
                       ) : (
-                        <ModerationButton type="review" id={r.id} action="approve" />
+                        <ModerationButton
+                          type="review"
+                          id={r.id}
+                          action="approve"
+                        />
                       )}
-                      <ModerationButton type="review" id={r.id} action="delete" />
+                      <ModerationButton
+                        type="review"
+                        id={r.id}
+                        action="delete"
+                      />
                     </div>
                   </td>
                 </tr>

@@ -14,14 +14,11 @@ interface HowItWorksProps {
 }
 
 export function HowItWorks({ content }: HowItWorksProps) {
-  const [active, setActive] = useState(
-    content.journeys[0]?.id ?? "buyer",
-  );
+  const [active, setActive] = useState(content.journeys[0]?.id ?? "buyer");
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   const journey =
-    content.journeys.find((item) => item.id === active) ??
-    content.journeys[0];
+    content.journeys.find((item) => item.id === active) ?? content.journeys[0];
 
   if (!journey) return null;
 
@@ -77,7 +74,7 @@ export function HowItWorks({ content }: HowItWorksProps) {
                 onClick={() => setActive(item.id)}
                 onKeyDown={handleKeyDown}
                 className={cn(
-                  "rounded-lg px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "rounded-lg px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
                   selected
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground",
@@ -96,7 +93,7 @@ export function HowItWorks({ content }: HowItWorksProps) {
         role="tabpanel"
         aria-labelledby={`journey-tab-${journey.id}`}
         tabIndex={0}
-        className="mt-8 animate-in fade-in-0 duration-200 focus-visible:outline-none"
+        className="mt-8 animate-in duration-200 fade-in-0 focus-visible:outline-none"
       >
         <div className="grid gap-4 md:grid-cols-3">
           {journey.steps.map((step) => (
@@ -125,7 +122,7 @@ export function HowItWorks({ content }: HowItWorksProps) {
         <div className="mt-7 flex justify-center">
           <Link
             href={journey.cta.href}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
           >
             {journey.cta.label}
             <ArrowRight className="size-4" aria-hidden="true" />

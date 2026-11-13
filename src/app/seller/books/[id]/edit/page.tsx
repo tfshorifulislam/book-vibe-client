@@ -20,9 +20,18 @@ export default async function EditBookPage({
     prisma.book.findFirst({
       where: { id, shop: { ownerId: user.id } },
     }),
-    prisma.author.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
-    prisma.category.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
-    prisma.publisher.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    prisma.author.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.category.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.publisher.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
   ]);
 
   if (!book) {

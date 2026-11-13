@@ -19,7 +19,9 @@ export async function POST(request: Request) {
   try {
     await requireApiUser("admin");
     const input = authorSchema.parse(await readJson(request));
-    const existing = await prisma.author.findUnique({ where: { slug: input.slug } });
+    const existing = await prisma.author.findUnique({
+      where: { slug: input.slug },
+    });
     if (existing) return fail("That author slug is already in use.", 409);
     const author = await prisma.author.create({ data: input });
     return ok({ author }, { status: 201 });

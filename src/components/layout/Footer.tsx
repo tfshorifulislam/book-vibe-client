@@ -24,10 +24,10 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-lg font-bold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-footer-foreground"
+              className="inline-flex items-center gap-2 text-lg font-bold tracking-tight focus-visible:ring-2 focus-visible:ring-footer-foreground focus-visible:outline-none"
               aria-label="BookHand home"
             >
-              <span className="flex size-8 items-center justify-center rounded-lg brand-gradient text-on-brand">
+              <span className="brand-gradient flex size-8 items-center justify-center rounded-lg text-on-brand">
                 <BookOpen className="size-4" aria-hidden="true" />
               </span>
               <span>{SITE_CONFIG.name}</span>
@@ -43,12 +43,9 @@ export function Footer() {
                   key={social.label}
                   href={social.href}
                   aria-label={social.label}
-                  className="inline-flex size-9 items-center justify-center rounded-full border border-footer-border text-footer-muted transition-colors hover:border-footer-foreground hover:text-footer-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-footer-foreground"
+                  className="inline-flex size-9 items-center justify-center rounded-full border border-footer-border text-footer-muted transition-colors hover:border-footer-foreground hover:text-footer-foreground focus-visible:ring-2 focus-visible:ring-footer-foreground focus-visible:outline-none"
                 >
-                  <Icon
-                    name={socialIcons[social.icon]}
-                    className="size-4"
-                  />
+                  <Icon name={socialIcons[social.icon]} className="size-4" />
                 </a>
               ))}
             </div>
@@ -64,7 +61,7 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-sm text-footer-muted transition-colors hover:text-footer-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-footer-foreground"
+                      className="text-sm text-footer-muted transition-colors hover:text-footer-foreground focus-visible:ring-2 focus-visible:ring-footer-foreground focus-visible:outline-none"
                     >
                       {link.label}
                     </Link>
@@ -105,7 +102,7 @@ export function Footer() {
                     key={social.label}
                     href={social.href}
                     aria-label={social.label}
-                    className="inline-flex size-8 items-center justify-center rounded-full text-footer-muted transition-colors hover:text-footer-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-footer-foreground"
+                    className="inline-flex size-8 items-center justify-center rounded-full text-footer-muted transition-colors hover:text-footer-foreground focus-visible:ring-2 focus-visible:ring-footer-foreground focus-visible:outline-none"
                   >
                     <Icon
                       name={socialIcons[social.icon]}

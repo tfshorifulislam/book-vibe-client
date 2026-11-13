@@ -57,7 +57,11 @@ export const FOOTER_NAV: FooterSection[] = [
 export const SOCIAL_LINKS = [
   { label: "Website", href: "https://bookhand.com", icon: "globe" },
   { label: "Email", href: "mailto:hello@bookhand.com", icon: "mail" },
-  { label: "Community", href: "https://bookhand.com/community", icon: "message" },
+  {
+    label: "Community",
+    href: "https://bookhand.com/community",
+    icon: "message",
+  },
   { label: "Blog RSS", href: "https://bookhand.com/blog/rss.xml", icon: "rss" },
 ] as const;
 

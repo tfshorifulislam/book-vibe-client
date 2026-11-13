@@ -9,7 +9,9 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const publisher = await getPublisherBySlug(slug);
-  return publisher ? { title: publisher.name } : { title: "Publisher not found" };
+  return publisher
+    ? { title: publisher.name }
+    : { title: "Publisher not found" };
 }
 
 export default async function PublisherPage({ params }: Props) {

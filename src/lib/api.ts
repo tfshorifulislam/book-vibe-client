@@ -10,10 +10,7 @@ export function ok<T>(data: T, init?: ResponseInit) {
 }
 
 export function fail(message: string, status = 400, details?: unknown) {
-  return NextResponse.json(
-    { success: false, message, details },
-    { status },
-  );
+  return NextResponse.json({ success: false, message, details }, { status });
 }
 
 export function handleError(error: unknown) {

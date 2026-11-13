@@ -10,7 +10,10 @@ export default async function SettingsPage() {
   await requireRole("buyer");
   return (
     <div className="space-y-6">
-      <PageHeader title="Account settings" description="Manage your password and account security." />
+      <PageHeader
+        title="Account settings"
+        description="Manage your password and account security."
+      />
       <SettingsForm />
     </div>
   );

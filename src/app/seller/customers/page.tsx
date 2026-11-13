@@ -86,12 +86,20 @@ export default async function SellerCustomersPage() {
             <tbody className="divide-y divide-border">
               {customers.map((c) => (
                 <tr key={c.id} className="hover:bg-muted/30">
-                  <td className="px-4 py-3 font-semibold text-foreground">{c.name}</td>
+                  <td className="px-4 py-3 font-semibold text-foreground">
+                    {c.name}
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">{c.email}</td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{c.phone || "N/A"}</td>
-                  <td className="px-4 py-3 text-xs font-medium">{c.orderCount} orders</td>
-                  <td className="px-4 py-3 font-semibold">{formatPrice(c.totalSpent)}</td>
-                  <td className="px-4 py-3 text-xs text-right text-muted-foreground">
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    {c.phone || "N/A"}
+                  </td>
+                  <td className="px-4 py-3 text-xs font-medium">
+                    {c.orderCount} orders
+                  </td>
+                  <td className="px-4 py-3 font-semibold">
+                    {formatPrice(c.totalSpent)}
+                  </td>
+                  <td className="px-4 py-3 text-right text-xs text-muted-foreground">
                     {c.lastOrderDate.toLocaleDateString()}
                   </td>
                 </tr>

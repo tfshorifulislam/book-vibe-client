@@ -1,6 +1,10 @@
 import "server-only";
 
-import type { PaymentInitiateInput, PaymentInitiateResult, PaymentVerificationResult } from "./types";
+import type {
+  PaymentInitiateInput,
+  PaymentInitiateResult,
+  PaymentVerificationResult,
+} from "./types";
 
 const SSLCOMMERZ_BASE_URL =
   process.env.SSLCOMMERZ_IS_SANDBOX === "false"
@@ -8,7 +12,7 @@ const SSLCOMMERZ_BASE_URL =
     : "https://sandbox.sslcommerz.com";
 
 export async function initiateSslCommerzPayment(
-  input: PaymentInitiateInput
+  input: PaymentInitiateInput,
 ): Promise<PaymentInitiateResult> {
   const storeId = process.env.SSLCOMMERZ_STORE_ID;
   const storePasswd = process.env.SSLCOMMERZ_STORE_PASSWD;
@@ -16,7 +20,8 @@ export async function initiateSslCommerzPayment(
   if (!storeId || !storePasswd) {
     return {
       success: false,
-      error: "SSLCommerz credentials not configured. Configure SSLCOMMERZ_STORE_ID and SSLCOMMERZ_STORE_PASSWD in .env.",
+      error:
+        "SSLCommerz credentials not configured. Configure SSLCOMMERZ_STORE_ID and SSLCOMMERZ_STORE_PASSWD in .env.",
     };
   }
 
@@ -58,13 +63,21 @@ export async function initiateSslCommerzPayment(
       };
     }
 
-    return { success: false, error: data.failedreason || "Failed to initialize SSLCommerz payment" };
+    return {
+      success: false,
+      error: data.failedreason || "Failed to initialize SSLCommerz payment",
+    };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "Network error" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Network error",
+    };
   }
 }
 
-export async function validateSslCommerzTransaction(valId: string): Promise<PaymentVerificationResult> {
+export async function validateSslCommerzTransaction(
+  valId: string,
+): Promise<PaymentVerificationResult> {
   const storeId = process.env.SSLCOMMERZ_STORE_ID;
   const storePasswd = process.env.SSLCOMMERZ_STORE_PASSWD;
 
@@ -81,7 +94,7 @@ export async function validateSslCommerzTransaction(valId: string): Promise<Paym
 
   try {
     const res = await fetch(
-      `${SSLCOMMERZ_BASE_URL}/validator/api/validationserverAPI.php?val_id=${valId}&store_id=${storeId}&store_passwd=${storePasswd}&format=json`
+      `${SSLCOMMERZ_BASE_URL}/validator/api/validationserverAPI.php?val_id=${valId}&store_id=${storeId}&store_passwd=${storePasswd}&format=json`,
     );
     const data = await res.json();
     if (data.status === "VALID" || data.status === "VALIDATED") {

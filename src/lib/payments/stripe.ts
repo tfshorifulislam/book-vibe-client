@@ -3,14 +3,15 @@ import "server-only";
 import type { PaymentInitiateInput, PaymentInitiateResult } from "./types";
 
 export async function initiateStripePayment(
-  input: PaymentInitiateInput
+  input: PaymentInitiateInput,
 ): Promise<PaymentInitiateResult> {
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
   if (!stripeSecretKey) {
     return {
       success: false,
-      error: "Stripe secret key not configured. Configure STRIPE_SECRET_KEY in .env.",
+      error:
+        "Stripe secret key not configured. Configure STRIPE_SECRET_KEY in .env.",
     };
   }
 
@@ -22,11 +23,13 @@ export async function initiateStripePayment(
       mode: "payment",
       customer_email: input.customerEmail,
       client_reference_id: input.orderId,
-      "success_url": `${siteUrl}/buyer/orders/${input.orderId}?payment=success`,
-      "cancel_url": `${siteUrl}/buyer/orders/${input.orderId}?payment=cancelled`,
+      success_url: `${siteUrl}/buyer/orders/${input.orderId}?payment=success`,
+      cancel_url: `${siteUrl}/buyer/orders/${input.orderId}?payment=cancelled`,
       "line_items[0][price_data][currency]": "bdt",
       "line_items[0][price_data][product_data][name]": `BookHand Order ${input.orderNumber}`,
-      "line_items[0][price_data][unit_amount]": Math.round(input.amount * 100).toString(),
+      "line_items[0][price_data][unit_amount]": Math.round(
+        input.amount * 100,
+      ).toString(),
       "line_items[0][quantity]": "1",
     });
 
@@ -53,6 +56,9 @@ export async function initiateStripePayment(
       error: data.error?.message || "Failed to create Stripe checkout session",
     };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "Network error" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Network error",
+    };
   }
 }

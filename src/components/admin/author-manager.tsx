@@ -13,7 +13,11 @@ type Author = {
   _count: { books: number };
 };
 
-export function AuthorManager({ initialAuthors }: { initialAuthors: Author[] }) {
+export function AuthorManager({
+  initialAuthors,
+}: {
+  initialAuthors: Author[];
+}) {
   const router = useRouter();
   const [authors, setAuthors] = useState(initialAuthors);
   const [open, setOpen] = useState(false);
@@ -77,7 +81,9 @@ export function AuthorManager({ initialAuthors }: { initialAuthors: Author[] }) 
       const res = await fetch(`/api/admin/authors/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error?.message || "Cannot delete author with associated books.");
+        toast.error(
+          data.error?.message || "Cannot delete author with associated books.",
+        );
         return;
       }
       toast.success("Author deleted.");
@@ -101,40 +107,53 @@ export function AuthorManager({ initialAuthors }: { initialAuthors: Author[] }) 
       </div>
 
       {open ? (
-        <form onSubmit={handleCreate} className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <form
+          onSubmit={handleCreate}
+          className="space-y-4 rounded-xl border border-border bg-card p-5"
+        >
           <h3 className="text-base font-semibold">New Author Profile</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Author Full Name *</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Author Full Name *
+              </label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="e.g. Humayun Ahmed"
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase">Slug *</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Slug *
+              </label>
               <input
                 type="text"
                 required
                 value={slug}
-                onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                onChange={(e) =>
+                  setSlug(
+                    e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
+                  )
+                }
                 placeholder="humayun-ahmed"
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-muted-foreground uppercase">Biography / Overview</label>
+            <label className="block text-xs font-medium text-muted-foreground uppercase">
+              Biography / Overview
+            </label>
             <textarea
               rows={3}
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               placeholder="Renowned Bangladeshi novelist, dramatist, and filmmaker..."
             />
           </div>
@@ -152,7 +171,8 @@ export function AuthorManager({ initialAuthors }: { initialAuthors: Author[] }) 
               disabled={loading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? <Loader2 className="size-4 animate-spin" /> : null} Save Author
+              {loading ? <Loader2 className="size-4 animate-spin" /> : null}{" "}
+              Save Author
             </button>
           </div>
         </form>
@@ -171,9 +191,15 @@ export function AuthorManager({ initialAuthors }: { initialAuthors: Author[] }) 
           <tbody className="divide-y divide-border">
             {authors.map((a) => (
               <tr key={a.id} className="hover:bg-muted/30">
-                <td className="px-4 py-3 font-semibold text-foreground">{a.name}</td>
-                <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{a.slug}</td>
-                <td className="px-4 py-3 text-xs font-medium">{a._count.books} books</td>
+                <td className="px-4 py-3 font-semibold text-foreground">
+                  {a.name}
+                </td>
+                <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                  {a.slug}
+                </td>
+                <td className="px-4 py-3 text-xs font-medium">
+                  {a._count.books} books
+                </td>
                 <td className="px-4 py-3 text-right">
                   <button
                     type="button"
