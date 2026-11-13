@@ -34,6 +34,22 @@ export async function getCategories(): Promise<Category[]> {
   );
 }
 
+export async function getAllBooks(): Promise<Book[]> {
+  "use cache";
+  cacheLife("hours");
+
+  // API: GET /api/books
+  // Pagination is handled client-side until the backend exposes page/limit.
+  const allBooks = [
+    ...MOCK_FEATURED_BOOKS,
+    ...MOCK_BEST_SELLING,
+    ...MOCK_NEW_ARRIVALS,
+    ...MOCK_USED_BOOKS,
+  ];
+
+  return Array.from(new Map(allBooks.map((book) => [book.id, book])).values());
+}
+
 export async function getFeaturedBooks(limit = 8): Promise<Book[]> {
   "use cache";
   cacheLife("hours");

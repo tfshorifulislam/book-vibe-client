@@ -7,6 +7,8 @@ export interface Book {
   slug: string;
   title: string;
   author: string;
+  /** Slug of the book's primary category. */
+  categorySlug?: string;
   publisher?: string;
   isbn?: string;
   coverImage?: string;
