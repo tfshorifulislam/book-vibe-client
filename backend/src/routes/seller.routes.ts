@@ -108,7 +108,11 @@ router.get("/seller/books/:id", async (req, res, next) => {
 });
 
 // PATCH /api/seller/books/:id
-router.patch("/seller/books/:id", async (req, res, next) => {
+const handleBookUpdate = async (
+  req: import("express").Request,
+  res: import("express").Response,
+  next: import("express").NextFunction,
+) => {
   try {
     const input = bookSchema.partial().parse(req.body);
     const shop = await prisma.shop.findUnique({
@@ -117,8 +121,11 @@ router.patch("/seller/books/:id", async (req, res, next) => {
     });
     if (!shop) throw new ApiError("Book not found.", 404);
 
+    const bookId = Array.isArray(req.params.id)
+      ? req.params.id[0]
+      : req.params.id;
     const updated = await prisma.book.updateMany({
-      where: { id: req.params.id, shopId: shop.id },
+      where: { id: bookId, shopId: shop.id },
       data: input,
     });
     if (updated.count === 0) throw new ApiError("Book not found.", 404);
@@ -127,7 +134,10 @@ router.patch("/seller/books/:id", async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-});
+};
+
+router.patch("/seller/books/:id", handleBookUpdate);
+router.put("/seller/books/:id", handleBookUpdate);
 
 // DELETE /api/seller/books/:id
 router.delete("/seller/books/:id", async (req, res, next) => {
@@ -382,7 +392,11 @@ router.get("/seller/shop", async (req, res, next) => {
   }
 });
 
-router.patch("/seller/shop", async (req, res, next) => {
+const handleShopUpsert = async (
+  req: import("express").Request,
+  res: import("express").Response,
+  next: import("express").NextFunction,
+) => {
   try {
     const input = shopSchema.partial().parse(req.body);
     const shop = await prisma.shop.upsert({
@@ -399,6 +413,10 @@ router.patch("/seller/shop", async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-});
+};
+
+router.post("/seller/shop", handleShopUpsert);
+router.put("/seller/shop", handleShopUpsert);
+router.patch("/seller/shop", handleShopUpsert);
 
 export default router;

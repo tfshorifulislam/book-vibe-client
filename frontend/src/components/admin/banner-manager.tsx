@@ -54,7 +54,8 @@ export function BannerManager({
       }
 
       toast.success("Banner added.");
-      setBanners([...banners, data.banner]);
+      const item = data.banner || data.data;
+      if (item) setBanners([...banners, item]);
       setOpen(false);
       setTitle("");
       setSubtitle("");

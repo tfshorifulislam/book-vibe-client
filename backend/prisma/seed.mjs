@@ -947,7 +947,8 @@ async function main() {
       data: [
         {
           title: "Discover your next great read",
-          subtitle: "New and used books from trusted sellers across Bangladesh.",
+          subtitle:
+            "New and used books from trusted sellers across Bangladesh.",
           href: "/books",
           isActive: true,
           order: 1,

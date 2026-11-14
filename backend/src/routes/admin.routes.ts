@@ -431,22 +431,25 @@ router.get("/admin/banners", async (req, res, next) => {
 router.post("/admin/banners", async (req, res, next) => {
   try {
     const banner = await prisma.banner.create({ data: req.body });
-    return res.status(201).json({ success: true, data: banner });
+    return res.status(201).json({ success: true, data: banner, banner });
   } catch (error) {
     next(error);
   }
 });
 
-router.delete(["/admin/banners", "/admin/banners/:id"], async (req, res, next) => {
-  try {
-    const id = (req.params.id || req.query.id || req.body?.id) as string;
-    if (!id) throw new ApiError("Banner id is required.", 400);
-    await prisma.banner.delete({ where: { id } });
-    return res.json({ success: true, message: "Banner deleted." });
-  } catch (error) {
-    next(error);
-  }
-});
+router.delete(
+  ["/admin/banners", "/admin/banners/:id"],
+  async (req, res, next) => {
+    try {
+      const id = (req.params.id || req.query.id || req.body?.id) as string;
+      if (!id) throw new ApiError("Banner id is required.", 400);
+      await prisma.banner.delete({ where: { id } });
+      return res.json({ success: true, message: "Banner deleted." });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 router.get("/admin/faqs", async (req, res, next) => {
   try {
@@ -460,7 +463,7 @@ router.get("/admin/faqs", async (req, res, next) => {
 router.post("/admin/faqs", async (req, res, next) => {
   try {
     const faq = await prisma.faq.create({ data: req.body });
-    return res.status(201).json({ success: true, data: faq });
+    return res.status(201).json({ success: true, data: faq, faq });
   } catch (error) {
     next(error);
   }
@@ -650,10 +653,7 @@ router.post("/admin/notifications", async (req, res, next) => {
     } = req.body;
 
     if (!title || !message) {
-      throw new ApiError(
-        "Title and message are required for broadcast.",
-        400,
-      );
+      throw new ApiError("Title and message are required for broadcast.", 400);
     }
 
     const where: Record<string, unknown> = { status: "ACTIVE" };

@@ -1,75 +1,28 @@
-# BookHand — Final Independent Production Verification Audit
+# BookHand — Final Cloudinary Production Fix
 
-The implementation report claims 100% production readiness. Do not assume these claims are correct.
+The final verification report confirms that all 35 E2E workflow checks, PostgreSQL CRUD, clean migration deployment, Resend email delivery, COD checkout, inventory lifecycle, and security tests passed.
 
-Perform a strict, independent, evidence-based verification of the entire application.
+One remaining blocker exists:
 
-## Rules
+Cloudinary returns:
+`Request forbidden due to missing permissions (actions=["create"])`
 
-- Do not modify code initially.
-- Do not trust previous implementation reports.
-- Inspect the actual source code, database configuration, migrations, API routes, and test results.
-- Do not use mock responses as proof of functionality.
-- Never run destructive operations against production data.
-- Do not expose credentials or secrets.
+Tasks:
 
-## Verify These Areas
+1. Inspect `backend/src/lib/storage.ts` and the upload routes.
+2. Verify the Cloudinary SDK configuration and upload signature.
+3. Identify whether the failure is caused by API key permissions, account restrictions, or incorrect upload configuration.
+4. Do not expose, print, or modify existing secrets unnecessarily.
+5. Do not replace Cloudinary with mock storage or silently fall back to local storage in production.
+6. Provide the exact Cloudinary Console permission changes required if this is an account-level restriction.
+7. After the permission is corrected, verify:
+   - Real image upload.
+   - Correct returned secure URL.
+   - Image retrieval.
+   - Authorized image deletion.
+   - Invalid file rejection.
+   - Upload failure handling.
+8. Run relevant backend tests and frontend upload workflow tests.
+9. Update `docs/FINAL_PRODUCTION_VERIFICATION.md` with actual results.
 
-1. **Database & Migrations**
-   - Verify `0_init/migration.sql` against the actual Prisma schema.
-   - Verify migration status on PostgreSQL.
-   - Test migration deployment on a separate clean PostgreSQL database.
-   - Verify existing production data integrity.
-   - Verify seed idempotency and production protection.
-
-2. **Complete API Verification**
-   - Discover every frontend API request.
-   - Match each request to a real backend route.
-   - Test HTTP methods, payloads, authentication, RBAC, ownership, validation, and error handling.
-   - Identify all missing or broken endpoints.
-
-3. **Real Business Workflow E2E**
-   - Buyer registration, login, browsing, cart, COD checkout, order tracking, cancellation, wishlist, reviews.
-   - Seller registration, approval, shop, book CRUD, inventory, order processing.
-   - Admin management, moderation, notifications, banners, FAQs.
-   - Newsletter subscription.
-   - Password reset and session lifecycle.
-
-4. **External Integrations**
-   - Verify real Resend email delivery.
-   - Verify real Cloudinary upload and deletion.
-   - Verify production configuration and failure handling.
-   - Payment Gateway remains excluded.
-
-5. **Security**
-   - Verify CORS restrictions.
-   - Test rate limiting.
-   - Test JWT and refresh token lifecycle.
-   - Test role escalation and resource ownership.
-   - Inspect internal query proxy access.
-   - Verify cookie security and CSRF protections.
-   - Inspect sensitive data exposure and file upload security.
-
-6. **Production Build & Deployment**
-   - Verify frontend and backend production builds.
-   - Verify environment configuration.
-   - Verify startup, health checks, logging, and graceful shutdown.
-   - Check Next.js 16 rendering and navigation behavior.
-
-## Final Output
-
-Create `docs/FINAL_INDEPENDENT_AUDIT.md`.
-
-For every requirement, report:
-
-- PASS / FAIL / PARTIAL / NOT VERIFIED
-- Actual command or test performed.
-- Evidence and relevant file paths.
-- Remaining risks.
-- Exact steps required to resolve failures.
-
-Do not award 100% based on successful builds or previous reports.
-
-If any issue is discovered, provide a prioritized fix list. Do not modify code until the audit report is complete.
-
-The application can only be declared production-ready when all critical requirements are independently verified.
+Do not claim Cloudinary is fixed unless a real upload and deletion succeed.

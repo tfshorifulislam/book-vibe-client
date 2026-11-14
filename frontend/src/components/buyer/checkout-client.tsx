@@ -74,7 +74,10 @@ export function CheckoutClient() {
     ]).then(([cartPayload, addressPayload]) => {
       if (cartPayload.success) setCart(cartPayload.data);
       if (addressPayload.success) {
-        const list = (addressPayload.data.addresses ?? []) as Address[];
+        const rawData = addressPayload.data;
+        const list = (
+          Array.isArray(rawData) ? rawData : (rawData?.addresses ?? [])
+        ) as Address[];
         setAddresses(list);
         setAddressId(
           list.find((item) => item.isDefault)?.id ?? list[0]?.id ?? "",

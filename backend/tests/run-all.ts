@@ -460,7 +460,9 @@ async function runTests() {
   });
 
   // --- 10. COMPLETED API ENDPOINTS & WORKFLOW VERIFICATION ---
-  console.log("\n--- Group 10: Completed API Endpoints & Workflow Verification ---");
+  console.log(
+    "\n--- Group 10: Completed API Endpoints & Workflow Verification ---",
+  );
   await test("Buyer order cancellation, wishlist deletion, review deletion, and admin moderation work end-to-end", async () => {
     const app = createExpressApp();
     const server = app.listen(0);
@@ -490,10 +492,13 @@ async function runTests() {
       });
       assert.strictEqual(addWishlistRes.status, 200);
 
-      const delWishlistRes = await fetch(`${baseUrl}/wishlist?bookId=${book.id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${buyerToken}` },
-      });
+      const delWishlistRes = await fetch(
+        `${baseUrl}/wishlist?bookId=${book.id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${buyerToken}` },
+        },
+      );
       assert.strictEqual(delWishlistRes.status, 200);
 
       // 2. Real Newsletter Subscription & Duplicate Detection
@@ -517,16 +522,26 @@ async function runTests() {
       assert.strictEqual(newsData2.isDuplicate, true);
 
       // Cleanup test newsletter
-      await prisma.newsletterSubscription.deleteMany({ where: { email: testEmail } });
+      await prisma.newsletterSubscription.deleteMany({
+        where: { email: testEmail },
+      });
 
       // 3. Admin Banner & FAQ Deletion
       const testBanner = await prisma.banner.create({
-        data: { title: "Test Banner", subtitle: "Test", href: "/test", order: 99 },
+        data: {
+          title: "Test Banner",
+          subtitle: "Test",
+          href: "/test",
+          order: 99,
+        },
       });
-      const delBannerRes = await fetch(`${baseUrl}/admin/banners?id=${testBanner.id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
+      const delBannerRes = await fetch(
+        `${baseUrl}/admin/banners?id=${testBanner.id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${adminToken}` },
+        },
+      );
       assert.strictEqual(delBannerRes.status, 200);
 
       const testFaq = await prisma.faq.create({
@@ -558,7 +573,9 @@ async function runTests() {
       assert.ok(broadcastData.sentCount > 0);
 
       // 5. Admin Moderation (Review, Question, Dispute)
-      await prisma.review.deleteMany({ where: { bookId: book.id, userId: buyer.id } });
+      await prisma.review.deleteMany({
+        where: { bookId: book.id, userId: buyer.id },
+      });
       const testReview = await prisma.review.create({
         data: {
           bookId: book.id,
@@ -626,14 +643,21 @@ async function runTests() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${buyerToken}`,
         },
-        body: JSON.stringify({ status: "CANCELLED", note: "Test cancellation" }),
+        body: JSON.stringify({
+          status: "CANCELLED",
+          note: "Test cancellation",
+        }),
       });
       assert.strictEqual(cancelRes.status, 200);
 
-      const refreshedOrder = await prisma.order.findUnique({ where: { id: testOrder.id } });
+      const refreshedOrder = await prisma.order.findUnique({
+        where: { id: testOrder.id },
+      });
       assert.strictEqual(refreshedOrder?.status, "CANCELLED");
 
-      const refreshedBook = await prisma.book.findUnique({ where: { id: book.id } });
+      const refreshedBook = await prisma.book.findUnique({
+        where: { id: book.id },
+      });
       assert.strictEqual(refreshedBook?.stock, initialStock + 2);
 
       // Restore stock and clean test order

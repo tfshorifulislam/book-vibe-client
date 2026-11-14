@@ -45,7 +45,8 @@ export function FaqManager({ initialFaqs }: { initialFaqs: FaqItem[] }) {
       }
 
       toast.success("FAQ entry saved.");
-      setFaqs([...faqs, data.faq]);
+      const item = data.faq || data.data;
+      if (item) setFaqs([...faqs, item]);
       setOpen(false);
       setQuestion("");
       setAnswer("");

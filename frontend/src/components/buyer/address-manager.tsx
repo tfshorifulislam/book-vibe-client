@@ -44,10 +44,15 @@ export function AddressManager() {
     const response = await fetch("/api/addresses");
     const payload = (await response.json()) as {
       success: boolean;
-      data?: { addresses: Address[] };
+      data?: { addresses: Address[] } | Address[];
     };
     setLoading(false);
-    if (payload.success) setAddresses(payload.data?.addresses ?? []);
+    if (payload.success) {
+      const list = Array.isArray(payload.data)
+        ? payload.data
+        : (payload.data?.addresses ?? []);
+      setAddresses(list);
+    }
   }
 
   useEffect(() => {
@@ -55,10 +60,18 @@ export function AddressManager() {
     fetch("/api/addresses")
       .then((response) => response.json())
       .then(
-        (payload: { success: boolean; data?: { addresses: Address[] } }) => {
+        (payload: {
+          success: boolean;
+          data?: { addresses: Address[] } | Address[];
+        }) => {
           if (!active) return;
           setLoading(false);
-          if (payload.success) setAddresses(payload.data?.addresses ?? []);
+          if (payload.success) {
+            const list = Array.isArray(payload.data)
+              ? payload.data
+              : (payload.data?.addresses ?? []);
+            setAddresses(list);
+          }
         },
       )
       .catch(() => {

@@ -19,9 +19,10 @@ function createModelProxy(model: string) {
               "http://localhost:5000";
 
             const secret =
+              process.env.INTERNAL_API_SECRET ||
               process.env.SESSION_SECRET ||
               process.env.JWT_SECRET ||
-              "bookhand_internal_secret";
+              "";
 
             const res = await fetch(`${apiBase}/api/internal/query`, {
               method: "POST",

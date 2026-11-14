@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { Router } from "express";
 import multer from "multer";
 
-import { uploadImage } from "@/lib/storage";
+import { deleteImage, uploadImage } from "@/lib/storage";
 import { requireAuth } from "@/middleware/auth";
 import { ApiError } from "@/middleware/error";
 
@@ -46,5 +46,43 @@ router.post(
     }
   },
 );
+
+// DELETE /api/upload
+router.delete("/upload", requireAuth, async (req, res, next) => {
+  try {
+    const target = (req.body?.url ||
+      req.body?.publicId ||
+      req.query?.url ||
+      req.query?.publicId) as string | undefined;
+
+    if (!target) {
+      throw new ApiError(
+        "Image URL or public ID is required for deletion.",
+        422,
+      );
+    }
+
+    const deleted = await deleteImage(target);
+    return res.json({ success: true, data: { deleted } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /api/upload/:id
+router.delete("/upload/:id", requireAuth, async (req, res, next) => {
+  try {
+    const rawId = req.params.id;
+    const id = Array.isArray(rawId) ? rawId[0] : rawId;
+    if (!id) {
+      throw new ApiError("Image ID is required for deletion.", 422);
+    }
+
+    const deleted = await deleteImage(id);
+    return res.json({ success: true, data: { deleted } });
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;

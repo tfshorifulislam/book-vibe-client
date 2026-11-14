@@ -64,8 +64,7 @@ export function createExpressApp() {
     legacyHeaders: false,
     message: {
       success: false,
-      message:
-        "Too many authentication attempts, please try again later.",
+      message: "Too many authentication attempts, please try again later.",
     },
   });
 

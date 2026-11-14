@@ -78,34 +78,38 @@ router.post("/wishlist", requireAuth, async (req, res, next) => {
   }
 });
 
-router.delete(["/wishlist", "/wishlist/:id"], requireAuth, async (req, res, next) => {
-  try {
-    const bookOrItemId = (req.params.id ||
-      req.query.bookId ||
-      req.body?.bookId) as string;
+router.delete(
+  ["/wishlist", "/wishlist/:id"],
+  requireAuth,
+  async (req, res, next) => {
+    try {
+      const bookOrItemId = (req.params.id ||
+        req.query.bookId ||
+        req.body?.bookId) as string;
 
-    if (!bookOrItemId) {
-      throw new ApiError("Book ID or Wishlist Item ID is required.", 400);
-    }
+      if (!bookOrItemId) {
+        throw new ApiError("Book ID or Wishlist Item ID is required.", 400);
+      }
 
-    const wishlist = await prisma.wishlist.findUnique({
-      where: { userId: req.user!.userId },
-    });
-
-    if (wishlist) {
-      await prisma.wishlistItem.deleteMany({
-        where: {
-          wishlistId: wishlist.id,
-          OR: [{ id: bookOrItemId }, { bookId: bookOrItemId }],
-        },
+      const wishlist = await prisma.wishlist.findUnique({
+        where: { userId: req.user!.userId },
       });
-    }
 
-    return res.json({ success: true, message: "Removed from wishlist." });
-  } catch (error) {
-    next(error);
-  }
-});
+      if (wishlist) {
+        await prisma.wishlistItem.deleteMany({
+          where: {
+            wishlistId: wishlist.id,
+            OR: [{ id: bookOrItemId }, { bookId: bookOrItemId }],
+          },
+        });
+      }
+
+      return res.json({ success: true, message: "Removed from wishlist." });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 // ================= REVIEWS =================
 
@@ -187,8 +191,7 @@ router.delete(
       const userRole = req.user!.role;
       const reviewId = req.params.id as string | undefined;
       const bookId = (req.query.bookId || req.body?.bookId) as
-        | string
-        | undefined;
+        string | undefined;
 
       if (!reviewId && !bookId) {
         throw new ApiError(
@@ -478,8 +481,7 @@ router.post("/newsletter", async (req, res, next) => {
       return res.json({
         success: true,
         isDuplicate: true,
-        message:
-          "This email is already subscribed to the BookHand newsletter.",
+        message: "This email is already subscribed to the BookHand newsletter.",
       });
     }
 

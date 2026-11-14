@@ -160,7 +160,7 @@ router.get("/addresses", requireAuth, async (req, res, next) => {
       where: { userId: req.user!.userId },
       orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
     });
-    return res.json({ success: true, data: addresses });
+    return res.json({ success: true, data: { addresses } });
   } catch (error) {
     next(error);
   }
@@ -299,9 +299,9 @@ router.patch("/orders/:id", requireAuth, async (req, res, next) => {
       );
     }
 
-    const { status, note } = req.body;
+    const { status, action, note } = req.body;
 
-    if (status === "CANCELLED") {
+    if (status === "CANCELLED" || action === "cancel") {
       // Validate cancellable status
       if (order.status !== "PENDING" && order.status !== "CONFIRMED") {
         throw new ApiError(
@@ -310,62 +310,65 @@ router.patch("/orders/:id", requireAuth, async (req, res, next) => {
         );
       }
 
-      const updated = await prisma.$transaction(async (tx) => {
-        // Return stock and adjust sales count
-        for (const item of order.items) {
-          if (item.bookId) {
-            await tx.book.update({
-              where: { id: item.bookId },
-              data: {
-                stock: { increment: item.quantity },
-                salesCount: { decrement: item.quantity },
-              },
-            });
+      const updated = await prisma.$transaction(
+        async (tx) => {
+          // Return stock and adjust sales count
+          for (const item of order.items) {
+            if (item.bookId) {
+              await tx.book.update({
+                where: { id: item.bookId },
+                data: {
+                  stock: { increment: item.quantity },
+                  salesCount: { decrement: item.quantity },
+                },
+              });
 
-            await tx.inventoryMovement.create({
-              data: {
-                bookId: item.bookId,
-                type: "RESTOCK",
-                quantity: item.quantity,
-                note: `Order ${order.orderNumber} cancelled by buyer`,
-              },
+              await tx.inventoryMovement.create({
+                data: {
+                  bookId: item.bookId,
+                  type: "RESTOCK",
+                  quantity: item.quantity,
+                  note: `Order ${order.orderNumber} cancelled by buyer`,
+                },
+              });
+            }
+          }
+
+          // Update payment & shipment
+          if (order.payment) {
+            await tx.payment.update({
+              where: { id: order.payment.id },
+              data: { status: "CANCELLED" },
             });
           }
-        }
 
-        // Update payment & shipment
-        if (order.payment) {
-          await tx.payment.update({
-            where: { id: order.payment.id },
+          if (order.shipment) {
+            await tx.shipment.update({
+              where: { id: order.shipment.id },
+              data: { status: "CANCELLED" },
+            });
+          }
+
+          // Update order items
+          await tx.orderItem.updateMany({
+            where: { orderId: order.id },
             data: { status: "CANCELLED" },
           });
-        }
 
-        if (order.shipment) {
-          await tx.shipment.update({
-            where: { id: order.shipment.id },
-            data: { status: "CANCELLED" },
+          // Update order
+          return tx.order.update({
+            where: { id: order.id },
+            data: {
+              status: "CANCELLED",
+              paymentStatus:
+                order.paymentStatus === "PAID" ? "REFUNDED" : "CANCELLED",
+              notes: note || "Cancelled by buyer",
+            },
+            include: { items: true, payment: true, shipment: true },
           });
-        }
-
-        // Update order items
-        await tx.orderItem.updateMany({
-          where: { orderId: order.id },
-          data: { status: "CANCELLED" },
-        });
-
-        // Update order
-        return tx.order.update({
-          where: { id: order.id },
-          data: {
-            status: "CANCELLED",
-            paymentStatus:
-              order.paymentStatus === "PAID" ? "REFUNDED" : "CANCELLED",
-            notes: note || "Cancelled by buyer",
-          },
-          include: { items: true, payment: true, shipment: true },
-        });
-      });
+        },
+        { maxWait: 10000, timeout: 20000 },
+      );
 
       return res.json({
         success: true,
@@ -462,64 +465,67 @@ router.post("/orders", requireAuth, async (req, res, next) => {
       instructions: address.instructions,
     });
 
-    const order = await prisma.$transaction(async (tx) => {
-      const created = await tx.order.create({
-        data: {
-          orderNumber,
-          userId: user.userId,
-          status: "PENDING",
-          subtotal,
-          discount,
-          shipping,
-          total,
-          couponId,
-          paymentMethod: input.paymentMethod,
-          paymentStatus: "PENDING",
-          addressSnapshot,
-          notes: input.notes,
-          items: {
-            create: cart.items.map((item) => ({
-              bookId: item.bookId,
-              sellerId: item.book?.shop?.ownerId,
-              shopId: item.book?.shopId,
-              title: item.book?.title ?? "Book",
-              author: item.book?.author?.name ?? "Unknown",
-              coverTone: item.book?.coverTone,
-              price: item.book?.price ?? 0,
-              quantity: item.quantity,
-              status: "PENDING",
-            })),
-          },
-          payment: {
-            create: {
-              provider: input.paymentMethod,
-              amount: total,
-              status: "PENDING",
-            },
-          },
-          shipment: {
-            create: {
-              status: "PROCESSING",
-              estimatedDelivery: new Date(Date.now() + 3 * 86400 * 1000),
-            },
-          },
-        },
-        include: { items: true, payment: true },
-      });
-
-      for (const item of cart.items) {
-        await tx.book.update({
-          where: { id: item.bookId },
+    const order = await prisma.$transaction(
+      async (tx) => {
+        const created = await tx.order.create({
           data: {
-            stock: { decrement: item.quantity },
-            salesCount: { increment: item.quantity },
+            orderNumber,
+            userId: user.userId,
+            status: "PENDING",
+            subtotal,
+            discount,
+            shipping,
+            total,
+            couponId,
+            paymentMethod: input.paymentMethod,
+            paymentStatus: "PENDING",
+            addressSnapshot,
+            notes: input.notes,
+            items: {
+              create: cart.items.map((item) => ({
+                bookId: item.bookId,
+                sellerId: item.book?.shop?.ownerId,
+                shopId: item.book?.shopId,
+                title: item.book?.title ?? "Book",
+                author: item.book?.author?.name ?? "Unknown",
+                coverTone: item.book?.coverTone,
+                price: item.book?.price ?? 0,
+                quantity: item.quantity,
+                status: "PENDING",
+              })),
+            },
+            payment: {
+              create: {
+                provider: input.paymentMethod,
+                amount: total,
+                status: "PENDING",
+              },
+            },
+            shipment: {
+              create: {
+                status: "PROCESSING",
+                estimatedDelivery: new Date(Date.now() + 3 * 86400 * 1000),
+              },
+            },
           },
+          include: { items: true, payment: true },
         });
-      }
 
-      await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
-      return created;
-    });
+        for (const item of cart.items) {
+          await tx.book.update({
+            where: { id: item.bookId },
+            data: {
+              stock: { decrement: item.quantity },
+              salesCount: { increment: item.quantity },
+            },
+          });
+        }
+
+        await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
+        return created;
+      },
+      { maxWait: 10000, timeout: 20000 },
+    );
 
     // Handle online payments
     let paymentUrl: string | undefined;
