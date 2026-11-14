@@ -1,36 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BookHand — Online Books Marketplace
+
+BookHand is a full-featured multi-vendor book marketplace platform for readers, sellers, and administrators across Bangladesh.
+
+The project is structured into two completely decoupled folders:
+
+```text
+BookHand/
+├── frontend/          # Next.js 16, React 19, TypeScript, Tailwind CSS, shadcn/ui (Port 3000)
+├── backend/           # Node.js, Express.js, TypeScript, Prisma, PostgreSQL, JWT (Port 5000)
+└── README.md
+```
+
+---
+
+## Architecture Overview
+
+### Frontend (`frontend/`)
+- **Framework:** Next.js 16.4.6 (App Router & Turbopack)
+- **UI & Styling:** React 19, Tailwind CSS 4, shadcn/ui components, Lucide icons
+- **Default Port:** `3000` (`http://localhost:3000`)
+- **API Proxy:** In `next.config.ts`, all `/api/*` HTTP requests are proxied directly to the Express backend (`http://localhost:5000/api/*`).
+- **Features:**
+  - Storefront catalog, search, book filters, categories, authors, publishers, deals, and FAQs.
+  - Buyer portal: cart, multi-step checkout, order tracking, printable invoices, refunds, disputes, reviews, Q&A, and profile management.
+  - Seller portal: book management, order fulfillment, coupon creation, inventory logs, payouts, and shop settings.
+  - Admin dashboard: user management, order oversight, financial transactions, commission settings, review moderation, refund approvals, and site settings.
+
+### Backend (`backend/`)
+- **Framework:** Express.js 5.3 + TypeScript
+- **Database & ORM:** PostgreSQL (remote Prisma Postgres) via Prisma 6.19
+- **Authentication:** JWT (15-minute access token + database-backed rotating 30-day refresh token in HTTP-only cookies)
+- **Default Port:** `5000` (`http://localhost:5000`)
+- **Services:**
+  - Resend transactional email integration (account verification, password reset, order confirmation).
+  - Cloudinary signed image upload integration with size and MIME validation.
+  - Payment gateway interfaces for bKash, SSLCommerz, and Stripe webhooks.
+  - Role-based access control (RBAC) middleware for Buyer, Seller, and Admin routes.
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### 1. Prerequisites
+- Node.js 20+ (tested with Node.js 24)
+- PostgreSQL database (remote or local)
 
+### 2. Environment Setup
+
+#### Backend Configuration (`backend/.env`):
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+PORT=5000
+NODE_ENV=development
+DATABASE_URL="postgres://..."
+JWT_SECRET="your-jwt-secret"
+SESSION_SECRET="your-session-secret"
+RESEND_API_KEY="re_..."
+EMAIL_FROM="BookHand <onboarding@resend.dev>"
+CLOUDINARY_CLOUD_NAME="your-cloud-name"
+CLOUDINARY_API_KEY="your-api-key"
+CLOUDINARY_API_SECRET="your-api-secret"
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### Frontend Configuration (`frontend/.env.local`):
+```bash
+PORT=3000
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+NEXT_PUBLIC_API_URL="http://localhost:5000"
+API_BASE_URL="http://localhost:5000"
+DATABASE_URL="postgres://..."
+SESSION_SECRET="your-session-secret"
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Running the Project
 
-## Learn More
+### Running Both Concurrently (from repository root):
+```bash
+# Start backend API (Port 5000)
+npm run dev:backend
 
-To learn more about Next.js, take a look at the following resources:
+# In a separate terminal, start frontend (Port 3000)
+npm run dev:frontend
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Running Backend Independently:
+```bash
+cd backend
+npm run dev       # Starts Express server on http://localhost:5000
+npm test          # Runs automated test suite (20 tests)
+npm run typecheck # TypeScript validation
+npm run lint      # ESLint check
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Running Frontend Independently:
+```bash
+cd frontend
+npm run dev       # Starts Next.js on http://localhost:3000
+npm run build     # Production build using Turbopack
+npm run typecheck # TypeScript validation
+npm run lint      # ESLint check
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Testing & Verification
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The backend includes a comprehensive 20-test automated suite covering:
+1. Password hashing with scrypt.
+2. Login and registration schema validation with role checks.
+3. Commerce pricing, shipping calculations, and coupon limits.
+4. Buyer refund requests and dispute claims validation.
+5. Live PostgreSQL database connectivity and entity integrity.
+6. Resend email sender resolution in development and test environments.
+7. Cloudinary SHA-1 signature generation for secure image uploads.
+8. JWT lifecycle (signing, verification, refresh token rotation, revocation).
+9. Express REST endpoints (catalog, auth, cart, RBAC permissions for Buyer/Admin).
+10. Next.js rewrite proxy architecture.
+
+Run the tests anytime:
+```bash
+cd backend && npm test
+```
