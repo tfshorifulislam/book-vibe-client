@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
+import { connection } from "next/server";
 import {
   ArrowRight,
   BookOpen,
@@ -9,6 +11,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import { EmptyPanel } from "@/components/dashboard/empty-panel";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -19,7 +22,16 @@ import { formatDate, formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Seller dashboard" };
 
-export default async function SellerDashboardPage() {
+export default function SellerDashboardPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <SellerDashboardContent />
+    </Suspense>
+  );
+}
+
+async function SellerDashboardContent() {
+  await connection();
   const user = await requireRole("seller");
   const shop = await prisma.shop.findUnique({ where: { ownerId: user.id } });
   const [books, orderItems, recentOrders, pendingCount] = await Promise.all([
@@ -153,7 +165,12 @@ export default async function SellerDashboardPage() {
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {order.user.name} ·{" "}
-                        {formatDate(order.createdAt.toISOString().slice(0, 10))}
+                        {formatDate(
+                          (typeof order.createdAt === "string"
+                            ? order.createdAt
+                            : (order.createdAt?.toISOString?.() ?? "")
+                          ).slice(0, 10)
+                        )}
                       </p>
                     </div>
                     <div className="text-right">

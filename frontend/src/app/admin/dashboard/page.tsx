@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
+import { connection } from "next/server";
 import {
   BookOpen,
   Building2,
@@ -10,6 +12,7 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { StatusBadge } from "@/components/dashboard/status-badge";
@@ -19,7 +22,16 @@ import { formatDate, formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Admin Overview | BookHand" };
 
-export default async function AdminDashboardPage() {
+export default function AdminDashboardPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <AdminDashboardContent />
+    </Suspense>
+  );
+}
+
+async function AdminDashboardContent() {
+  await connection();
   await requireRole("admin");
 
   const [
@@ -169,7 +181,12 @@ export default async function AdminDashboardPage() {
                   </Link>
                   <p className="text-xs text-muted-foreground">
                     {o.user.name} ·{" "}
-                    {formatDate(o.createdAt.toISOString().slice(0, 10))}
+                    {formatDate(
+                      (typeof o.createdAt === "string"
+                        ? o.createdAt
+                        : (o.createdAt?.toISOString?.() ?? "")
+                      ).slice(0, 10)
+                    )}
                   </p>
                 </div>
                 <div className="flex items-center gap-3 text-right">

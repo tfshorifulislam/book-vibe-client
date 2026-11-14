@@ -1,34 +1,44 @@
-# Fix Authentication Redirect Runtime Error
+# Fix Persistent JWT Prerender Error — Next.js 16.4.6
 
-Fix the runtime error in `src/components/auth/forms.tsx` around line 103–105:
+The `blocking-prerender-current-time` error still occurs.
 
-`Cannot read properties of undefined (reading 'startsWith')`
+**Current call stack:**
+`SellerDashboardPage (page.tsx:23)` → `requireRole()` → `requireUser()` → `getCurrentUser()` → `verifyAccessToken()` → `jwt.verify()`.
 
-Tasks:
+**Tasks:**
 
-1. Inspect the login/register response types and backend authentication response.
-2. Identify why `result.data.redirectTo` can be undefined.
-3. Validate the `next` parameter and backend `redirectTo` before navigation.
-4. Add a safe default redirect, such as `/dashboard`, if neither contains a valid internal path.
-5. Prevent open redirects: accept only paths starting with `/`, reject `//`, external URLs and malformed values.
-6. Ensure backend response types accurately represent optional and required fields.
-7. Preserve existing role-based redirects for Buyer, Seller and Admin.
-8. Do not hide the error with `as string` or non-null assertions.
+1. Inspect `src/app/seller/dashboard/page.tsx`, especially line 23.
+2. Import `connection` from `next/server`.
+3. Call `await connection()` inside `SellerDashboardPage`, before calling `requireRole()` or any authentication function.
+4. Audit all Server Components and pages that directly call `requireUser()`, `requireRole()` or `getCurrentUser()`.
+5. Apply the same request-time boundary to those components where necessary.
+6. Check Seller, Admin and Buyer routes. Do not assume that adding `connection()` to a parent layout has resolved every child route.
+7. Keep `connection()` out of shared JWT/session utility functions.
+8. Preserve `jwt.verify()`, signature validation, token expiration, refresh rotation, cookies and RBAC.
+9. Do not use `jwt.decode()`, disable expiration checks, or add arbitrary timestamps.
 
-Example safe logic:
+**Expected pattern:**
 
 ```ts
-const isSafePath = (value: unknown): value is string =>
-  typeof value === "string" && value.startsWith("/") && !value.startsWith("//");
+import { connection } from "next/server";
 
-const destination = isSafePath(next)
-  ? next
-  : isSafePath(result.data?.redirectTo)
-    ? result.data.redirectTo
-    : "/dashboard";
+export default async function SellerDashboardPage() {
+  await connection();
 
-router.push(destination);
-router.refresh();
+  const user = await requireRole("SELLER");
+
+  // Keep the existing dashboard implementation.
+}
 ```
 
-Verify login and registration for all roles, with and without a `next` parameter. Run TypeScript and relevant tests. Report the root cause and changed files.
+Adapt the role argument and existing function signature to the actual codebase.
+
+**Final verification:**
+
+- Run production build.
+- Test Seller dashboard navigation with valid, expired and missing tokens.
+- Test Admin and Buyer protected routes.
+- Confirm public pages remain statically renderable.
+- Report every modified file and the actual test results.
+
+Do not stop after editing one file. Find and fix every affected authentication entry point.

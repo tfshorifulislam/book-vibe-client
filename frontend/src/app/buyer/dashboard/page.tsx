@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
+import { connection } from "next/server";
 import {
   ArrowRight,
   Bell,
@@ -11,6 +13,7 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import { EmptyPanel } from "@/components/dashboard/empty-panel";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -23,7 +26,16 @@ import { formatDate, formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Buyer dashboard" };
 
-export default async function BuyerDashboardPage() {
+export default function BuyerDashboardPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <BuyerDashboardContent />
+    </Suspense>
+  );
+}
+
+async function BuyerDashboardContent() {
+  await connection();
   const user = await requireRole("buyer");
   const [orders, wishlistCount, cartCount, unread, notifications, recommended] =
     await Promise.all([
@@ -127,7 +139,12 @@ export default async function BuyerDashboardPage() {
                     <p className="text-xs text-muted-foreground">
                       {order.items.length} item
                       {order.items.length === 1 ? "" : "s"} ·{" "}
-                      {formatDate(order.createdAt.toISOString().slice(0, 10))}
+                      {formatDate(
+                        (typeof order.createdAt === "string"
+                          ? order.createdAt
+                          : (order.createdAt?.toISOString?.() ?? "")
+                        ).slice(0, 10)
+                      )}
                     </p>
                   </div>
                   <div className="text-right">

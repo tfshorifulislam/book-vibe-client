@@ -217,7 +217,7 @@ export async function getCurrentUser(): Promise<User | null> {
   });
 
   if (!session) return null;
-  if (session.expiresAt.getTime() < Date.now()) {
+  if (new Date(session.expiresAt).getTime() < Date.now()) {
     await prisma.session.delete({ where: { id: session.id } }).catch(() => {});
     return null;
   }
