@@ -374,64 +374,6 @@ async function runE2E() {
     "4.4 Deletion without target returns HTTP 422 Unprocessable Entity",
   );
 
-  // ----------------------------------------------------
-  // WORKFLOW 4: MEDIA UPLOAD & STORAGE INTEGRATION
-  // ----------------------------------------------------
-  console.log("\n--- Workflow 4: Media Upload & Storage Integration ---");
-
-  // 4.1 Unauthenticated upload rejected (401)
-  const unauthUpload = await fetch(`${BASE_URL}/api/upload`, { method: "POST" });
-  assert(
-    unauthUpload.status === 401,
-    "4.1 Unauthenticated upload returns HTTP 401",
-  );
-
-  // 4.2 Empty payload rejected (422)
-  const emptyUpload = await fetch(`${BASE_URL}/api/upload`, {
-    method: "POST",
-    headers: { Cookie: `bookhand_token=${buyerToken}` },
-  });
-  assert(
-    emptyUpload.status === 422,
-    "4.2 Upload without file returns HTTP 422 Unprocessable Entity",
-  );
-
-  // 4.3 Invalid MIME rejected (415)
-  const boundary =
-    "----WebKitFormBoundary" + Math.random().toString(36).slice(2);
-  const textBody =
-    `--${boundary}\r\n` +
-    `Content-Disposition: form-data; name="file"; filename="invalid.txt"\r\n` +
-    `Content-Type: text/plain\r\n\r\n` +
-    `sample text content\r\n` +
-    `--${boundary}--\r\n`;
-  const invalidMimeUpload = await fetch(`${BASE_URL}/api/upload`, {
-    method: "POST",
-    headers: {
-      "Content-Type": `multipart/form-data; boundary=${boundary}`,
-      Cookie: `bookhand_token=${buyerToken}`,
-    },
-    body: textBody,
-  });
-  assert(
-    invalidMimeUpload.status === 415,
-    "4.3 Unsupported file type returns HTTP 415 Unsupported Media Type",
-  );
-
-  // 4.4 Authorized deletion requires valid target (422)
-  const emptyDelete = await fetch(`${BASE_URL}/api/upload`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Cookie: `bookhand_token=${buyerToken}`,
-    },
-    body: JSON.stringify({}),
-  });
-  assert(
-    emptyDelete.status === 422,
-    "4.4 Deletion without target returns HTTP 422 Unprocessable Entity",
-  );
-
   console.log("\n=======================================================");
   console.log(
     `TOTAL E2E WORKFLOW CHECKS: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`,

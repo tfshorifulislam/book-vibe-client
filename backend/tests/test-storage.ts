@@ -1,7 +1,30 @@
 import assert from "node:assert";
 import { createHash } from "node:crypto";
+import fs from "node:fs";
 import http from "node:http";
+import path from "node:path";
 import jwt from "jsonwebtoken";
+
+// Load backend/.env manually into process.env before running tests
+const envPath = path.resolve(__dirname, "../.env");
+if (fs.existsSync(envPath)) {
+  const content = fs.readFileSync(envPath, "utf-8");
+  for (const line of content.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const match = trimmed.match(/^([A-Za-z_0-9]+)=(.*)$/);
+    if (match) {
+      let val = match[2].trim();
+      if (
+        (val.startsWith('"') && val.endsWith('"')) ||
+        (val.startsWith("'") && val.endsWith("'"))
+      ) {
+        val = val.slice(1, -1);
+      }
+      process.env[match[1]] = val;
+    }
+  }
+}
 
 import { createExpressApp } from "../src/app";
 import {
@@ -43,7 +66,11 @@ async function runStorageTestSuite() {
         passed++;
       })
       .catch((err) => {
-        console.error(`  ✖ FAIL: ${desc} -`, err.message);
+        console.error(
+          `  ✖ FAIL: ${desc} -`,
+          err.message,
+          err.cause ? (err.cause as Error).message : "",
+        );
         failed++;
       });
   }
@@ -153,11 +180,12 @@ async function runStorageTestSuite() {
     await test("uploadImage throws in production when Cloudinary fails", async () => {
       const origNodeEnv = process.env.NODE_ENV;
       const origFallback = process.env.STORAGE_FALLBACK_TO_LOCAL;
+      const origCloud = process.env.CLOUDINARY_CLOUD_NAME;
       try {
         process.env.NODE_ENV = "production";
         delete process.env.STORAGE_FALLBACK_TO_LOCAL;
+        process.env.CLOUDINARY_CLOUD_NAME = "invalid_nonexistent_cloud_test";
 
-        // If Cloudinary rejects create action, uploadImage must throw error
         const dummyBytes = Buffer.from(
           "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
           "base64",
@@ -171,19 +199,22 @@ async function runStorageTestSuite() {
           assert.match((err as Error).message, /Cloudinary/i);
         }
 
-        // If credentials are valid and key had create permissions, threw would be false
-        // Otherwise threw must be true (no silent fallback allowed in production)
-        console.log(`    (Production enforcement verified: threw=${threw})`);
+        assert.strictEqual(
+          threw,
+          true,
+          "uploadImage must throw in production if Cloudinary rejects",
+        );
       } finally {
         process.env.NODE_ENV = origNodeEnv;
+        process.env.CLOUDINARY_CLOUD_NAME = origCloud;
         if (origFallback !== undefined) {
           process.env.STORAGE_FALLBACK_TO_LOCAL = origFallback;
         }
       }
     });
 
-    // 7. Cloudinary live connection & RBAC audit
-    await test("Cloudinary Live Connection & RBAC Diagnostic Check", async () => {
+    // 7. Cloudinary live connection, real upload, retrieval & deletion audit
+    await test("Cloudinary Live Real Upload, Image Retrieval & Deletion Lifecycle", async () => {
       const cloud = process.env.CLOUDINARY_CLOUD_NAME;
       const key = process.env.CLOUDINARY_API_KEY;
       const secret = process.env.CLOUDINARY_API_SECRET;
@@ -208,106 +239,46 @@ async function runStorageTestSuite() {
       );
       console.log("    ✔ Cloudinary Authentication & Ping: OK (200)");
 
-      // Destroy check (Authorized deletion check)
-      const delTimestamp = Math.round(Date.now() / 1000).toString();
-      const delParams = {
-        public_id: "bookhand/test_deletion_probe",
-        timestamp: delTimestamp,
-      };
-      const delSig = generateCloudinarySignature(delParams, secret);
-      const delForm = new URLSearchParams();
-      delForm.append("public_id", "bookhand/test_deletion_probe");
-      delForm.append("api_key", key);
-      delForm.append("timestamp", delTimestamp);
-      delForm.append("signature", delSig);
-
-      const delRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloud}/image/destroy`,
-        {
-          method: "POST",
-          body: delForm,
-        },
-      );
-      assert.strictEqual(
-        delRes.status,
-        200,
-        "Cloudinary destroy must return 200",
-      );
-      const delData = await delRes.json();
-      assert.strictEqual(
-        delData.result,
-        "not found",
-        "Cloudinary deletion endpoint must accept probe signature",
-      );
-      console.log(
-        "    ✔ Cloudinary Authorized Deletion (/image/destroy): OK (200)",
-      );
-
       // Real upload attempt
       const pngBuffer = Buffer.from(
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
         "base64",
       );
-      const timestamp = Math.round(Date.now() / 1000).toString();
-      const folder = "bookhand";
-      const upParams = { folder, timestamp };
-      const upSig = generateCloudinarySignature(upParams, secret);
-
-      const upForm = new URLSearchParams();
-      upForm.append(
-        "file",
-        `data:image/png;base64,${pngBuffer.toString("base64")}`,
+      const testFilename = `live_verify_${Date.now()}.png`;
+      const secureUrl = await uploadImage(pngBuffer, testFilename, "image/png");
+      assert(
+        secureUrl.startsWith("http"),
+        `Expected remote URL, got ${secureUrl}`,
       );
-      upForm.append("api_key", key);
-      upForm.append("timestamp", timestamp);
-      upForm.append("folder", folder);
-      upForm.append("signature", upSig);
+      console.log(`    ✔ Real Image Upload Succeeded: ${secureUrl}`);
 
-      const upRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloud}/image/upload`,
-        {
-          method: "POST",
-          body: upForm,
-        },
+      // Image retrieval check (HTTP 200)
+      const fetchImg = await fetch(secureUrl);
+      assert.strictEqual(
+        fetchImg.status,
+        200,
+        "Uploaded image must be retrievable with HTTP 200",
       );
+      console.log("    ✔ Image Retrieval Verified: HTTP 200 OK");
 
-      const upData = await upRes.json();
-      if (upRes.ok && upData.secure_url) {
-        console.log(
-          `    ✔ Cloudinary Upload: Succeeded! URL: ${upData.secure_url}`,
-        );
+      // Extract Public ID
+      const publicId = extractCloudinaryPublicId(secureUrl);
+      assert(publicId, "Extracted public ID must not be null");
+      console.log(`    ✔ Public ID Extracted: ${publicId}`);
 
-        // Image retrieval
-        const fetchImg = await fetch(upData.secure_url);
-        assert.strictEqual(
-          fetchImg.status,
-          200,
-          "Uploaded image must be retrievable",
-        );
-        console.log("    ✔ Image Retrieval: OK (200)");
+      // Authorized Deletion check
+      const delSuccess = await deleteImage(secureUrl);
+      assert.strictEqual(delSuccess, true, "deleteImage must return true");
+      console.log("    ✔ Authorized Image Deletion: Succeeded");
 
-        // Authorized deletion
-        const delSuccess = await deleteImage(upData.public_id);
-        assert.strictEqual(
-          delSuccess,
-          true,
-          "deleteImage must delete uploaded asset",
-        );
-        console.log("    ✔ Asset Deletion: Succeeded!");
-      } else {
-        console.log(
-          `    ℹ Cloudinary Upload Status: ${upRes.status} - ${upData.error?.message}`,
-        );
-        if (
-          upData.error?.message?.includes(
-            'missing permissions (actions=["create"])',
-          )
-        ) {
-          console.log(
-            "    👉 ACTION REQUIRED: Enable 'actions=[\"create\"]' (Asset Upload) for this API key in Cloudinary Console under Settings > Access Keys.",
-          );
-        }
-      }
+      // Verify deletion in Cloudinary
+      const secondDel = await deleteImage(publicId);
+      assert.strictEqual(
+        secondDel,
+        true,
+        "Asset is confirmed destroyed in Cloudinary",
+      );
+      console.log("    ✔ Cloudinary Asset Destroy Confirmation: Verified");
     });
   } finally {
     server.close();

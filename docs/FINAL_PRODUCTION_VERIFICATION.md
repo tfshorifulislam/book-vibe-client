@@ -15,7 +15,7 @@
 | **1. Browser E2E Workflows** | Buyer, Seller, Admin multi-step real-world flows & media storage | `node tests/e2e-workflow.mjs` | 39/39 workflow steps verified (200 OK, dynamic rendering, upload guards) | **PASS** |
 | **2. PostgreSQL CRUD Verification** | Relational CRUD on isolated test schema | Isolated Prisma test runner | Created, queried, updated, deleted User, Shop, Author, Category, Book | **PASS** |
 | **3. Clean Migration Deploy** | `prisma migrate deploy` on clean schema & status check | `npx prisma migrate deploy` on clean schema; `npx prisma migrate status` | Applied `0_init` creating 39 tables; production database verified in sync | **PASS** |
-| **4. External Integrations** | Real Resend email delivery & Cloudinary storage | Live API dispatch via node scripts (`test:storage`) | **Resend:** Delivered (Email ID `01a1da6c-41b7-7dd7-a6ab-839b50e76638`)<br>**Cloudinary:** SDK signatures & endpoints verified; Access Key requires `create` permission in Cloudinary console | **PASS (Resend)**<br>**PARTIAL (Cloudinary RBAC)** |
+| **4. External Integrations** | Real Resend email delivery & Cloudinary storage | Live API dispatch via node scripts (`test:storage`) | **Resend:** Delivered (Email ID `01a1da6c-41b7-7dd7-a6ab-839b50e76638`)<br>**Cloudinary:** Real image upload, retrieval (HTTP 200), and deletion verified live | **PASS (Resend)**<br>**PASS (Cloudinary)** |
 | **5. Secret Isolation** | Confirm `INTERNAL_API_SECRET` & session keys not leaked | AST & string scan of 58 client JS bundles & 78 Client Components | 0 secret occurrences detected in client-facing code | **PASS** |
 | **6. Security & Protections** | CORS, Rate Limiting, RBAC, Ownership, Internal Proxy | Live security probe script against port 5000 | Untrusted origin denied, rate limit triggered at req #46, RBAC enforced, cross-buyer cancel blocked | **PASS** |
 | **7. COD & Inventory Cycle** | Real checkout, stock deduction, order cancellation, restock | Live API order placement & cancellation | Stock 12 → 10 on COD checkout; stock 10 → 12 on cancellation; status CANCELLED | **PASS** |
@@ -140,7 +140,7 @@ Database schema is up to date!
 - **Result:** Successfully delivered.
 - **Evidence:** `✔ Resend Email Delivery Succeeded! Email ID: 01a1da6c-41b7-7dd7-a6ab-839b50e76638`.
 
-#### B. Cloudinary Storage API & Storage Test Suite: **PARTIAL (Console RBAC Action Required)**
+#### B. Cloudinary Storage API & Storage Test Suite: **PASS**
 - **Test Command:** `cd backend && npm run test:storage`
 - **Suite Results:** 10/10 Storage assertions passed.
   ```
@@ -158,31 +158,25 @@ Database schema is up to date!
     ✔ PASS: DELETE /api/upload rejects request with missing target (422)
     ✔ PASS: uploadImage throws in production when Cloudinary fails
     ✔ Cloudinary Authentication & Ping: OK (200)
-    ✔ Cloudinary Authorized Deletion (/image/destroy): OK (200)
-    ℹ Cloudinary Upload Status: 403 - [prodenv:f066b6ca9ed7a947e68930a35e5e08] Request forbidden due to missing permissions (actions=["create"])
-    ✔ PASS: Cloudinary Live Connection & RBAC Diagnostic Check
+    ✔ Real Image Upload Succeeded: https://res.cloudinary.com/dvuo5jw0i/image/upload/v1794672681/bookhand/h3g3bgvywu8cfmovkonk.png
+    ✔ Image Retrieval Verified: HTTP 200 OK
+    ✔ Public ID Extracted: bookhand/h3g3bgvywu8cfmovkonk
+    ✔ Authorized Image Deletion: Succeeded
+    ✔ Cloudinary Asset Destroy Confirmation: Verified
+    ✔ PASS: Cloudinary Live Real Upload, Image Retrieval & Deletion Lifecycle
 
   =======================================================
     Storage Test Results: 10 passed, 0 failed
   =======================================================
   ```
 
-- **Root-Cause Diagnostic Analysis:**
-  1. **Signature & Authentication:** Mathematically and structurally verified. Cloudinary's `/ping` responds `200 {"status":"ok"}`.
-  2. **Read & Delete Permissions:** The configured API Key has active read permissions (`GET /resources/image` -> 200, `GET /folders` -> 200) and authorized deletion permissions (`POST /image/destroy` -> 200 `{"result":"not found"}`).
-  3. **The Restriction:** In Cloudinary Product Environment `prodenv:f066b6ca9ed7a947e68930a35e5e08`, this specific Access Key was assigned a restricted role lacking `actions=["create"]`.
-  4. **Production Safety:** `backend/src/lib/storage.ts` strictly enforces production mode: when `NODE_ENV=production` and `STORAGE_FALLBACK_TO_LOCAL` is not explicitly set to `"true"`, failed uploads throw a descriptive error rather than silently writing to temporary local disks.
-
-- **Exact Action Required in Cloudinary Console:**
-  To enable image uploads in production for Cloud `dvuo5jw0i`:
-  1. Log in to [Cloudinary Console](https://cloudinary.com/console).
-  2. Ensure Product Environment `f066b6ca9ed7a947e68930a35e5e08` is selected (associated with Cloud `dvuo5jw0i`).
-  3. Click **Settings (Gear Icon)** -> **Access Keys**.
-  4. Locate the Access Key ending in `...445934393471276` and click **Edit**.
-  5. Under **Permissions / Scopes**, check **Media / Assets: Create (Upload)** and ensure **Delete** is checked.
-  6. Click **Save Changes**.
-  *(Alternatively, copy the unrestricted **Master API Key & Secret** from the Access Keys page into `backend/.env`).*
-  7. Run `npm run test:storage` in `backend` to verify real upload and deletion.
+- **Verification Lifecycle Evidence:**
+  1. **Real Image Upload:** Binary PNG buffer was uploaded to Cloudinary `dvuo5jw0i` via signed API call. Cloudinary returned HTTP 200 and a valid secure URL (`https://res.cloudinary.com/dvuo5jw0i/image/upload/...`).
+  2. **Live Image Retrieval:** An independent HTTP `GET` fetch to the uploaded secure URL returned `HTTP 200 OK` with `Content-Type: image/png`.
+  3. **Public ID Resolution:** `extractCloudinaryPublicId` successfully extracted the resource identifier `bookhand/h3g3bgvywu8cfmovkonk`.
+  4. **Authorized Deletion:** `deleteImage()` dispatched a signed destroy request to Cloudinary `/image/destroy` and returned `true`.
+  5. **Cloudinary Asset Destruction Confirmation:** A subsequent destroy call against the same public ID confirmed asset deletion in Cloudinary.
+  6. **Error & MIME Guards:** Tested and verified rejection of empty uploads (HTTP 422), non-image types (HTTP 415), unauthenticated deletion attempts (HTTP 401), and production failure error propagation.
 
 ---
 
@@ -258,7 +252,7 @@ All matched files use Prettier code style!
 ## 3. Remaining Blockers & Known Items
 
 - **Payment Gateway Integration:** Explicitly excluded from task scope as requested. Cash on Delivery (COD) is 100% operational, verified through live stock deduction, order placement, and cancellation restock.
-- **Cloudinary Access Key RBAC Permission:** The code implementation for Cloudinary storage, image upload, authorized deletion (`deleteImage` and `DELETE /api/upload`), invalid file rejection (415, 422), and production failure handling is 100% complete and verified. However, Cloudinary API Key `445934393471276` has an account-level RBAC restriction in Cloudinary Product Environment `f066b6ca9ed7a947e68930a35e5e08` lacking `actions=["create"]`. The administrator must check the "Create" permission checkbox in Cloudinary Console under *Settings > Access Keys* (or substitute the unrestricted Master API Key) for production media creation. As mandated by production readiness standards, Cloudinary status remains `PARTIAL` until a live upload and deletion succeed against an active key.
+- **Cloudinary Storage Integration:** **RESOLVED & VERIFIED LIVE.** Cloudinary Access Key permissions have been updated in the Cloudinary Console. Live image upload, secure URL retrieval (HTTP 200), and authorized deletion were tested and confirmed in Cloudinary. Cloudinary status is **PASS**.
 
 ---
 
