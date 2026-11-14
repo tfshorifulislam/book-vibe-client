@@ -2,8 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+
+import { uploadDirectToCloudinary } from "@/lib/upload";
 
 type Option = { id: string; name: string };
 
@@ -21,6 +23,7 @@ type BookFormProps = {
     edition: string | null;
     pageCount: number | null;
     coverTone: number;
+    coverImage?: string | null;
     condition: string;
     listingType: string;
     price: number;
@@ -62,12 +65,32 @@ export function BookForm({
   const [condition, setCondition] = useState(initial?.condition ?? "NEW");
   const [listingType, setListingType] = useState(initial?.listingType ?? "NEW");
   const [coverTone, setCoverTone] = useState(initial?.coverTone ?? 1);
+  const [coverImage, setCoverImage] = useState(initial?.coverImage ?? "");
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [isbn, setIsbn] = useState(initial?.isbn ?? "");
   const [language, setLanguage] = useState(initial?.language ?? "English");
   const [edition, setEdition] = useState(initial?.edition ?? "");
   const [pageCount, setPageCount] = useState(
     initial?.pageCount?.toString() ?? "",
   );
+
+  async function handleCoverUpload(file: File) {
+    setUploadingCover(true);
+    try {
+      const result = await uploadDirectToCloudinary(file, {
+        entity: "book",
+        entityId: initial?.id,
+      });
+      setCoverImage(result.url);
+      toast.success("Cover image uploaded.");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to upload cover image.",
+      );
+    } finally {
+      setUploadingCover(false);
+    }
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -86,6 +109,7 @@ export function BookForm({
       condition,
       listingType,
       coverTone: Number(coverTone),
+      coverImage: coverImage || undefined,
       isbn: isbn || undefined,
       language,
       edition: edition || undefined,
@@ -312,7 +336,51 @@ export function BookForm({
 
             <div>
               <label className="block text-xs font-medium text-muted-foreground uppercase">
-                Cover Tone Style (1-6)
+                Cover Image
+              </label>
+              <div className="mt-2 flex items-center gap-4">
+                {coverImage ? (
+                  <div className="relative size-16 overflow-hidden rounded-lg border border-border bg-muted">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={coverImage}
+                      alt="Book cover preview"
+                      className="size-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setCoverImage("")}
+                      className="absolute top-1 right-1 rounded-full bg-background/80 p-0.5 text-foreground shadow hover:bg-background"
+                      title="Remove image"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </div>
+                ) : null}
+                <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted">
+                  {uploadingCover ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Upload className="size-4" />
+                  )}
+                  {coverImage ? "Replace Cover Image" : "Upload Cover Image"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    disabled={uploadingCover}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleCoverUpload(file);
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground uppercase">
+                Cover Tone Fallback (1-6)
               </label>
               <div className="mt-2 flex gap-3">
                 {[1, 2, 3, 4, 5, 6].map((tone) => (

@@ -2,12 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Loader2, Store } from "lucide-react";
+import { Loader2, Store, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+
+import { uploadDirectToCloudinary } from "@/lib/upload";
 
 type ShopData = {
   name: string;
   slug: string;
+  logo?: string | null;
+  banner?: string | null;
   description?: string | null;
   email?: string | null;
   phone?: string | null;
@@ -22,6 +26,10 @@ export function ShopForm({ initial }: { initial?: ShopData | null }) {
 
   const [name, setName] = useState(initial?.name ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
+  const [logo, setLogo] = useState(initial?.logo ?? "");
+  const [banner, setBanner] = useState(initial?.banner ?? "");
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
   const [description, setDescription] = useState(initial?.description ?? "");
   const [email, setEmail] = useState(initial?.email ?? "");
   const [phone, setPhone] = useState(initial?.phone ?? "");
@@ -42,6 +50,40 @@ export function ShopForm({ initial }: { initial?: ShopData | null }) {
     }
   }
 
+  async function handleLogoUpload(file: File) {
+    setUploadingLogo(true);
+    try {
+      const res = await uploadDirectToCloudinary(file, {
+        entity: "shop_logo",
+      });
+      setLogo(res.url);
+      toast.success("Shop logo updated.");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to upload shop logo.",
+      );
+    } finally {
+      setUploadingLogo(false);
+    }
+  }
+
+  async function handleBannerUpload(file: File) {
+    setUploadingBanner(true);
+    try {
+      const res = await uploadDirectToCloudinary(file, {
+        entity: "shop_banner",
+      });
+      setBanner(res.url);
+      toast.success("Shop banner updated.");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to upload shop banner.",
+      );
+    } finally {
+      setUploadingBanner(false);
+    }
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -53,6 +95,8 @@ export function ShopForm({ initial }: { initial?: ShopData | null }) {
         body: JSON.stringify({
           name,
           slug,
+          logo: logo || undefined,
+          banner: banner || undefined,
           description: description || undefined,
           email: email || undefined,
           phone: phone || undefined,
@@ -90,6 +134,97 @@ export function ShopForm({ initial }: { initial?: ShopData | null }) {
             <p className="text-xs text-muted-foreground">
               Information displayed to customers on your public storefront.
             </p>
+          </div>
+        </div>
+
+        {/* Branding & Media */}
+        <div className="grid gap-6 border-b border-border pb-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground uppercase">
+              Shop Logo
+            </label>
+            <div className="mt-2 flex items-center gap-4">
+              {logo ? (
+                <div className="relative size-16 overflow-hidden rounded-lg border border-border bg-muted">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={logo}
+                    alt="Shop logo preview"
+                    className="size-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setLogo("")}
+                    className="absolute top-1 right-1 rounded-full bg-background/80 p-0.5 text-foreground shadow hover:bg-background"
+                    title="Remove logo"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </div>
+              ) : null}
+              <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted">
+                {uploadingLogo ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Upload className="size-4" />
+                )}
+                {logo ? "Replace Logo" : "Upload Logo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  disabled={uploadingLogo}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleLogoUpload(file);
+                  }}
+                />
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground uppercase">
+              Shop Banner
+            </label>
+            <div className="mt-2 flex items-center gap-4">
+              {banner ? (
+                <div className="relative h-16 w-32 overflow-hidden rounded-lg border border-border bg-muted">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={banner}
+                    alt="Shop banner preview"
+                    className="size-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setBanner("")}
+                    className="absolute top-1 right-1 rounded-full bg-background/80 p-0.5 text-foreground shadow hover:bg-background"
+                    title="Remove banner"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </div>
+              ) : null}
+              <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted">
+                {uploadingBanner ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Upload className="size-4" />
+                )}
+                {banner ? "Replace Banner" : "Upload Banner"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  disabled={uploadingBanner}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleBannerUpload(file);
+                  }}
+                />
+              </label>
+            </div>
           </div>
         </div>
 

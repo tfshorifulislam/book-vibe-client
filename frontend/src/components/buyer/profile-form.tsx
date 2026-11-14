@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { LoaderCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
 
+import { uploadDirectToCloudinary } from "@/lib/upload";
+
 const input =
   "h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-primary";
 
@@ -26,20 +28,17 @@ export function ProfileForm({
 
   async function uploadAvatar(file: File) {
     setUploading(true);
-    const data = new FormData();
-    data.append("file", file);
-    const response = await fetch("/api/upload", { method: "POST", body: data });
-    const payload = (await response.json()) as {
-      success: boolean;
-      data?: { url: string };
-      message?: string;
-    };
-    setUploading(false);
-    if (!response.ok || !payload.success || !payload.data) {
-      toast.error(payload.message ?? "Unable to upload the image.");
-      return;
+    try {
+      const result = await uploadDirectToCloudinary(file, { entity: "avatar" });
+      setForm((current) => ({ ...current, avatar: result.url }));
+      toast.success("Avatar uploaded successfully.");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Unable to upload the image.",
+      );
+    } finally {
+      setUploading(false);
     }
-    setForm((current) => ({ ...current, avatar: payload.data!.url }));
   }
 
   async function onSubmit(event: FormEvent) {

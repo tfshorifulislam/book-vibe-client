@@ -36,20 +36,6 @@ export function errorHandler(
     });
   }
 
-  if ((err as { name?: string })?.name === "MulterError") {
-    const multerErr = err as { code?: string; message?: string };
-    if (multerErr.code === "LIMIT_FILE_SIZE") {
-      return res.status(413).json({
-        success: false,
-        message: "File exceeds the 5MB size limit.",
-      });
-    }
-    return res.status(400).json({
-      success: false,
-      message: multerErr.message || "File upload error.",
-    });
-  }
-
   if (err instanceof Error) {
     if (err.message === "UNAUTHORIZED") {
       return res.status(401).json({

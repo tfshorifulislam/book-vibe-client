@@ -2,14 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+
+import { deleteCloudinaryAsset, uploadDirectToCloudinary } from "@/lib/upload";
 
 type Banner = {
   id: string;
   title: string;
   subtitle?: string | null;
   href?: string | null;
+  image?: string | null;
   order: number;
   isActive: boolean;
 };
@@ -28,6 +31,25 @@ export function BannerManager({
   const [subtitle, setSubtitle] = useState("");
   const [href, setHref] = useState("");
   const [order, setOrder] = useState("0");
+  const [image, setImage] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  async function handleImageUpload(file: File) {
+    setUploadingImage(true);
+    try {
+      const res = await uploadDirectToCloudinary(file, {
+        entity: "banner",
+      });
+      setImage(res.url);
+      toast.success("Banner image uploaded.");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to upload banner image.",
+      );
+    } finally {
+      setUploadingImage(false);
+    }
+  }
 
   async function handleCreate(e: FormEvent) {
     e.preventDefault();
@@ -41,6 +63,7 @@ export function BannerManager({
           title,
           subtitle: subtitle || undefined,
           href: href || undefined,
+          image: image || undefined,
           order: Number(order),
           isActive: true,
         }),
@@ -60,6 +83,7 @@ export function BannerManager({
       setTitle("");
       setSubtitle("");
       setHref("");
+      setImage("");
       setOrder("0");
       router.refresh();
     } catch {
@@ -72,6 +96,10 @@ export function BannerManager({
   async function handleDelete(id: string) {
     if (!confirm("Delete this banner?")) return;
     try {
+      const target = banners.find((b) => b.id === id);
+      if (target?.image) {
+        await deleteCloudinaryAsset(target.image);
+      }
       const res = await fetch(`/api/admin/banners?id=${id}`, {
         method: "DELETE",
       });
@@ -131,6 +159,50 @@ export function BannerManager({
             </div>
           </div>
 
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground uppercase">
+              Banner Promotional Image
+            </label>
+            <div className="mt-2 flex items-center gap-4">
+              {image ? (
+                <div className="relative h-16 w-32 overflow-hidden rounded-lg border border-border bg-muted">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={image}
+                    alt="Banner preview"
+                    className="size-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setImage("")}
+                    className="absolute top-1 right-1 rounded-full bg-background/80 p-0.5 text-foreground shadow hover:bg-background"
+                    title="Remove image"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </div>
+              ) : null}
+              <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted">
+                {uploadingImage ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Upload className="size-4" />
+                )}
+                {image ? "Replace Image" : "Upload Banner Image"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  disabled={uploadingImage}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageUpload(file);
+                  }}
+                />
+              </label>
+            </div>
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-medium text-muted-foreground uppercase">
@@ -183,6 +255,7 @@ export function BannerManager({
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border bg-muted/40 text-xs font-semibold text-muted-foreground uppercase">
               <tr>
+                <th className="px-4 py-3">Image</th>
                 <th className="px-4 py-3">Headline</th>
                 <th className="px-4 py-3">Subtitle</th>
                 <th className="px-4 py-3">Link</th>
@@ -193,6 +266,20 @@ export function BannerManager({
             <tbody className="divide-y divide-border">
               {banners.map((b) => (
                 <tr key={b.id} className="hover:bg-muted/30">
+                  <td className="px-4 py-3">
+                    {b.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={b.image}
+                        alt={b.title}
+                        className="h-10 w-20 rounded border border-border object-cover"
+                      />
+                    ) : (
+                      <span className="text-xs text-muted-foreground italic">
+                        None
+                      </span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 font-semibold text-foreground">
                     {b.title}
                   </td>

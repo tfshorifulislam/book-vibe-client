@@ -315,9 +315,9 @@ async function runE2E() {
   );
 
   // ----------------------------------------------------
-  // WORKFLOW 4: MEDIA UPLOAD & STORAGE INTEGRATION
+  // WORKFLOW 4: DIRECT CLOUDINARY UPLOAD & STORAGE
   // ----------------------------------------------------
-  console.log("\n--- Workflow 4: Media Upload & Storage Integration ---");
+  console.log("\n--- Workflow 4: Direct Cloudinary Upload & Storage ---");
 
   // 4.1 Unauthenticated upload rejected (401)
   const unauthUpload = await fetch(`${BASE_URL}/api/upload`, {
@@ -331,36 +331,68 @@ async function runE2E() {
   // 4.2 Empty payload rejected (422)
   const emptyUpload = await fetch(`${BASE_URL}/api/upload`, {
     method: "POST",
-    headers: { Cookie: `bookhand_token=${buyerToken}` },
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: `bookhand_token=${buyerToken}`,
+    },
+    body: JSON.stringify({}),
   });
   assert(
     emptyUpload.status === 422,
-    "4.2 Upload without file returns HTTP 422 Unprocessable Entity",
+    "4.2 Upload without payload returns HTTP 422 Unprocessable Entity",
   );
 
-  // 4.3 Invalid MIME rejected (415)
-  const boundary =
-    "----WebKitFormBoundary" + Math.random().toString(36).slice(2);
-  const textBody =
-    `--${boundary}\r\n` +
-    `Content-Disposition: form-data; name="file"; filename="invalid.txt"\r\n` +
-    `Content-Type: text/plain\r\n\r\n` +
-    `sample text content\r\n` +
-    `--${boundary}--\r\n`;
-  const invalidMimeUpload = await fetch(`${BASE_URL}/api/upload`, {
+  // 4.3 Direct upload signature generation (200)
+  const signRes = await fetch(`${BASE_URL}/api/upload/sign`, {
     method: "POST",
     headers: {
-      "Content-Type": `multipart/form-data; boundary=${boundary}`,
+      "Content-Type": "application/json",
       Cookie: `bookhand_token=${buyerToken}`,
     },
-    body: textBody,
+    body: JSON.stringify({ folder: "bookhand/buyer" }),
   });
   assert(
-    invalidMimeUpload.status === 415,
-    "4.3 Unsupported file type returns HTTP 415 Unsupported Media Type",
+    signRes.status === 200,
+    "4.3 Signed upload parameters generated successfully (HTTP 200)",
+  );
+  const signJson = await signRes.json();
+  assert(
+    signJson.data?.uploadUrl && signJson.data?.signature,
+    "4.3 Signature response contains uploadUrl and signature",
   );
 
-  // 4.4 Authorized deletion requires valid target (422)
+  // 4.4 Signature rejects folder outside bookhand namespace (422)
+  const invalidFolder = await fetch(`${BASE_URL}/api/upload/sign`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: `bookhand_token=${buyerToken}`,
+    },
+    body: JSON.stringify({ folder: "external_folder" }),
+  });
+  assert(
+    invalidFolder.status === 422,
+    "4.4 Folder outside namespace rejected with HTTP 422",
+  );
+
+  // 4.5 Confirm rejects invalid Cloudinary URLs (422)
+  const invalidConfirm = await fetch(`${BASE_URL}/api/upload/confirm`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: `bookhand_token=${buyerToken}`,
+    },
+    body: JSON.stringify({
+      secureUrl: "https://unauthorized-domain.com/bookhand/avatar.jpg",
+      publicId: "bookhand/avatar",
+    }),
+  });
+  assert(
+    invalidConfirm.status === 422,
+    "4.5 Untrusted Cloudinary URL rejected with HTTP 422",
+  );
+
+  // 4.6 Authorized deletion requires valid target (422)
   const emptyDelete = await fetch(`${BASE_URL}/api/upload`, {
     method: "DELETE",
     headers: {
@@ -371,7 +403,23 @@ async function runE2E() {
   });
   assert(
     emptyDelete.status === 422,
-    "4.4 Deletion without target returns HTTP 422 Unprocessable Entity",
+    "4.6 Deletion without target returns HTTP 422 Unprocessable Entity",
+  );
+
+  // 4.7 Non-admin cannot delete unowned assets (403)
+  const unownedDelete = await fetch(`${BASE_URL}/api/upload`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: `bookhand_token=${buyerToken}`,
+    },
+    body: JSON.stringify({
+      url: "https://res.cloudinary.com/dvuo5jw0i/image/upload/v1731600000/bookhand/stranger.jpg",
+    }),
+  });
+  assert(
+    unownedDelete.status === 403,
+    "4.7 Non-admin deleting unowned asset returns HTTP 403 Forbidden",
   );
 
   console.log("\n=======================================================");

@@ -12,10 +12,10 @@
 
 | Requirement | Test Scenario | Command / Suite | Actual Result | Status |
 |---|---|---|---|---|
-| **1. Browser E2E Workflows** | Buyer, Seller, Admin multi-step real-world flows & media storage | `node tests/e2e-workflow.mjs` | 39/39 workflow steps verified (200 OK, dynamic rendering, upload guards) | **PASS** |
+| **1. Browser E2E Workflows** | Buyer, Seller, Admin multi-step real-world flows & media storage | `node tests/e2e-workflow.mjs` | 43/43 workflow steps verified (200 OK, dynamic rendering, direct upload guards) | **PASS** |
 | **2. PostgreSQL CRUD Verification** | Relational CRUD on isolated test schema | Isolated Prisma test runner | Created, queried, updated, deleted User, Shop, Author, Category, Book | **PASS** |
 | **3. Clean Migration Deploy** | `prisma migrate deploy` on clean schema & status check | `npx prisma migrate deploy` on clean schema; `npx prisma migrate status` | Applied `0_init` creating 39 tables; production database verified in sync | **PASS** |
-| **4. External Integrations** | Real Resend email delivery & Cloudinary storage | Live API dispatch via node scripts (`test:storage`) | **Resend:** Delivered (Email ID `01a1da6c-41b7-7dd7-a6ab-839b50e76638`)<br>**Cloudinary:** Real image upload, retrieval (HTTP 200), and deletion verified live | **PASS (Resend)**<br>**PASS (Cloudinary)** |
+| **4. External Integrations** | Real Resend email delivery & Direct Cloudinary storage | Live API dispatch via node scripts (`test:storage`) | **Resend:** Delivered (Email ID `01a1da6c-41b7-7dd7-a6ab-839b50e76638`)<br>**Cloudinary:** Direct browser-to-Cloudinary signed upload, HEAD verification, PostgreSQL persistence, and authorized deletion verified live (17/17 tests) | **PASS (Resend)**<br>**PASS (Cloudinary)** |
 | **5. Secret Isolation** | Confirm `INTERNAL_API_SECRET` & session keys not leaked | AST & string scan of 58 client JS bundles & 78 Client Components | 0 secret occurrences detected in client-facing code | **PASS** |
 | **6. Security & Protections** | CORS, Rate Limiting, RBAC, Ownership, Internal Proxy | Live security probe script against port 5000 | Untrusted origin denied, rate limit triggered at req #46, RBAC enforced, cross-buyer cancel blocked | **PASS** |
 | **7. COD & Inventory Cycle** | Real checkout, stock deduction, order cancellation, restock | Live API order placement & cancellation | Stock 12 → 10 on COD checkout; stock 10 → 12 on cancellation; status CANCELLED | **PASS** |
@@ -76,14 +76,18 @@
   ✔ PASS: 3.8 Admin manages customer FAQs in /admin/faqs (HTTP 200)
   ✔ PASS: 3.9 Admin inspects site configurations in /admin/settings (HTTP 200)
 
---- Workflow 4: Media Upload & Storage Integration ---
+--- Workflow 4: Direct Cloudinary Upload & Storage ---
   ✔ PASS: 4.1 Unauthenticated upload returns HTTP 401
-  ✔ PASS: 4.2 Upload without file returns HTTP 422 Unprocessable Entity
-  ✔ PASS: 4.3 Unsupported file type returns HTTP 415 Unsupported Media Type
-  ✔ PASS: 4.4 Deletion without target returns HTTP 422 Unprocessable Entity
+  ✔ PASS: 4.2 Upload without payload returns HTTP 422 Unprocessable Entity
+  ✔ PASS: 4.3 Signed upload parameters generated successfully (HTTP 200)
+  ✔ PASS: 4.3 Signature response contains uploadUrl and signature
+  ✔ PASS: 4.4 Folder outside namespace rejected with HTTP 422
+  ✔ PASS: 4.5 Untrusted Cloudinary URL rejected with HTTP 422
+  ✔ PASS: 4.6 Deletion without target returns HTTP 422 Unprocessable Entity
+  ✔ PASS: 4.7 Non-admin deleting unowned asset returns HTTP 403 Forbidden
 
 =======================================================
-TOTAL E2E WORKFLOW CHECKS: 39 | PASSED: 39 | FAILED: 0
+TOTAL E2E WORKFLOW CHECKS: 43 | PASSED: 43 | FAILED: 0
 =======================================================
 ```
 
@@ -140,43 +144,52 @@ Database schema is up to date!
 - **Result:** Successfully delivered.
 - **Evidence:** `✔ Resend Email Delivery Succeeded! Email ID: 01a1da6c-41b7-7dd7-a6ab-839b50e76638`.
 
-#### B. Cloudinary Storage API & Storage Test Suite: **PASS**
+#### B. Cloudinary Direct Browser Upload & Storage Test Suite: **PASS**
 - **Test Command:** `cd backend && npm run test:storage`
-- **Suite Results:** 10/10 Storage assertions passed.
+- **Suite Results:** 17/17 Storage assertions passed.
   ```
   =======================================================
-         BOOKHAND STORAGE & CLOUDINARY TEST SUITE        
+         BOOKHAND DIRECT CLOUDINARY STORAGE TEST SUITE   
   =======================================================
 
     ✔ PASS: generateCloudinarySignature generates valid SHA-1 hex digest
+    ✔ PASS: createUploadSignature generates CloudinarySignatureData with credentials
     ✔ PASS: extractCloudinaryPublicId extracts public ID from Cloudinary URL
     ✔ PASS: extractCloudinaryPublicId extracts public ID without version prefix
-    ✔ PASS: extractCloudinaryPublicId returns null for local uploads
-    ✔ PASS: POST /api/upload rejects request when file is missing (422)
-    ✔ PASS: POST /api/upload rejects unsupported MIME types with 415
-    ✔ PASS: DELETE /api/upload requires auth
+    ✔ PASS: extractCloudinaryPublicId returns null for local uploads or invalid URLs
+    ✔ PASS: validateCloudinaryAssetUrl verifies valid Cloudinary domain and prefix
+    ✔ PASS: POST /api/upload/sign rejects unauthenticated requests (401)
+    ✔ PASS: POST /api/upload/sign returns signed Cloudinary parameters for authenticated user
+    ✔ PASS: POST /api/upload/sign rejects folders outside bookhand namespace (422)
+    ✔ PASS: POST /api/upload/confirm rejects unauthenticated requests (401)
+    ✔ PASS: POST /api/upload/confirm rejects missing secureUrl or publicId (422)
+    ✔ PASS: POST /api/upload/confirm rejects unauthorized domain URLs (422)
+    ✔ PASS: DELETE /api/upload requires auth (401)
     ✔ PASS: DELETE /api/upload rejects request with missing target (422)
+    ✔ PASS: DELETE /api/upload prevents non-admin from deleting unowned assets (403)
     ✔ PASS: uploadImage throws in production when Cloudinary fails
-    ✔ Cloudinary Authentication & Ping: OK (200)
-    ✔ Real Image Upload Succeeded: https://res.cloudinary.com/dvuo5jw0i/image/upload/v1794672681/bookhand/h3g3bgvywu8cfmovkonk.png
-    ✔ Image Retrieval Verified: HTTP 200 OK
-    ✔ Public ID Extracted: bookhand/h3g3bgvywu8cfmovkonk
-    ✔ Authorized Image Deletion: Succeeded
-    ✔ Cloudinary Asset Destroy Confirmation: Verified
-    ✔ PASS: Cloudinary Live Real Upload, Image Retrieval & Deletion Lifecycle
+      ✔ Direct Upload Signature Obtained
+      ✔ Direct Browser Upload to Cloudinary Succeeded: https://res.cloudinary.com/dvuo5jw0i/image/upload/v1794679440/bookhand/tests/unaa6fxeyzvgvvksjv7y.png
+      ✔ Image Retrieval Verified: HTTP 200 OK
+      ✔ Asset Confirmation & Database Verification: OK
+      ✔ PostgreSQL Avatar Persistence Confirmed
+      ✔ Authorized Image Deletion: Succeeded
+      ✔ PostgreSQL Avatar Record Cleared Confirmed
+      ✔ Cloudinary Asset Destroy Confirmation: Verified
+    ✔ PASS: Cloudinary Live Direct Browser Upload, Asset Verification & Deletion Lifecycle
 
   =======================================================
-    Storage Test Results: 10 passed, 0 failed
+    Storage Test Results: 17 passed, 0 failed
   =======================================================
   ```
 
 - **Verification Lifecycle Evidence:**
-  1. **Real Image Upload:** Binary PNG buffer was uploaded to Cloudinary `dvuo5jw0i` via signed API call. Cloudinary returned HTTP 200 and a valid secure URL (`https://res.cloudinary.com/dvuo5jw0i/image/upload/...`).
-  2. **Live Image Retrieval:** An independent HTTP `GET` fetch to the uploaded secure URL returned `HTTP 200 OK` with `Content-Type: image/png`.
-  3. **Public ID Resolution:** `extractCloudinaryPublicId` successfully extracted the resource identifier `bookhand/h3g3bgvywu8cfmovkonk`.
-  4. **Authorized Deletion:** `deleteImage()` dispatched a signed destroy request to Cloudinary `/image/destroy` and returned `true`.
-  5. **Cloudinary Asset Destruction Confirmation:** A subsequent destroy call against the same public ID confirmed asset deletion in Cloudinary.
-  6. **Error & MIME Guards:** Tested and verified rejection of empty uploads (HTTP 422), non-image types (HTTP 415), unauthenticated deletion attempts (HTTP 401), and production failure error propagation.
+  1. **Multer Completely Removed:** Multer dependencies, types, middleware, and memory storage buffers were completely pruned from `backend/package.json` and `backend/src`. Zero server-side file buffers or local disk writes (`public/uploads`) occur.
+  2. **Secure Signature Generation:** `createUploadSignature` hashes sorted upload parameters (`folder`, `timestamp`) with server-side `CLOUDINARY_API_SECRET` via SHA-1. The secret is never exposed to the browser.
+  3. **Direct Browser-to-Cloudinary Upload:** The browser client requests signature authorization via `POST /api/upload/sign` and posts multipart `FormData` directly to `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`.
+  4. **Live Image Retrieval:** An independent HTTP `GET` fetch to the uploaded secure URL returned `HTTP 200 OK` with `Content-Type: image/png`.
+  5. **PostgreSQL Persistence & Asset Confirmation:** `POST /api/upload/confirm` verifies the URL matches the authorized Cloudinary cloud domain, issues a HEAD request to confirm the image exists, and updates PostgreSQL through Prisma (`User.avatar`, `Book.coverImage`, `Shop.logo`).
+  6. **Ownership-Protected Deletion:** `DELETE /api/upload` enforces strict ownership: non-admin users can only delete assets associated with their user profile, bookstore, or book listings. Cloudinary assets are destroyed via signed API and matching database records are safely cleared.
 
 ---
 
