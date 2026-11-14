@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -12,11 +15,20 @@ import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Seller Details | Admin Dashboard" };
 
-export default async function AdminSellerDetailPage({
+export default function AdminSellerDetailPage(props: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <AdminSellerDetailContent {...props} />
+    </Suspense>
+  );
+}
+
+async function AdminSellerDetailContent({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await connection();
   await requireRole("admin");
   const { id } = await params;
 
@@ -52,7 +64,7 @@ export default async function AdminSellerDetailPage({
       <PageHeader
         eyebrow="Seller Merchant"
         title={seller.shop?.name ?? seller.name}
-        description={`Owner: ${seller.name} (${seller.email}) · Joined ${formatDate(seller.createdAt.toISOString().slice(0, 10))}`}
+        description={`Owner: ${seller.name} (${seller.email}) · Joined ${formatDate(seller.createdAt)}`}
         actions={
           <div className="flex items-center gap-2">
             <StatusBadge status={seller.status} className="px-3 py-1 text-sm" />

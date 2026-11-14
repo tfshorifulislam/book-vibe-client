@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 
 import { ReviewsClient } from "@/components/buyer/reviews-client";
@@ -7,7 +10,16 @@ import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "My reviews" };
 
-export default async function ReviewsPage() {
+export default function ReviewsPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <ReviewsContent />
+    </Suspense>
+  );
+}
+
+async function ReviewsContent() {
+  await connection();
   const user = await requireRole("buyer");
   const reviews = await prisma.review.findMany({
     where: { userId: user.id },

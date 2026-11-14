@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 
 import { EmptyPanel } from "@/components/dashboard/empty-panel";
@@ -8,7 +11,16 @@ import { formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Customers | Seller Workspace" };
 
-export default async function SellerCustomersPage() {
+export default function SellerCustomersPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <SellerCustomersContent />
+    </Suspense>
+  );
+}
+
+async function SellerCustomersContent() {
+  await connection();
   const user = await requireRole("seller");
 
   const orderItems = await prisma.orderItem.findMany({

@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
@@ -9,7 +12,16 @@ import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Shop Profile | BookHand" };
 
-export default async function SellerShopPage() {
+export default function SellerShopPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <SellerShopContent />
+    </Suspense>
+  );
+}
+
+async function SellerShopContent() {
+  await connection();
   const user = await requireRole("seller");
   const shop = await prisma.shop.findUnique({ where: { ownerId: user.id } });
 

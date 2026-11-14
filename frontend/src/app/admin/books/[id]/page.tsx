@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -14,11 +17,20 @@ export const metadata: Metadata = {
   title: "Book Moderation | Admin Dashboard",
 };
 
-export default async function AdminBookDetailPage({
+export default function AdminBookDetailPage(props: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <AdminBookDetailContent {...props} />
+    </Suspense>
+  );
+}
+
+async function AdminBookDetailContent({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await connection();
   await requireRole("admin");
   const { id } = await params;
 

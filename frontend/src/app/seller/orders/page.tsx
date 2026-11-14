@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Eye } from "lucide-react";
@@ -11,11 +14,20 @@ import { formatDate, formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Seller Orders | BookHand" };
 
-export default async function SellerOrdersPage({
+export default function SellerOrdersPage(props: { searchParams: Promise<{ status?: string }> }) {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <SellerOrdersContent {...props} />
+    </Suspense>
+  );
+}
+
+async function SellerOrdersContent({
   searchParams,
 }: {
   searchParams: Promise<{ status?: string }>;
 }) {
+  await connection();
   const user = await requireRole("seller");
   const { status } = await searchParams;
 

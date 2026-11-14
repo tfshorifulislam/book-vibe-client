@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -12,11 +15,20 @@ import { formatDate, formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Manage Order | Seller Workspace" };
 
-export default async function SellerOrderDetailPage({
+export default function SellerOrderDetailPage(props: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <SellerOrderDetailContent {...props} />
+    </Suspense>
+  );
+}
+
+async function SellerOrderDetailContent({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await connection();
   const user = await requireRole("seller");
   const { id } = await params;
 

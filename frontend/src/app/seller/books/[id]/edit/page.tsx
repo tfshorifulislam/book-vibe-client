@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -8,11 +11,20 @@ import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Edit Book | Seller Workspace" };
 
-export default async function EditBookPage({
+export default function EditBookPage(props: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <EditBookContent {...props} />
+    </Suspense>
+  );
+}
+
+async function EditBookContent({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await connection();
   const user = await requireRole("seller");
   const { id } = await params;
 

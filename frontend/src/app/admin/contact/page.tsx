@@ -1,10 +1,22 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import { MessageCircle } from "lucide-react";
 
 import { prisma } from "@/lib/db";
 import { requireRole } from "@/lib/auth/session";
 import { ContactMessageManager } from "@/components/admin/contact-manager";
 
-export default async function AdminContactPage() {
+export default function AdminContactPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <AdminContactContent />
+    </Suspense>
+  );
+}
+
+async function AdminContactContent() {
+  await connection();
   await requireRole("admin");
 
   const messages = await prisma.contactMessage.findMany({

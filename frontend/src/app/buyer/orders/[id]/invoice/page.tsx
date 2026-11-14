@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -12,7 +15,16 @@ export const metadata: Metadata = { title: "Order Invoice | BookHand" };
 
 type Props = { params: Promise<{ id: string }> };
 
-export default async function InvoicePage({ params }: Props) {
+export default function InvoicePage(props: Props) {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <InvoiceContent {...props} />
+    </Suspense>
+  );
+}
+
+async function InvoiceContent({ params }: Props) {
+  await connection();
   const user = await requireUser();
   const { id } = await params;
 

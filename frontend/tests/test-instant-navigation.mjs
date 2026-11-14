@@ -48,163 +48,225 @@ function assert(condition, message) {
 }
 
 console.log("\n=======================================================");
-console.log("   NEXT.JS 16.4.6 INSTANT NAVIGATION VERIFICATION");
+console.log("   COMPREHENSIVE NEXT.JS 16.4.6 AUTHENTICATION &");
+console.log("   INSTANT NAVIGATION TEST SUITE");
 console.log("=======================================================\n");
 
-// 1. PUBLIC PAGES
-console.log("--- 1. Public Pages Static & Instant Rendering ---");
+// 1. PUBLIC ROUTES
+console.log("--- 1. Public Routes Static Prerender & Navigation ---");
 {
-  const resHome = await request("/");
-  assert(resHome.status === 200, "Home page (/) returns 200 OK");
-  assert(resHome.text.includes("BookHand"), "Home page contains site title");
-
-  const resBooks = await request("/books");
-  assert(resBooks.status === 200, "Catalog page (/books) returns 200 OK");
-
-  const resAbout = await request("/about");
-  assert(resAbout.status === 200, "About page (/about) returns 200 OK");
-
-  const resLogin = await request("/login");
-  assert(resLogin.status === 200, "Login page (/login) returns 200 OK");
+  const publicRoutes = ["/", "/books", "/about", "/login", "/register", "/contact", "/help"];
+  for (const route of publicRoutes) {
+    const res = await request(route);
+    assert(res.status === 200, `Public route ${route} returns 200 OK`);
+  }
 }
 
-// 2. MISSING TOKENS
-console.log("\n--- 2. Unauthenticated Protected Route Access (Missing JWT) ---");
+// 2. UNAUTHENTICATED ACCESS (MISSING TOKENS)
+console.log("\n--- 2. Unauthenticated Access across Protected Routes ---");
 {
-  const resSeller = await request("/seller/dashboard");
+  const protectedRoutes = [
+    { path: "/seller/dashboard", role: "seller" },
+    { path: "/seller/analytics", role: "seller" },
+    { path: "/seller/books", role: "seller" },
+    { path: "/seller/inventory", role: "seller" },
+    { path: "/seller/orders", role: "seller" },
+    { path: "/seller/earnings", role: "seller" },
+    { path: "/seller/payouts", role: "seller" },
+    { path: "/seller/settings", role: "seller" },
+    { path: "/admin/dashboard", role: "admin" },
+    { path: "/admin/analytics", role: "admin" },
+    { path: "/admin/books", role: "admin" },
+    { path: "/admin/sellers", role: "admin" },
+    { path: "/admin/users", role: "admin" },
+    { path: "/admin/shops", role: "admin" },
+    { path: "/buyer/dashboard", role: "buyer" },
+    { path: "/buyer/orders", role: "buyer" },
+    { path: "/buyer/wishlist", role: "buyer" },
+    { path: "/buyer/cart", role: "buyer" },
+    { path: "/buyer/checkout", role: "buyer" },
+    { path: "/buyer/profile", role: "buyer" },
+    { path: "/buyer/settings", role: "buyer" },
+  ];
+
+  for (const { path } of protectedRoutes) {
+    const res = await request(path);
+    assert(
+      isRedirectTo(res, "/login"),
+      `Unauthenticated ${path} redirects to /login`
+    );
+  }
+}
+
+// 3. INVALID / CORRUPTED TOKENS
+console.log("\n--- 3. Invalid & Tampered Tokens ---");
+{
+  const badCookie = "bookhand_token=tampered.header.payload.signature";
+  const resSeller = await request("/seller/analytics", badCookie);
   assert(
     isRedirectTo(resSeller, "/login"),
-    "Seller dashboard redirects unauthenticated request to /login"
+    "Tampered token accessing /seller/analytics rejected and redirects to /login"
   );
 
-  const resAdmin = await request("/admin/dashboard");
+  const resAdmin = await request("/admin/analytics", badCookie);
   assert(
     isRedirectTo(resAdmin, "/login"),
-    "Admin dashboard redirects unauthenticated request to /login"
-  );
-
-  const resBuyer = await request("/buyer/dashboard");
-  assert(
-    isRedirectTo(resBuyer, "/login"),
-    "Buyer dashboard redirects unauthenticated request to /login"
+    "Tampered token accessing /admin/analytics rejected and redirects to /login"
   );
 }
 
-// 3. INVALID TOKENS
-console.log("\n--- 3. Invalid / Corrupted JWT Handling ---");
-{
-  const badCookie = "bookhand_token=invalid.tampered.token";
-  const res = await request("/seller/dashboard", badCookie);
-  assert(
-    isRedirectTo(res, "/login"),
-    "Corrupted token is rejected and redirected to /login"
-  );
-}
-
-// 4. EXPIRED TOKENS
-console.log("\n--- 4. Expired JWT Handling (Date.now() Prerender Check) ---");
+// 4. EXPIRED JWT HANDLING
+console.log("\n--- 4. Expired JWTs (Date.now() / SyncIO Prerender Verification) ---");
 {
   const expiredToken = makeToken(
-    { userId: "usr_expired_123", email: "expired@test.com", role: "seller" },
-    { expiresIn: "-1h" } // expired 1 hour ago
+    { userId: "expired_usr", email: "expired@test.com", role: "seller" },
+    { expiresIn: "-2h" }
   );
   const expiredCookie = `bookhand_token=${expiredToken}`;
-  const res = await request("/seller/dashboard", expiredCookie);
+
+  const resAnalytics = await request("/seller/analytics", expiredCookie);
   assert(
-    isRedirectTo(res, "/login"),
-    "Expired token redirects to /login without Date.now() prerender error"
+    isRedirectTo(resAnalytics, "/login"),
+    "Expired token accessing /seller/analytics redirects to /login"
   );
   assert(
-    !res.text.includes("blocking-prerender-current-time"),
-    "No blocking-prerender-current-time error in response"
+    !resAnalytics.text.includes("blocking-prerender-current-time"),
+    "No blocking-prerender-current-time error in /seller/analytics response"
+  );
+  assert(
+    !resAnalytics.text.includes("blocking-prerender-dynamic"),
+    "No blocking-prerender-dynamic error in /seller/analytics response"
+  );
+
+  const resSellerBooks = await request("/seller/books", expiredCookie);
+  assert(
+    isRedirectTo(resSellerBooks, "/login"),
+    "Expired token accessing /seller/books redirects to /login"
   );
 }
 
-// 5. VALID TOKENS & STREAMING
-console.log("\n--- 5. Valid JWT Protected Route Navigation & Streaming ---");
+// 5. VALID TOKENS & STREAMING NAVIGATION
+console.log("\n--- 5. Valid JWT Streaming Navigation Across Roles ---");
 {
-  // Valid Seller Token
+  // Seller
   const sellerToken = makeToken(
     { userId: "cm4r1y06w000212e367gqg8r9", email: "seller1@test.com", role: "seller", name: "Jane Seller" },
-    { expiresIn: "1h" }
+    { expiresIn: "2h" }
   );
   const sellerCookie = `bookhand_token=${sellerToken}`;
-  const resSeller = await request("/seller/dashboard", sellerCookie);
-  assert(
-    resSeller.status === 200,
-    `Seller dashboard loads with valid token (status: ${resSeller.status})`
-  );
-  assert(
-    !resSeller.text.includes("blocking-prerender-dynamic"),
-    "Seller dashboard response has NO blocking-prerender-dynamic error"
-  );
-  assert(
-    !resSeller.text.includes("blocking-prerender-current-time"),
-    "Seller dashboard response has NO blocking-prerender-current-time error"
-  );
 
-  // Valid Buyer Token
-  const buyerToken = makeToken(
-    { userId: "cm4r1y06w000312e367gqg8r9", email: "buyer1@test.com", role: "buyer", name: "Alice Buyer" },
-    { expiresIn: "1h" }
-  );
-  const buyerCookie = `bookhand_token=${buyerToken}`;
-  const resBuyer = await request("/buyer/dashboard", buyerCookie);
-  assert(
-    resBuyer.status === 200,
-    `Buyer dashboard loads with valid token (status: ${resBuyer.status})`
-  );
-  assert(
-    !resBuyer.text.includes("blocking-prerender-dynamic"),
-    "Buyer dashboard response has NO blocking-prerender-dynamic error"
-  );
-  assert(
-    !resBuyer.text.includes("blocking-prerender-current-time"),
-    "Buyer dashboard response has NO blocking-prerender-current-time error"
-  );
+  const sellerPages = [
+    "/seller/dashboard",
+    "/seller/analytics",
+    "/seller/books",
+    "/seller/inventory",
+    "/seller/orders",
+    "/seller/earnings",
+    "/seller/payouts",
+    "/seller/coupons",
+    "/seller/settings",
+  ];
 
-  // Valid Admin Token
+  for (const page of sellerPages) {
+    const res = await request(page, sellerCookie);
+    assert(res.status === 200, `Seller page ${page} loads with status 200`);
+    assert(
+      !res.text.includes("blocking-prerender-dynamic"),
+      `Seller page ${page} has NO blocking-prerender-dynamic error`
+    );
+    assert(
+      !res.text.includes("blocking-prerender-current-time"),
+      `Seller page ${page} has NO blocking-prerender-current-time error`
+    );
+  }
+
+  // Admin
   const adminToken = makeToken(
     { userId: "cm4r1y06w000112e367gqg8r9", email: "admin@test.com", role: "admin", name: "Super Admin" },
-    { expiresIn: "1h" }
+    { expiresIn: "2h" }
   );
   const adminCookie = `bookhand_token=${adminToken}`;
-  const resAdmin = await request("/admin/dashboard", adminCookie);
-  assert(
-    resAdmin.status === 200,
-    `Admin dashboard loads with valid token (status: ${resAdmin.status})`
+
+  const adminPages = [
+    "/admin/dashboard",
+    "/admin/analytics",
+    "/admin/books",
+    "/admin/sellers",
+    "/admin/users",
+    "/admin/shops",
+  ];
+
+  for (const page of adminPages) {
+    const res = await request(page, adminCookie);
+    assert(res.status === 200, `Admin page ${page} loads with status 200`);
+    assert(
+      !res.text.includes("blocking-prerender-dynamic"),
+      `Admin page ${page} has NO blocking-prerender-dynamic error`
+    );
+    assert(
+      !res.text.includes("blocking-prerender-current-time"),
+      `Admin page ${page} has NO blocking-prerender-current-time error`
+    );
+  }
+
+  // Buyer
+  const buyerToken = makeToken(
+    { userId: "cm4r1y06w000312e367gqg8r9", email: "buyer1@test.com", role: "buyer", name: "Alice Buyer" },
+    { expiresIn: "2h" }
   );
-  assert(
-    !resAdmin.text.includes("blocking-prerender-dynamic"),
-    "Admin dashboard response has NO blocking-prerender-dynamic error"
-  );
-  assert(
-    !resAdmin.text.includes("blocking-prerender-current-time"),
-    "Admin dashboard response has NO blocking-prerender-current-time error"
-  );
+  const buyerCookie = `bookhand_token=${buyerToken}`;
+
+  const buyerPages = [
+    "/buyer/dashboard",
+    "/buyer/orders",
+    "/buyer/wishlist",
+    "/buyer/cart",
+    "/buyer/coupons",
+    "/buyer/profile",
+    "/buyer/settings",
+  ];
+
+  for (const page of buyerPages) {
+    const res = await request(page, buyerCookie);
+    assert(res.status === 200, `Buyer page ${page} loads with status 200`);
+    assert(
+      !res.text.includes("blocking-prerender-dynamic"),
+      `Buyer page ${page} has NO blocking-prerender-dynamic error`
+    );
+    assert(
+      !res.text.includes("blocking-prerender-current-time"),
+      `Buyer page ${page} has NO blocking-prerender-current-time error`
+    );
+  }
 }
 
-// 6. RBAC VALIDATION
-console.log("\n--- 6. Role-Based Access Control (RBAC) Redirection ---");
+// 6. RBAC ENFORCEMENT & REDIRECTION
+console.log("\n--- 6. Role-Based Access Control (RBAC) ---");
 {
   const buyerToken = makeToken(
     { userId: "buyer_test", email: "buyer@test.com", role: "buyer", name: "Buyer" },
     { expiresIn: "1h" }
   );
-  const resMismatch = await request("/seller/dashboard", `bookhand_token=${buyerToken}`);
+  const resBuyerOnSeller = await request("/seller/analytics", `bookhand_token=${buyerToken}`);
   assert(
-    isRedirectTo(resMismatch, "/buyer/dashboard"),
-    "Buyer attempting to access seller dashboard is redirected to /buyer/dashboard"
+    isRedirectTo(resBuyerOnSeller, "/buyer/dashboard"),
+    "Buyer attempting to access /seller/analytics is redirected to /buyer/dashboard"
+  );
+
+  const resBuyerOnAdmin = await request("/admin/analytics", `bookhand_token=${buyerToken}`);
+  assert(
+    isRedirectTo(resBuyerOnAdmin, "/buyer/dashboard"),
+    "Buyer attempting to access /admin/analytics is redirected to /buyer/dashboard"
   );
 
   const sellerToken = makeToken(
     { userId: "seller_test", email: "seller@test.com", role: "seller", name: "Seller" },
     { expiresIn: "1h" }
   );
-  const resMismatchAdmin = await request("/admin/dashboard", `bookhand_token=${sellerToken}`);
+  const resSellerOnAdmin = await request("/admin/dashboard", `bookhand_token=${sellerToken}`);
   assert(
-    isRedirectTo(resMismatchAdmin, "/seller/dashboard"),
-    "Seller attempting to access admin dashboard is redirected to /seller/dashboard"
+    isRedirectTo(resSellerOnAdmin, "/seller/dashboard"),
+    "Seller attempting to access /admin/dashboard is redirected to /seller/dashboard"
   );
 }
 

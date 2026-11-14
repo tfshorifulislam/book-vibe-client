@@ -52,9 +52,14 @@ export function formatNumber(value: number): string {
   return numberFormatter.format(value);
 }
 
-export function formatDate(value?: string): string | null {
+export function formatDate(value?: string | Date): string | null {
   if (!value) return null;
-  const date = new Date(`${value}T00:00:00`);
+  const date =
+    value instanceof Date
+      ? value
+      : typeof value === "string" && value.includes("T")
+        ? new Date(value)
+        : new Date(`${value}T00:00:00`);
   if (Number.isNaN(date.getTime())) return null;
   return dateFormatter.format(date);
 }

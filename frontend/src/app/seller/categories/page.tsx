@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
@@ -8,7 +11,16 @@ import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Categories | Seller Workspace" };
 
-export default async function SellerCategoriesPage() {
+export default function SellerCategoriesPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <SellerCategoriesContent />
+    </Suspense>
+  );
+}
+
+async function SellerCategoriesContent() {
+  await connection();
   await requireRole("seller");
 
   const categories = await prisma.category.findMany({

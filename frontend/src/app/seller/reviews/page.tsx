@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Star } from "lucide-react";
@@ -12,7 +15,16 @@ export const metadata: Metadata = {
   title: "Customer Reviews | Seller Workspace",
 };
 
-export default async function SellerReviewsPage() {
+export default function SellerReviewsPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <SellerReviewsContent />
+    </Suspense>
+  );
+}
+
+async function SellerReviewsContent() {
+  await connection();
   const user = await requireRole("seller");
   const shop = await prisma.shop.findUnique({ where: { ownerId: user.id } });
 

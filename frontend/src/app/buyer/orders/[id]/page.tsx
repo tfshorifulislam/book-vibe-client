@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -27,7 +30,16 @@ export const metadata: Metadata = { title: "Order details" };
 
 const TIMELINE = ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED"];
 
-export default async function BuyerOrderDetailPage({ params }: Props) {
+export default function BuyerOrderDetailPage(props: Props) {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <BuyerOrderDetailContent {...props} />
+    </Suspense>
+  );
+}
+
+async function BuyerOrderDetailContent({ params }: Props) {
+  await connection();
   const user = await requireRole("buyer");
   const { id } = await params;
   const order = await prisma.order.findFirst({

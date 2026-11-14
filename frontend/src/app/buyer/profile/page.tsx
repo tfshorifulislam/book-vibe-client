@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -7,9 +10,18 @@ import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Profile" };
 
-export default async function ProfilePage() {
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <ProfileContent />
+    </Suspense>
+  );
+}
+
+async function ProfileContent() {
+  await connection();
   const user = await requireRole("buyer");
-  const profile = await prisma.user.findUniqueOrThrow({
+  const profile = await prisma.user.findUnique({
     where: { id: user.id },
     select: { name: true, email: true, phone: true, avatar: true, bio: true },
   });
@@ -21,11 +33,11 @@ export default async function ProfilePage() {
       />
       <ProfileForm
         initial={{
-          name: profile.name,
-          email: profile.email,
-          phone: profile.phone ?? "",
-          avatar: profile.avatar ?? "",
-          bio: profile.bio ?? "",
+          name: profile?.name ?? user.name ?? "",
+          email: profile?.email ?? user.email ?? "",
+          phone: profile?.phone ?? "",
+          avatar: profile?.avatar ?? user.avatar ?? "",
+          bio: profile?.bio ?? "",
         }}
       />
     </div>

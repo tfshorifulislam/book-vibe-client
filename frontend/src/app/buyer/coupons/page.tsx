@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Percent, Truck } from "lucide-react";
@@ -9,7 +12,16 @@ import { formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Coupons" };
 
-export default async function CouponsPage() {
+export default function CouponsPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <CouponsContent />
+    </Suspense>
+  );
+}
+
+async function CouponsContent() {
+  await connection();
   await requireRole("buyer");
   const now = new Date();
   const coupons = await prisma.coupon.findMany({

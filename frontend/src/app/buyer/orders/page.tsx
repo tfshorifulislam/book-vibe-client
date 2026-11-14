@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Package } from "lucide-react";
@@ -11,7 +14,16 @@ import { formatDate, formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "My orders" };
 
-export default async function BuyerOrdersPage() {
+export default function BuyerOrdersPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <BuyerOrdersContent />
+    </Suspense>
+  );
+}
+
+async function BuyerOrdersContent() {
+  await connection();
   const user = await requireRole("buyer");
   const orders = await prisma.order.findMany({
     where: { userId: user.id },

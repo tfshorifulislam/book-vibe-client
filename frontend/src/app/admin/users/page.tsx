@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Eye } from "lucide-react";
@@ -11,11 +14,20 @@ import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Manage Users | Admin Dashboard" };
 
-export default async function AdminUsersPage({
+export default function AdminUsersPage(props: { searchParams: Promise<{ role?: string }> }) {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <AdminUsersContent {...props} />
+    </Suspense>
+  );
+}
+
+async function AdminUsersContent({
   searchParams,
 }: {
   searchParams: Promise<{ role?: string }>;
 }) {
+  await connection();
   await requireRole("admin");
   const { role } = await searchParams;
 
@@ -95,7 +107,7 @@ export default async function AdminUsersPage({
                   {u._count.orders} orders · {u._count.reviews} reviews
                 </td>
                 <td className="px-4 py-3 text-xs text-muted-foreground">
-                  {formatDate(u.createdAt.toISOString().slice(0, 10))}
+                  {formatDate(u.createdAt)}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end gap-2">

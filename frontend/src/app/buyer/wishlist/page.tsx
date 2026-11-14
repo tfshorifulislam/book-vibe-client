@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 
 import { WishlistClient } from "@/components/buyer/wishlist-client";
@@ -8,7 +11,16 @@ import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Wishlist" };
 
-export default async function WishlistPage() {
+export default function WishlistPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <WishlistContent />
+    </Suspense>
+  );
+}
+
+async function WishlistContent() {
+  await connection();
   const user = await requireRole("buyer");
   const wishlist = await prisma.wishlist.findUnique({
     where: { userId: user.id },

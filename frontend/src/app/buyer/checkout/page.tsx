@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 
 import { CheckoutClient } from "@/components/buyer/checkout-client";
@@ -6,7 +9,16 @@ import { requireRole } from "@/lib/auth/session";
 
 export const metadata: Metadata = { title: "Checkout" };
 
-export default async function CheckoutPage() {
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <CheckoutContent />
+    </Suspense>
+  );
+}
+
+async function CheckoutContent() {
+  await connection();
   await requireRole("buyer");
   return (
     <div className="space-y-6">

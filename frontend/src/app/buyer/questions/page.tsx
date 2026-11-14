@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { HelpCircle } from "lucide-react";
@@ -8,7 +11,16 @@ import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "My questions" };
 
-export default async function QuestionsPage() {
+export default function QuestionsPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <QuestionsContent />
+    </Suspense>
+  );
+}
+
+async function QuestionsContent() {
+  await connection();
   const user = await requireRole("buyer");
   const questions = await prisma.question.findMany({
     where: { userId: user.id },

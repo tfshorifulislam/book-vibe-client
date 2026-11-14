@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -11,7 +14,16 @@ export const metadata: Metadata = {
   title: "Payout Requests | Seller Workspace",
 };
 
-export default async function SellerPayoutsPage() {
+export default function SellerPayoutsPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <SellerPayoutsContent />
+    </Suspense>
+  );
+}
+
+async function SellerPayoutsContent() {
+  await connection();
   const user = await requireRole("seller");
 
   const [deliveredItems, payouts] = await Promise.all([

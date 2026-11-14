@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExternalLink, Store } from "lucide-react";
@@ -10,7 +13,16 @@ import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Manage Shops | Admin Dashboard" };
 
-export default async function AdminShopsPage() {
+export default function AdminShopsPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <AdminShopsContent />
+    </Suspense>
+  );
+}
+
+async function AdminShopsContent() {
+  await connection();
   await requireRole("admin");
 
   const shops = await prisma.shop.findMany({
@@ -67,7 +79,7 @@ export default async function AdminShopsPage() {
                   <StatusBadge status={s.status} />
                 </td>
                 <td className="px-4 py-3 text-xs text-muted-foreground">
-                  {formatDate(s.createdAt.toISOString().slice(0, 10))}
+                  {formatDate(s.createdAt)}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <Link

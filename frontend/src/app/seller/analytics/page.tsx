@@ -1,3 +1,6 @@
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
+import { connection } from "next/server";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { BarChart3, TrendingUp, Users, BookOpen } from "lucide-react";
 
@@ -11,7 +14,16 @@ export const metadata: Metadata = {
   title: "Store Analytics | Seller Workspace",
 };
 
-export default async function SellerAnalyticsPage() {
+export default function SellerAnalyticsPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <SellerAnalyticsContent />
+    </Suspense>
+  );
+}
+
+async function SellerAnalyticsContent() {
+  await connection();
   const user = await requireRole("seller");
 
   const [orderItems, books, completedOrders] = await Promise.all([

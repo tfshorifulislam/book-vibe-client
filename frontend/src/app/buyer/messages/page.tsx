@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 
 import { MessagesClient } from "@/components/buyer/messages-client";
@@ -7,7 +10,16 @@ import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Messages" };
 
-export default async function MessagesPage() {
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <MessagesContent />
+    </Suspense>
+  );
+}
+
+async function MessagesContent() {
+  await connection();
   const user = await requireRole("buyer");
   const conversations = await prisma.conversation.findMany({
     where: { participants: { some: { userId: user.id } } },

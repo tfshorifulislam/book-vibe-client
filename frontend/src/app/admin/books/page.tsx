@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Eye } from "lucide-react";
@@ -11,7 +14,16 @@ import { formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Manage Books | Admin Dashboard" };
 
-export default async function AdminBooksPage() {
+export default function AdminBooksPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <AdminBooksContent />
+    </Suspense>
+  );
+}
+
+async function AdminBooksContent() {
+  await connection();
   await requireRole("admin");
 
   const books = await prisma.book.findMany({

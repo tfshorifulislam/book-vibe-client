@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Edit, Eye, Plus } from "lucide-react";
@@ -11,7 +14,16 @@ import { formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "My Books | Seller Workspace" };
 
-export default async function SellerBooksPage() {
+export default function SellerBooksPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <SellerBooksContent />
+    </Suspense>
+  );
+}
+
+async function SellerBooksContent() {
+  await connection();
   const user = await requireRole("seller");
   const shop = await prisma.shop.findUnique({ where: { ownerId: user.id } });
 

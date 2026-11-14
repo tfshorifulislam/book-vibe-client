@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 
 import { NotificationsClient } from "@/components/buyer/notifications-client";
@@ -7,7 +10,16 @@ import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Notifications" };
 
-export default async function NotificationsPage() {
+export default function NotificationsPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <NotificationsContent />
+    </Suspense>
+  );
+}
+
+async function NotificationsContent() {
+  await connection();
   const user = await requireRole("buyer");
   const notifications = await prisma.notification.findMany({
     where: { userId: user.id },

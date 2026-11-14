@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import { BarChart3, TrendingUp, Users, BookOpen } from "lucide-react";
 
@@ -11,7 +14,16 @@ export const metadata: Metadata = {
   title: "Platform Analytics | Admin Dashboard",
 };
 
-export default async function AdminAnalyticsPage() {
+export default function AdminAnalyticsPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <AdminAnalyticsContent />
+    </Suspense>
+  );
+}
+
+async function AdminAnalyticsContent() {
+  await connection();
   await requireRole("admin");
 
   const [orders, books, users, categories] = await Promise.all([

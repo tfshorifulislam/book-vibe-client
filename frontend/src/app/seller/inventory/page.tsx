@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -9,7 +12,16 @@ export const metadata: Metadata = {
   title: "Inventory Management | Seller Workspace",
 };
 
-export default async function SellerInventoryPage() {
+export default function SellerInventoryPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <SellerInventoryContent />
+    </Suspense>
+  );
+}
+
+async function SellerInventoryContent() {
+  await connection();
   const user = await requireRole("seller");
   const shop = await prisma.shop.findUnique({ where: { ownerId: user.id } });
 

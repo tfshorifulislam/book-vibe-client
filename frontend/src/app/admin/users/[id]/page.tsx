@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -12,11 +15,20 @@ import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "User Details | Admin Dashboard" };
 
-export default async function AdminUserDetailPage({
+export default function AdminUserDetailPage(props: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <AdminUserDetailContent {...props} />
+    </Suspense>
+  );
+}
+
+async function AdminUserDetailContent({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await connection();
   await requireRole("admin");
   const { id } = await params;
 
@@ -80,7 +92,7 @@ export default async function AdminUserDetailPage({
             ) : null}
             <div className="border-t border-border pt-2 text-xs text-muted-foreground">
               Joined on{" "}
-              {formatDate(targetUser.createdAt.toISOString().slice(0, 10))} ·
+              {formatDate(targetUser.createdAt)} ·
               Email Verified: {targetUser.emailVerified ? "Yes" : "No"}
             </div>
           </div>

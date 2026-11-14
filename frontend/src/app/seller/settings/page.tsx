@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import type { Metadata } from "next";
 
 import { ProfileForm } from "@/components/buyer/profile-form";
@@ -8,7 +11,16 @@ import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Seller Settings | BookHand" };
 
-export default async function SellerSettingsPage() {
+export default function SellerSettingsPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <SellerSettingsContent />
+    </Suspense>
+  );
+}
+
+async function SellerSettingsContent() {
+  await connection();
   const user = await requireRole("seller");
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
