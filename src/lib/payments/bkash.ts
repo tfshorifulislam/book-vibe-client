@@ -119,3 +119,5 @@ export async function executeBkashPayment(
     gatewayStatus: "Completed",
   };
 }
+
+export const verifyBkashPayment = executeBkashPayment;

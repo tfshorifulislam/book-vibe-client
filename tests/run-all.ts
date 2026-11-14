@@ -1,4 +1,13 @@
 import assert from "node:assert";
+import fs from "node:fs";
+import path from "node:path";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  revokeToken,
+  rotateRefreshToken,
+  verifyAccessToken,
+} from "@/lib/auth/jwt";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { dashboardFor } from "@/lib/auth/session";
 import {
@@ -20,6 +29,7 @@ import {
   refundRequestSchema,
   registerSchema,
 } from "@/lib/validators";
+import { createExpressApp } from "@/server/app";
 
 async function runTests() {
   console.log("\n=============================================");
@@ -253,6 +263,183 @@ async function runTests() {
   await test("Environment validation utility correctly reports valid env status", () => {
     const check = validateEnv();
     assert.strictEqual(check.isValid, true);
+  });
+
+  // --- 7. JWT AUTHENTICATION & TOKEN LIFECYCLE ---
+  console.log("\n--- Group 7: JWT Authentication & Token Lifecycle ---");
+  await test("generateAccessToken signs JWT with userId, role, and expiration", () => {
+    const token = generateAccessToken({
+      id: "usr_test_123",
+      email: "test@bookhand.com",
+      role: "buyer",
+      name: "Test Buyer",
+    });
+    assert.strictEqual(typeof token, "string");
+    const payload = verifyAccessToken(token);
+    assert.ok(payload);
+    assert.strictEqual(payload.userId, "usr_test_123");
+    assert.strictEqual(payload.role, "buyer");
+    assert.strictEqual(payload.email, "test@bookhand.com");
+  });
+
+  await test("verifyAccessToken rejects corrupted or invalid token signatures", () => {
+    const invalid = verifyAccessToken("eyInval.idTo.kenSignature123");
+    assert.strictEqual(invalid, null);
+  });
+
+  await test("generateRefreshToken, rotateRefreshToken, and revokeToken manage session lifecycle", async () => {
+    const testUser = await prisma.user.findFirst();
+    if (!testUser) return;
+
+    // 1. Generate refresh token
+    const refreshToken = await generateRefreshToken(testUser.id);
+    assert.strictEqual(typeof refreshToken, "string");
+
+    // Verify token exists in database session
+    const session = await prisma.session.findUnique({
+      where: { token: refreshToken },
+    });
+    assert.ok(session, "Session must exist in database");
+
+    // 2. Rotate refresh token
+    const rotated = await rotateRefreshToken(refreshToken);
+    assert.ok(rotated, "Token rotation must succeed");
+    assert.ok(
+      rotated.accessToken,
+      "Rotated response must include new access token",
+    );
+    assert.ok(
+      rotated.refreshToken,
+      "Rotated response must include new refresh token",
+    );
+    assert.notStrictEqual(
+      rotated.refreshToken,
+      refreshToken,
+      "New refresh token must differ from old",
+    );
+
+    // Verify old session was removed
+    const oldSession = await prisma.session.findUnique({
+      where: { token: refreshToken },
+    });
+    assert.strictEqual(
+      oldSession,
+      null,
+      "Old refresh token must be invalidated",
+    );
+
+    // 3. Revoke rotated token
+    await revokeToken(rotated.refreshToken);
+    const revokedSession = await prisma.session.findUnique({
+      where: { token: rotated.refreshToken },
+    });
+    assert.strictEqual(
+      revokedSession,
+      null,
+      "Revoked refresh token must be deleted",
+    );
+  });
+
+  // --- 8. EXPRESS.JS REST API & RBAC ENDPOINTS ---
+  console.log("\n--- Group 8: Express.js REST API & RBAC Endpoints ---");
+  await test("Express server handles API routes, public catalog, and RBAC authorization", async () => {
+    const app = createExpressApp();
+    const server = app.listen(0);
+    const address = server.address();
+    const port = typeof address === "object" && address ? address.port : 5055;
+    const baseUrl = `http://127.0.0.1:${port}/api`;
+
+    try {
+      // 1. GET /api/health
+      const healthRes = await fetch(`${baseUrl}/health`);
+      assert.strictEqual(healthRes.status, 200);
+      const healthData = await healthRes.json();
+      assert.strictEqual(healthData.status, "ok");
+      assert.strictEqual(healthData.service, "BookHand REST API");
+
+      // 2. GET /api/books (public catalog)
+      const booksRes = await fetch(`${baseUrl}/books`);
+      assert.strictEqual(booksRes.status, 200);
+      const booksData = await booksRes.json();
+      assert.strictEqual(booksData.success, true);
+      assert.ok(Array.isArray(booksData.data.books));
+
+      // 3. GET /api/categories (public categories)
+      const catRes = await fetch(`${baseUrl}/categories`);
+      assert.strictEqual(catRes.status, 200);
+      const catData = await catRes.json();
+      assert.strictEqual(catData.success, true);
+      assert.ok(Array.isArray(catData.data.categories));
+
+      // 4. Unauthorized access to protected endpoints returns 401 or null session
+      const unauthMe = await fetch(`${baseUrl}/auth/me`);
+      assert.strictEqual(unauthMe.status, 200);
+      const unauthMeData = await unauthMe.json();
+      assert.strictEqual(unauthMeData.data.user, null);
+
+      const unauthCart = await fetch(`${baseUrl}/cart`);
+      assert.strictEqual(unauthCart.status, 401);
+
+      const unauthAdmin = await fetch(`${baseUrl}/admin/books`);
+      assert.strictEqual(unauthAdmin.status, 401);
+
+      const unauthSeller = await fetch(`${baseUrl}/seller/books`);
+      assert.strictEqual(unauthSeller.status, 401);
+
+      // 5. RBAC: Buyer accessing admin route returns 403 Forbidden
+      const buyerUser = await prisma.user.findFirst({
+        where: { role: "BUYER" },
+      });
+      if (buyerUser) {
+        const buyerToken = generateAccessToken(buyerUser);
+        const buyerAdminReq = await fetch(`${baseUrl}/admin/books`, {
+          headers: { Authorization: `Bearer ${buyerToken}` },
+        });
+        assert.strictEqual(buyerAdminReq.status, 403);
+      }
+
+      // 6. RBAC: Admin accessing admin route returns 200 OK
+      const adminUser = await prisma.user.findFirst({
+        where: { role: "ADMIN" },
+      });
+      if (adminUser) {
+        const adminToken = generateAccessToken(adminUser);
+        const adminReq = await fetch(`${baseUrl}/admin/books`, {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+        assert.strictEqual(adminReq.status, 200);
+        const adminData = await adminReq.json();
+        assert.strictEqual(adminData.success, true);
+        assert.ok(Array.isArray(adminData.data.books));
+
+        // 7. Verify Cookie-based authentication works
+        const cookieReq = await fetch(`${baseUrl}/auth/me`, {
+          headers: { Cookie: `bookhand_token=${adminToken}` },
+        });
+        assert.strictEqual(cookieReq.status, 200);
+        const cookieData = await cookieReq.json();
+        assert.strictEqual(cookieData.success, true);
+        assert.strictEqual(cookieData.data.user.id, adminUser.id);
+      }
+    } finally {
+      server.close();
+    }
+  });
+
+  // --- 9. NEXT.JS PROXY & ARCHITECTURE CONFIGURATION ---
+  console.log("\n--- Group 9: Next.js Proxy & Architecture Configuration ---");
+  await test("Next.js configuration proxies /api/* requests to Express backend", () => {
+    const configPath = path.join(process.cwd(), "next.config.ts");
+    const content = fs.readFileSync(configPath, "utf8");
+    assert.ok(
+      content.includes("rewrites"),
+      "next.config.ts must define rewrites",
+    );
+    assert.ok(
+      content.includes("http://localhost:5000/api/:path*") ||
+        content.includes("/api/:path*"),
+      "next.config.ts must proxy /api/:path* to Express backend",
+    );
   });
 
   console.log("\n=============================================");

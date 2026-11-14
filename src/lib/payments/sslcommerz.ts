@@ -125,3 +125,5 @@ export async function validateSslCommerzTransaction(
     };
   }
 }
+
+export const verifySSLCommerzPayment = validateSslCommerzTransaction;

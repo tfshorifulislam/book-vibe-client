@@ -4,6 +4,14 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import {
+  ACCESS_TOKEN_COOKIE,
+  generateAccessToken,
+  generateRefreshToken,
+  REFRESH_TOKEN_COOKIE,
+  rotateRefreshToken,
+  verifyAccessToken,
+} from "@/lib/auth/jwt";
 import { prisma } from "@/lib/db";
 import type { User, UserRole } from "@/types";
 
@@ -24,7 +32,6 @@ function verifyAndExtractToken(cookieValue: string | undefined): string | null {
 
   const dotIdx = cookieValue.lastIndexOf(".");
   if (dotIdx === -1) {
-    // Backward compatibility: allow legacy unsigned tokens
     return cookieValue;
   }
 
@@ -70,42 +77,125 @@ function toUser(user: DbUser): User {
 }
 
 export async function createSession(userId: string): Promise<string> {
-  const token = randomBytes(32).toString("hex");
-  const expiresAt = new Date(Date.now() + SESSION_DAYS * 86400000);
-
-  await prisma.session.deleteMany({
-    where: { userId, expiresAt: { lt: new Date() } },
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, email: true, role: true, name: true },
   });
 
-  await prisma.session.create({ data: { token, userId, expiresAt } });
+  if (!user) throw new Error("USER_NOT_FOUND");
 
-  const signedCookieValue = signSessionToken(token);
+  // 1. Generate JWT Access and Refresh Tokens
+  const accessToken = generateAccessToken(user);
+  const refreshToken = await generateRefreshToken(userId);
+
   const cookieStore = await cookies();
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // Access Token Cookie (15m)
+  cookieStore.set(ACCESS_TOKEN_COOKIE, accessToken, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: isProduction,
+    path: "/",
+    maxAge: 15 * 60,
+  });
+
+  // Refresh Token Cookie (30 days)
+  cookieStore.set(REFRESH_TOKEN_COOKIE, refreshToken, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: isProduction,
+    path: "/",
+    maxAge: SESSION_DAYS * 86400,
+  });
+
+  // Legacy Session Cookie for full backward compatibility
+  const legacyToken = randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + SESSION_DAYS * 86400000);
+  await prisma.session.create({
+    data: { token: legacyToken, userId, expiresAt },
+  });
+  const signedCookieValue = signSessionToken(legacyToken);
   cookieStore.set(SESSION_COOKIE, signedCookieValue, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: isProduction,
     path: "/",
     expires: expiresAt,
   });
 
-  return token;
+  return accessToken;
 }
 
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
-  const rawCookie = cookieStore.get(SESSION_COOKIE)?.value;
-  const token = verifyAndExtractToken(rawCookie);
+  const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
+  const rawSession = cookieStore.get(SESSION_COOKIE)?.value;
+  const legacyToken = verifyAndExtractToken(rawSession);
 
-  if (token) {
-    await prisma.session.deleteMany({ where: { token } });
+  if (refreshToken) {
+    await prisma.session
+      .deleteMany({ where: { token: refreshToken } })
+      .catch(() => {});
+  }
+  if (legacyToken) {
+    await prisma.session
+      .deleteMany({ where: { token: legacyToken } })
+      .catch(() => {});
   }
 
+  cookieStore.delete(ACCESS_TOKEN_COOKIE);
+  cookieStore.delete(REFRESH_TOKEN_COOKIE);
   cookieStore.delete(SESSION_COOKIE);
 }
 
 export async function getCurrentUser(): Promise<User | null> {
   const cookieStore = await cookies();
+
+  // 1. First verify JWT Access Token
+  const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
+  if (accessToken) {
+    const verified = verifyAccessToken(accessToken);
+    if (verified) {
+      return {
+        id: verified.userId,
+        email: verified.email,
+        role: verified.role,
+        name: verified.name || "",
+      };
+    }
+  }
+
+  // 2. If access token is expired or missing, check Refresh Token
+  const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
+  if (refreshToken) {
+    const rotated = await rotateRefreshToken(refreshToken);
+    if (rotated) {
+      const isProduction = process.env.NODE_ENV === "production";
+      cookieStore.set(ACCESS_TOKEN_COOKIE, rotated.accessToken, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: isProduction,
+        path: "/",
+        maxAge: 15 * 60,
+      });
+      cookieStore.set(REFRESH_TOKEN_COOKIE, rotated.refreshToken, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: isProduction,
+        path: "/",
+        maxAge: SESSION_DAYS * 86400,
+      });
+      return {
+        id: rotated.user.id,
+        email: rotated.user.email,
+        role: rotated.user.role,
+        name: rotated.user.name,
+      };
+    }
+  }
+
+  // 3. Fallback: Legacy session cookie for active sessions
   const rawCookie = cookieStore.get(SESSION_COOKIE)?.value;
   const token = verifyAndExtractToken(rawCookie);
   if (!token) return null;

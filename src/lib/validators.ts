@@ -295,3 +295,13 @@ export const disputeRequestSchema = z.object({
     .min(5, "Please provide dispute details (at least 5 characters).")
     .max(1000),
 });
+
+export const payoutRequestSchema = z.object({
+  amount: z.coerce.number().int().positive("Amount must be greater than 0"),
+  method: z.preprocess(emptyToUndefined, z.string().trim().max(50).optional()),
+  note: z.preprocess(emptyToUndefined, z.string().trim().max(500).optional()),
+});
+
+export const profileUpdateSchema = profileSchema;
+export const passwordChangeSchema = changePasswordSchema;
+export const questionAnswerSchema = answerSchema;

@@ -80,6 +80,9 @@ export function passwordResetEmailTemplate(
   };
 }
 
+export const emailVerificationEmail = verificationEmailTemplate;
+export const passwordResetEmail = passwordResetEmailTemplate;
+
 export function orderConfirmationEmailTemplate(order: {
   orderNumber: string;
   customerName: string;
