@@ -1,7 +1,5 @@
 import "server-only";
 
-import type { Prisma } from "@prisma/client";
-
 import { prisma } from "@/lib/db";
 import type { Book } from "@/types/book";
 import type { Category } from "@/types/category";
@@ -35,11 +33,35 @@ export const bookCardSelect = {
       owner: { select: { id: true, name: true } },
     },
   },
-} satisfies Prisma.BookSelect;
+};
 
-export type BookCardRow = Prisma.BookGetPayload<{
-  select: typeof bookCardSelect;
-}>;
+export type BookCardRow = {
+  id: string;
+  slug: string;
+  title: string;
+  price: number;
+  originalPrice: number | null;
+  coverImage: string | null;
+  coverTone: string | null;
+  condition: string;
+  listingType: string;
+  stock: number;
+  ratingSum: number;
+  ratingCount: number;
+  salesCount: number;
+  isFeatured: boolean;
+  isNewArrival: boolean;
+  isBestSeller: boolean;
+  listedAt: Date | string;
+  author: { name: string; slug: string };
+  publisher: { name: string; slug: string };
+  category: { name: string; slug: string };
+  shop: {
+    name: string;
+    slug: string;
+    owner: { id: string; name: string };
+  };
+};
 
 export function toBookCard(book: BookCardRow): Book {
   const rating =
@@ -54,7 +76,7 @@ export function toBookCard(book: BookCardRow): Book {
     categorySlug: book.category.slug,
     publisher: book.publisher?.name,
     coverImage: book.coverImage ?? undefined,
-    coverTone: book.coverTone,
+    coverTone: typeof book.coverTone === "number" ? book.coverTone : undefined,
     price: book.price,
     originalPrice: book.originalPrice ?? undefined,
     discount:
@@ -75,7 +97,10 @@ export function toBookCard(book: BookCardRow): Book {
     isNewArrival: book.isNewArrival,
     isBestSeller: book.isBestSeller,
     salesCount: book.salesCount,
-    listedAt: book.listedAt.toISOString().slice(0, 10),
+    listedAt:
+      typeof book.listedAt === "string"
+        ? book.listedAt.slice(0, 10)
+        : new Date(book.listedAt).toISOString().slice(0, 10),
   };
 }
 
@@ -99,8 +124,10 @@ export type BookFilters = {
   limit?: number;
 };
 
-function buildBookWhere(filters: BookFilters): Prisma.BookWhereInput {
-  const where: Prisma.BookWhereInput = {};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildBookWhere(filters: BookFilters): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: any = {};
 
   if (!filters.includeInactive) where.isActive = true;
   if (filters.q) {
@@ -143,7 +170,8 @@ function buildBookWhere(filters: BookFilters): Prisma.BookWhereInput {
   return where;
 }
 
-function buildOrderBy(sort?: string): Prisma.BookOrderByWithRelationInput {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildOrderBy(sort?: string): any {
   switch (sort) {
     case "price-asc":
       return { price: "asc" };

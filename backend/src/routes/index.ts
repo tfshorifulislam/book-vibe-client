@@ -9,6 +9,7 @@ import communityRoutes from "./community.routes";
 import paymentsRoutes from "./payments.routes";
 import sellerRoutes from "./seller.routes";
 import uploadRoutes from "./upload.routes";
+import internalRoutes from "./internal.routes";
 
 const apiRouter = Router();
 
@@ -31,5 +32,6 @@ apiRouter.use("/", uploadRoutes);
 apiRouter.use("/", paymentsRoutes);
 apiRouter.use("/", sellerRoutes);
 apiRouter.use("/", adminRoutes);
+apiRouter.use("/internal", internalRoutes);
 
 export default apiRouter;

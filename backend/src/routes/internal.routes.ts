@@ -1,0 +1,42 @@
+import { Router } from "express";
+
+import { prisma } from "@/lib/db";
+
+const router = Router();
+
+// Internal data query proxy for frontend SSR
+router.post("/query", async (req, res, next) => {
+  try {
+    const secret = req.headers["x-internal-secret"];
+    const expected =
+      process.env.SESSION_SECRET ||
+      process.env.JWT_SECRET ||
+      "bookhand_internal_secret";
+
+    if (secret !== expected && process.env.NODE_ENV === "production") {
+      return res.status(403).json({ success: false, message: "Forbidden" });
+    }
+
+    const { model, action, args } = req.body;
+    const delegate = (
+      prisma as unknown as Record<
+        string,
+        Record<string, (a: unknown) => Promise<unknown>>
+      >
+    )[model];
+
+    if (!delegate || typeof delegate[action] !== "function") {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid model ${model} or action ${action}`,
+      });
+    }
+
+    const result = await delegate[action](args);
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+export default router;

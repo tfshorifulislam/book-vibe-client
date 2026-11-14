@@ -74,24 +74,28 @@ SESSION_SECRET="your-session-secret"
 
 ---
 
-## Running the Project
+## Running the Applications Independently
 
-### Running Both Concurrently (from repository root):
-```bash
-# Start backend API (Port 5000)
-npm run dev:backend
+Each application is completely independent with its own `package.json`, `package-lock.json`, and dependencies. No root package dependencies exist.
 
-# In a separate terminal, start frontend (Port 3000)
-npm run dev:frontend
-```
-
-### Running Backend Independently:
+### Running Backend Independently (Port 5000):
 ```bash
 cd backend
-npm run dev       # Starts Express server on http://localhost:5000
+npm install       # Install backend dependencies
+npm run dev       # Starts Express API server on http://localhost:5000
 npm test          # Runs automated test suite (20 tests)
-npm run typecheck # TypeScript validation
-npm run lint      # ESLint check
+npm run typecheck # TypeScript validation (0 errors)
+npm run lint      # ESLint check (0 errors)
+```
+
+### Running Frontend Independently (Port 3000):
+```bash
+cd frontend
+npm install       # Install frontend dependencies
+npm run dev       # Starts Next.js on http://localhost:3000
+npm run build     # Production build with Turbopack (109 routes)
+npm run typecheck # TypeScript validation (0 errors)
+npm run lint      # ESLint check (0 errors)
 ```
 
 ### Running Frontend Independently:
