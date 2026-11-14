@@ -14,6 +14,23 @@ type ApiResponse<T> = {
   details?: unknown;
 };
 
+interface AuthResponseData {
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    role: "buyer" | "seller" | "admin" | string;
+  };
+  token?: string;
+  redirectTo?: string;
+}
+
+const isSafePath = (value: unknown): value is string =>
+  typeof value === "string" &&
+  value.startsWith("/") &&
+  !value.startsWith("//") &&
+  !value.includes("\\");
+
 async function postJson<T>(
   url: string,
   body: unknown,
@@ -91,7 +108,7 @@ export function LoginForm() {
     event.preventDefault();
     setPending(true);
     setError(null);
-    const result = await postJson<{ redirectTo: string }>("/api/auth/login", {
+    const result = await postJson<AuthResponseData>("/api/auth/login", {
       email,
       password,
     });
@@ -100,8 +117,19 @@ export function LoginForm() {
       setPending(false);
       return;
     }
-    const destination =
-      next && next.startsWith("/") ? next : result.data.redirectTo;
+    const roleRedirect =
+      result.data.user?.role === "admin"
+        ? "/admin/dashboard"
+        : result.data.user?.role === "seller"
+          ? "/seller/dashboard"
+          : "/buyer/dashboard";
+
+    const destination = isSafePath(next)
+      ? next
+      : isSafePath(result.data.redirectTo)
+        ? result.data.redirectTo
+        : roleRedirect || "/dashboard";
+
     router.push(destination);
     router.refresh();
   }
@@ -166,6 +194,7 @@ export function LoginForm() {
 export function RegisterForm() {
   const router = useRouter();
   const params = useSearchParams();
+  const next = params.get("next");
   const defaultRole = params.get("role") === "seller" ? "seller" : "buyer";
   const [role, setRole] = useState<"buyer" | "seller">(defaultRole);
   const [name, setName] = useState("");
@@ -185,23 +214,29 @@ export function RegisterForm() {
     }
     setPending(true);
     setError(null);
-    const result = await postJson<{ user: { role: string } }>(
-      "/api/auth/register",
-      {
-        name,
-        email,
-        phone,
-        password,
-        role,
-        shopName: role === "seller" ? shopName : undefined,
-      },
-    );
+    const result = await postJson<AuthResponseData>("/api/auth/register", {
+      name,
+      email,
+      phone,
+      password,
+      role,
+      shopName: role === "seller" ? shopName : undefined,
+    });
     if (!result.success || !result.data) {
       setError(result.message ?? "Unable to create your account.");
       setPending(false);
       return;
     }
-    router.push(role === "seller" ? "/seller/dashboard" : "/buyer/dashboard");
+    const roleRedirect =
+      role === "seller" ? "/seller/dashboard" : "/buyer/dashboard";
+
+    const destination = isSafePath(next)
+      ? next
+      : isSafePath(result.data.redirectTo)
+        ? result.data.redirectTo
+        : roleRedirect || "/dashboard";
+
+    router.push(destination);
     router.refresh();
   }
 

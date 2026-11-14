@@ -111,6 +111,9 @@ router.post("/register", async (req, res, next) => {
       html: emailData.html,
     }).catch(console.error);
 
+    const defaultRedirect =
+      userRole === "SELLER" ? "/seller/dashboard" : "/buyer/dashboard";
+
     return res.status(201).json({
       success: true,
       data: {
@@ -121,6 +124,7 @@ router.post("/register", async (req, res, next) => {
           role: user.role.toLowerCase(),
         },
         token: accessToken,
+        redirectTo: defaultRedirect,
       },
     });
   } catch (error) {
@@ -180,6 +184,14 @@ router.post("/login", async (req, res, next) => {
       maxAge: 30 * 86400 * 1000,
     });
 
+    const roleLower = user.role.toLowerCase();
+    const defaultRedirect =
+      roleLower === "admin"
+        ? "/admin/dashboard"
+        : roleLower === "seller"
+          ? "/seller/dashboard"
+          : "/buyer/dashboard";
+
     return res.json({
       success: true,
       data: {
@@ -187,9 +199,10 @@ router.post("/login", async (req, res, next) => {
           id: user.id,
           name: user.name,
           email: user.email,
-          role: user.role.toLowerCase(),
+          role: roleLower,
         },
         token: accessToken,
+        redirectTo: defaultRedirect,
       },
     });
   } catch (error) {

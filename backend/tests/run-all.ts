@@ -420,6 +420,21 @@ async function runTests() {
         const cookieData = await cookieReq.json();
         assert.strictEqual(cookieData.success, true);
         assert.strictEqual(cookieData.data.user.id, adminUser.id);
+
+        // 8. Verify login returns redirectTo and user role
+        const loginRes = await fetch(`${baseUrl}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: adminUser.email,
+            password: "password123",
+          }),
+        });
+        if (loginRes.status === 200) {
+          const loginData = await loginRes.json();
+          assert.strictEqual(loginData.success, true);
+          assert.strictEqual(loginData.data.redirectTo, "/admin/dashboard");
+        }
       }
     } finally {
       server.close();

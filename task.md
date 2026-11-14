@@ -1,30 +1,34 @@
-# Fix Next.js 16 Blocking Prerender Error in BookHand
+# Fix Authentication Redirect Runtime Error
 
-Investigate the `InstantServer` / `blocking-prerender-dynamic` error.
+Fix the runtime error in `src/components/auth/forms.tsx` around line 103–105:
 
-**Error location:**
+`Cannot read properties of undefined (reading 'startsWith')`
 
-- `src/lib/auth/session.ts:232` — `requireUser()` calls `await connection()`
-- `src/app/seller/dashboard/page.tsx:23` — calls `requireUser()` through `requireRole()`
+Tasks:
 
-**Tasks:**
+1. Inspect the login/register response types and backend authentication response.
+2. Identify why `result.data.redirectTo` can be undefined.
+3. Validate the `next` parameter and backend `redirectTo` before navigation.
+4. Add a safe default redirect, such as `/dashboard`, if neither contains a valid internal path.
+5. Prevent open redirects: accept only paths starting with `/`, reject `//`, external URLs and malformed values.
+6. Ensure backend response types accurately represent optional and required fields.
+7. Preserve existing role-based redirects for Buyer, Seller and Admin.
+8. Do not hide the error with `as string` or non-null assertions.
 
-1. Inspect `requireUser()`, `requireRole()`, `getCurrentUser()` and all their usages.
-2. Do not call `connection()` inside shared authentication helpers.
-3. Identify which pages/layouts require request-time authentication.
-4. Apply the appropriate Next.js 16 rendering strategy:
-   - Use `<Suspense>` boundaries where streaming is appropriate.
-   - Use `export const instant = false` only for routes that genuinely require blocking dynamic rendering.
-5. Check Seller, Admin and Buyer protected routes for the same issue.
-6. Keep public pages eligible for instant/static rendering.
-7. Preserve JWT verification, expiration checks, refresh-token rotation, cookies, redirects and RBAC.
-8. Never bypass authentication or weaken security to fix this error.
+Example safe logic:
 
-**Verification:**
+```ts
+const isSafePath = (value: unknown): value is string =>
+  typeof value === "string" && value.startsWith("/") && !value.startsWith("//");
 
-- Run TypeScript, ESLint and production build.
-- Test authenticated and unauthenticated navigation.
-- Test expired and invalid JWTs.
-- Confirm protected pages render correctly without blocking unrelated public pages.
+const destination = isSafePath(next)
+  ? next
+  : isSafePath(result.data?.redirectTo)
+    ? result.data.redirectTo
+    : "/dashboard";
 
-Make the smallest correct architectural change. Do not apply a global workaround.
+router.push(destination);
+router.refresh();
+```
+
+Verify login and registration for all roles, with and without a `next` parameter. Run TypeScript and relevant tests. Report the root cause and changed files.
