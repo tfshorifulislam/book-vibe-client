@@ -1,60 +1,33 @@
-Restructure BookHand into TWO COMPLETELY INDEPENDENT applications.
+# Fix Next.js 16 Blocking Prerender Current Time Error
 
-### Target Structure
+Error location:
 
-```text
-BookHand/
-├── frontend/
-│   ├── src/
-│   ├── public/
-│   ├── node_modules/
-│   ├── .env
-│   ├── .env.example
-│   ├── package.json
-│   ├── package-lock.json
-│   └── all Next.js configurations
-│
-├── backend/
-│   ├── src/
-│   ├── prisma/
-│   ├── node_modules/
-│   ├── .env
-│   ├── .env.example
-│   ├── package.json
-│   ├── package-lock.json
-│   └── all Express.js configurations
-│
-├── .gitignore
-└── README.md
-```
+- `src/lib/auth/jwt.ts` line 87
+- `src/lib/auth/session.ts`
+- `src/app/seller/layout.tsx`
 
-### Strict Requirements
+Problem:
+`jwt.verify()` internally uses the current time during prerendering, causing Next.js 16 to throw a Blocking Route error.
 
-1. Frontend must contain ONLY Next.js, React, TypeScript, UI libraries, and frontend dependencies.
-2. Backend must contain ONLY Node.js, Express.js, TypeScript, Prisma, PostgreSQL-related packages, JWT, Resend, Cloudinary, and backend dependencies.
-3. Each folder must have its own `package.json`, `package-lock.json`, `node_modules`, `.env`, and `.env.example`.
-4. No shared dependencies, package files, or node_modules.
-5. Frontend must run independently on port 3000.
-6. Backend must run independently on port 5000.
-7. Configure frontend API requests to communicate with the backend through its API URL.
-8. Keep Prisma schema, migrations, and database logic exclusively in backend.
-9. Keep all existing features, API endpoints, authentication, and business logic working.
-10. Update all imports, scripts, environment variables, configurations, and README.
-11. Remove obsolete root package files and dependencies after verifying both applications work independently.
-12. Never commit actual `.env` files or secrets.
+## Tasks
 
-### Developer Independence
+1. Inspect the complete JWT authentication flow.
+2. Make authenticated Seller, Admin, and Buyer layouts execute dynamically at request time.
+3. Use Next.js `await connection()` from `next/server` in the appropriate Server Component layouts before calling authentication functions.
+4. Verify `requireUser()` and `requireRole()` execute only in request-time server contexts.
+5. Preserve JWT signature verification, expiration checks, refresh token rotation, and RBAC.
+6. Do not disable JWT verification.
+7. Do not replace `jwt.verify()` with insecure custom verification.
+8. Do not add `"use client"` to server layouts.
+9. Keep public pages statically prerenderable where possible.
+10. Check other authenticated layouts for the same issue.
 
-- Frontend developer should be able to clone the repository, enter `frontend/`, run `npm install`, and start the frontend.
-- Backend developer should be able to clone the repository, enter `backend/`, run `npm install`, and start the backend.
-- Neither developer should need to install dependencies from the other folder.
+## Verification
 
-### Verification
+- Run `npm run typecheck`
+- Run `npm run lint`
+- Run `npm run build`
+- Test Seller, Admin, and Buyer authentication.
+- Verify expired and invalid tokens are rejected.
 
-Run independent installation, typecheck, lint, tests, and production builds wherever applicable.
-
-Verify both applications work independently and communicate correctly.
-
-Preserve all existing database records. Do not delete the SQLite database until PostgreSQL migration and data integrity are verified.
-
-Complete the restructuring. Do not merely provide a plan.
+Fix the root cause without weakening security or changing existing business logic.
