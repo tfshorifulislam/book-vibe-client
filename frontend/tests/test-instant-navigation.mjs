@@ -55,7 +55,15 @@ console.log("=======================================================\n");
 // 1. PUBLIC ROUTES
 console.log("--- 1. Public Routes Static Prerender & Navigation ---");
 {
-  const publicRoutes = ["/", "/books", "/about", "/login", "/register", "/contact", "/help"];
+  const publicRoutes = [
+    "/",
+    "/books",
+    "/about",
+    "/login",
+    "/register",
+    "/contact",
+    "/help",
+  ];
   for (const route of publicRoutes) {
     const res = await request(route);
     assert(res.status === 200, `Public route ${route} returns 200 OK`);
@@ -93,7 +101,7 @@ console.log("\n--- 2. Unauthenticated Access across Protected Routes ---");
     const res = await request(path);
     assert(
       isRedirectTo(res, "/login"),
-      `Unauthenticated ${path} redirects to /login`
+      `Unauthenticated ${path} redirects to /login`,
     );
   }
 }
@@ -105,43 +113,45 @@ console.log("\n--- 3. Invalid & Tampered Tokens ---");
   const resSeller = await request("/seller/analytics", badCookie);
   assert(
     isRedirectTo(resSeller, "/login"),
-    "Tampered token accessing /seller/analytics rejected and redirects to /login"
+    "Tampered token accessing /seller/analytics rejected and redirects to /login",
   );
 
   const resAdmin = await request("/admin/analytics", badCookie);
   assert(
     isRedirectTo(resAdmin, "/login"),
-    "Tampered token accessing /admin/analytics rejected and redirects to /login"
+    "Tampered token accessing /admin/analytics rejected and redirects to /login",
   );
 }
 
 // 4. EXPIRED JWT HANDLING
-console.log("\n--- 4. Expired JWTs (Date.now() / SyncIO Prerender Verification) ---");
+console.log(
+  "\n--- 4. Expired JWTs (Date.now() / SyncIO Prerender Verification) ---",
+);
 {
   const expiredToken = makeToken(
     { userId: "expired_usr", email: "expired@test.com", role: "seller" },
-    { expiresIn: "-2h" }
+    { expiresIn: "-2h" },
   );
   const expiredCookie = `bookhand_token=${expiredToken}`;
 
   const resAnalytics = await request("/seller/analytics", expiredCookie);
   assert(
     isRedirectTo(resAnalytics, "/login"),
-    "Expired token accessing /seller/analytics redirects to /login"
+    "Expired token accessing /seller/analytics redirects to /login",
   );
   assert(
     !resAnalytics.text.includes("blocking-prerender-current-time"),
-    "No blocking-prerender-current-time error in /seller/analytics response"
+    "No blocking-prerender-current-time error in /seller/analytics response",
   );
   assert(
     !resAnalytics.text.includes("blocking-prerender-dynamic"),
-    "No blocking-prerender-dynamic error in /seller/analytics response"
+    "No blocking-prerender-dynamic error in /seller/analytics response",
   );
 
   const resSellerBooks = await request("/seller/books", expiredCookie);
   assert(
     isRedirectTo(resSellerBooks, "/login"),
-    "Expired token accessing /seller/books redirects to /login"
+    "Expired token accessing /seller/books redirects to /login",
   );
 }
 
@@ -150,8 +160,13 @@ console.log("\n--- 5. Valid JWT Streaming Navigation Across Roles ---");
 {
   // Seller
   const sellerToken = makeToken(
-    { userId: "cm4r1y06w000212e367gqg8r9", email: "seller1@test.com", role: "seller", name: "Jane Seller" },
-    { expiresIn: "2h" }
+    {
+      userId: "cm4r1y06w000212e367gqg8r9",
+      email: "seller1@test.com",
+      role: "seller",
+      name: "Jane Seller",
+    },
+    { expiresIn: "2h" },
   );
   const sellerCookie = `bookhand_token=${sellerToken}`;
 
@@ -172,18 +187,23 @@ console.log("\n--- 5. Valid JWT Streaming Navigation Across Roles ---");
     assert(res.status === 200, `Seller page ${page} loads with status 200`);
     assert(
       !res.text.includes("blocking-prerender-dynamic"),
-      `Seller page ${page} has NO blocking-prerender-dynamic error`
+      `Seller page ${page} has NO blocking-prerender-dynamic error`,
     );
     assert(
       !res.text.includes("blocking-prerender-current-time"),
-      `Seller page ${page} has NO blocking-prerender-current-time error`
+      `Seller page ${page} has NO blocking-prerender-current-time error`,
     );
   }
 
   // Admin
   const adminToken = makeToken(
-    { userId: "cm4r1y06w000112e367gqg8r9", email: "admin@test.com", role: "admin", name: "Super Admin" },
-    { expiresIn: "2h" }
+    {
+      userId: "cm4r1y06w000112e367gqg8r9",
+      email: "admin@test.com",
+      role: "admin",
+      name: "Super Admin",
+    },
+    { expiresIn: "2h" },
   );
   const adminCookie = `bookhand_token=${adminToken}`;
 
@@ -201,18 +221,23 @@ console.log("\n--- 5. Valid JWT Streaming Navigation Across Roles ---");
     assert(res.status === 200, `Admin page ${page} loads with status 200`);
     assert(
       !res.text.includes("blocking-prerender-dynamic"),
-      `Admin page ${page} has NO blocking-prerender-dynamic error`
+      `Admin page ${page} has NO blocking-prerender-dynamic error`,
     );
     assert(
       !res.text.includes("blocking-prerender-current-time"),
-      `Admin page ${page} has NO blocking-prerender-current-time error`
+      `Admin page ${page} has NO blocking-prerender-current-time error`,
     );
   }
 
   // Buyer
   const buyerToken = makeToken(
-    { userId: "cm4r1y06w000312e367gqg8r9", email: "buyer1@test.com", role: "buyer", name: "Alice Buyer" },
-    { expiresIn: "2h" }
+    {
+      userId: "cm4r1y06w000312e367gqg8r9",
+      email: "buyer1@test.com",
+      role: "buyer",
+      name: "Alice Buyer",
+    },
+    { expiresIn: "2h" },
   );
   const buyerCookie = `bookhand_token=${buyerToken}`;
 
@@ -231,11 +256,11 @@ console.log("\n--- 5. Valid JWT Streaming Navigation Across Roles ---");
     assert(res.status === 200, `Buyer page ${page} loads with status 200`);
     assert(
       !res.text.includes("blocking-prerender-dynamic"),
-      `Buyer page ${page} has NO blocking-prerender-dynamic error`
+      `Buyer page ${page} has NO blocking-prerender-dynamic error`,
     );
     assert(
       !res.text.includes("blocking-prerender-current-time"),
-      `Buyer page ${page} has NO blocking-prerender-current-time error`
+      `Buyer page ${page} has NO blocking-prerender-current-time error`,
     );
   }
 }
@@ -244,34 +269,55 @@ console.log("\n--- 5. Valid JWT Streaming Navigation Across Roles ---");
 console.log("\n--- 6. Role-Based Access Control (RBAC) ---");
 {
   const buyerToken = makeToken(
-    { userId: "buyer_test", email: "buyer@test.com", role: "buyer", name: "Buyer" },
-    { expiresIn: "1h" }
+    {
+      userId: "buyer_test",
+      email: "buyer@test.com",
+      role: "buyer",
+      name: "Buyer",
+    },
+    { expiresIn: "1h" },
   );
-  const resBuyerOnSeller = await request("/seller/analytics", `bookhand_token=${buyerToken}`);
+  const resBuyerOnSeller = await request(
+    "/seller/analytics",
+    `bookhand_token=${buyerToken}`,
+  );
   assert(
     isRedirectTo(resBuyerOnSeller, "/buyer/dashboard"),
-    "Buyer attempting to access /seller/analytics is redirected to /buyer/dashboard"
+    "Buyer attempting to access /seller/analytics is redirected to /buyer/dashboard",
   );
 
-  const resBuyerOnAdmin = await request("/admin/analytics", `bookhand_token=${buyerToken}`);
+  const resBuyerOnAdmin = await request(
+    "/admin/analytics",
+    `bookhand_token=${buyerToken}`,
+  );
   assert(
     isRedirectTo(resBuyerOnAdmin, "/buyer/dashboard"),
-    "Buyer attempting to access /admin/analytics is redirected to /buyer/dashboard"
+    "Buyer attempting to access /admin/analytics is redirected to /buyer/dashboard",
   );
 
   const sellerToken = makeToken(
-    { userId: "seller_test", email: "seller@test.com", role: "seller", name: "Seller" },
-    { expiresIn: "1h" }
+    {
+      userId: "seller_test",
+      email: "seller@test.com",
+      role: "seller",
+      name: "Seller",
+    },
+    { expiresIn: "1h" },
   );
-  const resSellerOnAdmin = await request("/admin/dashboard", `bookhand_token=${sellerToken}`);
+  const resSellerOnAdmin = await request(
+    "/admin/dashboard",
+    `bookhand_token=${sellerToken}`,
+  );
   assert(
     isRedirectTo(resSellerOnAdmin, "/seller/dashboard"),
-    "Seller attempting to access /admin/dashboard is redirected to /seller/dashboard"
+    "Seller attempting to access /admin/dashboard is redirected to /seller/dashboard",
   );
 }
 
 console.log("\n=======================================================");
-console.log(`TOTAL: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`);
+console.log(
+  `TOTAL: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`,
+);
 console.log("=======================================================\n");
 
 if (failed > 0) {

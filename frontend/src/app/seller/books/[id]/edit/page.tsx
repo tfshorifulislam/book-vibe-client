@@ -11,7 +11,9 @@ import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Edit Book | Seller Workspace" };
 
-export default function EditBookPage(props: { params: Promise<{ id: string }> }) {
+export default function EditBookPage(props: {
+  params: Promise<{ id: string }>;
+}) {
   return (
     <Suspense fallback={<DashboardSkeleton />}>
       <EditBookContent {...props} />

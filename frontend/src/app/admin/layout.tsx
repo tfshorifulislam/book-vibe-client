@@ -8,11 +8,7 @@ import { requireRole } from "@/lib/auth/session";
 
 export const instant = false;
 
-export default function AdminLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <Suspense fallback={<DashboardSkeleton />}>
       <AdminLayoutContent>{children}</AdminLayoutContent>

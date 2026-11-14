@@ -18,7 +18,7 @@ export function DashboardSkeleton() {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-xl border border-border bg-card p-5 space-y-3"
+            className="space-y-3 rounded-xl border border-border bg-card p-5"
           >
             <div className="flex items-center justify-between">
               <Skeleton className="h-4 w-24" />
@@ -32,7 +32,7 @@ export function DashboardSkeleton() {
 
       {/* Main Panels Skeleton */}
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <div className="flex items-center justify-between">
             <Skeleton className="h-5 w-32" />
             <Skeleton className="h-4 w-16" />
@@ -48,15 +48,15 @@ export function DashboardSkeleton() {
                   </div>
                 </div>
                 <div className="space-y-1.5 text-right">
-                  <Skeleton className="h-4 w-16 ml-auto" />
-                  <Skeleton className="h-5 w-20 ml-auto rounded-full" />
+                  <Skeleton className="ml-auto h-4 w-16" />
+                  <Skeleton className="ml-auto h-5 w-20 rounded-full" />
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <div className="flex items-center justify-between">
             <Skeleton className="h-5 w-28" />
             <Skeleton className="h-4 w-16" />

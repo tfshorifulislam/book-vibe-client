@@ -273,6 +273,116 @@ router.get("/orders/:id", requireAuth, async (req, res, next) => {
   }
 });
 
+// PATCH /api/orders/:id (Buyer cancellation & status updates)
+router.patch("/orders/:id", requireAuth, async (req, res, next) => {
+  try {
+    const orderId = req.params.id as string;
+    const userId = req.user!.userId;
+    const userRole = req.user!.role;
+
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        items: true,
+        payment: true,
+        shipment: true,
+      },
+    });
+
+    if (!order) throw new ApiError("Order not found.", 404);
+
+    // Verify ownership (only buyer who placed it or admin can cancel via this route)
+    if (order.userId !== userId && userRole !== "admin") {
+      throw new ApiError(
+        "You do not have permission to modify this order.",
+        403,
+      );
+    }
+
+    const { status, note } = req.body;
+
+    if (status === "CANCELLED") {
+      // Validate cancellable status
+      if (order.status !== "PENDING" && order.status !== "CONFIRMED") {
+        throw new ApiError(
+          `Order cannot be cancelled because it is already ${order.status.toLowerCase()}. You may request a return once delivered.`,
+          400,
+        );
+      }
+
+      const updated = await prisma.$transaction(async (tx) => {
+        // Return stock and adjust sales count
+        for (const item of order.items) {
+          if (item.bookId) {
+            await tx.book.update({
+              where: { id: item.bookId },
+              data: {
+                stock: { increment: item.quantity },
+                salesCount: { decrement: item.quantity },
+              },
+            });
+
+            await tx.inventoryMovement.create({
+              data: {
+                bookId: item.bookId,
+                type: "RESTOCK",
+                quantity: item.quantity,
+                note: `Order ${order.orderNumber} cancelled by buyer`,
+              },
+            });
+          }
+        }
+
+        // Update payment & shipment
+        if (order.payment) {
+          await tx.payment.update({
+            where: { id: order.payment.id },
+            data: { status: "CANCELLED" },
+          });
+        }
+
+        if (order.shipment) {
+          await tx.shipment.update({
+            where: { id: order.shipment.id },
+            data: { status: "CANCELLED" },
+          });
+        }
+
+        // Update order items
+        await tx.orderItem.updateMany({
+          where: { orderId: order.id },
+          data: { status: "CANCELLED" },
+        });
+
+        // Update order
+        return tx.order.update({
+          where: { id: order.id },
+          data: {
+            status: "CANCELLED",
+            paymentStatus:
+              order.paymentStatus === "PAID" ? "REFUNDED" : "CANCELLED",
+            notes: note || "Cancelled by buyer",
+          },
+          include: { items: true, payment: true, shipment: true },
+        });
+      });
+
+      return res.json({
+        success: true,
+        message: "Order has been cancelled and inventory restocked.",
+        data: updated,
+      });
+    }
+
+    throw new ApiError(
+      "Invalid status transition for buyer order update.",
+      400,
+    );
+  } catch (error) {
+    next(error);
+  }
+});
+
 // POST /api/orders
 router.post("/orders", requireAuth, async (req, res, next) => {
   try {

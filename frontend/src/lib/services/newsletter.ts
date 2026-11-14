@@ -5,9 +5,6 @@ export type NewsletterResult = {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-// DEV ONLY — in-memory duplicate detection for the frontend demo.
-const subscribedEmails = new Set<string>();
-
 export function isValidEmail(email: string): boolean {
   return EMAIL_PATTERN.test(email.trim());
 }
@@ -24,22 +21,47 @@ export async function subscribeToNewsletter(
     };
   }
 
-  // API-ready: replace the simulation below with
-  // POST /api/newsletter/subscribe
-  await new Promise((resolve) => setTimeout(resolve, 600));
+  try {
+    const res = await fetch("/api/newsletter", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: normalized }),
+    });
 
-  if (subscribedEmails.has(normalized)) {
+    const data = (await res.json()) as {
+      success?: boolean;
+      message?: string;
+      isDuplicate?: boolean;
+    };
+
+    if (!res.ok) {
+      return {
+        status: "error",
+        message:
+          data.message ||
+          "Unable to subscribe to newsletter. Please try again.",
+      };
+    }
+
+    if (data.isDuplicate) {
+      return {
+        status: "duplicate",
+        message:
+          data.message ||
+          "This email is already subscribed to the BookHand newsletter.",
+      };
+    }
+
     return {
-      status: "duplicate",
-      message: "This email is already subscribed to the BookHand newsletter.",
+      status: "success",
+      message:
+        data.message ||
+        "You are subscribed. Look out for new arrivals, offers, and reading picks.",
+    };
+  } catch {
+    return {
+      status: "error",
+      message: "Network error. Please check your connection and try again.",
     };
   }
-
-  subscribedEmails.add(normalized);
-
-  return {
-    status: "success",
-    message:
-      "You are subscribed. Look out for new arrivals, offers, and reading picks.",
-  };
 }

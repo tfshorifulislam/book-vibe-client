@@ -437,6 +437,17 @@ router.post("/admin/banners", async (req, res, next) => {
   }
 });
 
+router.delete(["/admin/banners", "/admin/banners/:id"], async (req, res, next) => {
+  try {
+    const id = (req.params.id || req.query.id || req.body?.id) as string;
+    if (!id) throw new ApiError("Banner id is required.", 400);
+    await prisma.banner.delete({ where: { id } });
+    return res.json({ success: true, message: "Banner deleted." });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/admin/faqs", async (req, res, next) => {
   try {
     const faqs = await prisma.faq.findMany({ orderBy: { order: "asc" } });
@@ -450,6 +461,17 @@ router.post("/admin/faqs", async (req, res, next) => {
   try {
     const faq = await prisma.faq.create({ data: req.body });
     return res.status(201).json({ success: true, data: faq });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete(["/admin/faqs", "/admin/faqs/:id"], async (req, res, next) => {
+  try {
+    const id = (req.params.id || req.query.id || req.body?.id) as string;
+    if (!id) throw new ApiError("FAQ id is required.", 400);
+    await prisma.faq.delete({ where: { id } });
+    return res.json({ success: true, message: "FAQ deleted." });
   } catch (error) {
     next(error);
   }
@@ -484,6 +506,184 @@ router.patch("/admin/settings", async (req, res, next) => {
       });
     }
     return res.json({ success: true, message: "Settings updated." });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ================= ADMIN MODERATION =================
+
+router.patch("/admin/moderation", async (req, res, next) => {
+  try {
+    const { type, id, action, resolution } = req.body;
+
+    if (!type || !id || !action) {
+      throw new ApiError(
+        "type, id, and action are required for moderation.",
+        400,
+      );
+    }
+
+    if (type === "review") {
+      const review = await prisma.review.findUnique({ where: { id } });
+      if (!review) throw new ApiError("Review not found.", 404);
+
+      if (action === "approve") {
+        await prisma.review.update({
+          where: { id },
+          data: { isApproved: true },
+        });
+      } else if (action === "reject") {
+        await prisma.review.update({
+          where: { id },
+          data: { isApproved: false },
+        });
+      } else if (action === "delete") {
+        await prisma.review.delete({ where: { id } });
+      } else {
+        throw new ApiError(
+          `Invalid action '${action}' for review moderation.`,
+          400,
+        );
+      }
+
+      // Recalculate book rating statistics
+      const stats = await prisma.review.aggregate({
+        where: { bookId: review.bookId, isApproved: true },
+        _sum: { rating: true },
+        _count: { rating: true },
+      });
+      await prisma.book.update({
+        where: { id: review.bookId },
+        data: {
+          ratingSum: stats._sum.rating || 0,
+          ratingCount: stats._count.rating || 0,
+        },
+      });
+
+      return res.json({
+        success: true,
+        message: `Review moderation action '${action}' completed.`,
+      });
+    }
+
+    if (type === "question") {
+      const question = await prisma.question.findUnique({ where: { id } });
+      if (!question) throw new ApiError("Question not found.", 404);
+
+      if (action === "approve") {
+        await prisma.question.update({
+          where: { id },
+          data: { isApproved: true },
+        });
+      } else if (action === "reject") {
+        await prisma.question.update({
+          where: { id },
+          data: { isApproved: false },
+        });
+      } else if (action === "delete") {
+        await prisma.question.delete({ where: { id } });
+      } else {
+        throw new ApiError(
+          `Invalid action '${action}' for question moderation.`,
+          400,
+        );
+      }
+
+      return res.json({
+        success: true,
+        message: `Question moderation action '${action}' completed.`,
+      });
+    }
+
+    if (type === "dispute") {
+      const dispute = await prisma.dispute.findUnique({ where: { id } });
+      if (!dispute) throw new ApiError("Dispute not found.", 404);
+
+      if (action === "resolve") {
+        await prisma.dispute.update({
+          where: { id },
+          data: {
+            status: "RESOLVED",
+            resolution: resolution || "Resolved by administrator",
+          },
+        });
+      } else if (action === "reject") {
+        await prisma.dispute.update({
+          where: { id },
+          data: {
+            status: "REJECTED",
+            resolution: resolution || "Rejected by administrator",
+          },
+        });
+      } else if (action === "delete") {
+        await prisma.dispute.delete({ where: { id } });
+      } else {
+        throw new ApiError(
+          `Invalid action '${action}' for dispute moderation.`,
+          400,
+        );
+      }
+
+      return res.json({
+        success: true,
+        message: `Dispute moderation action '${action}' completed.`,
+      });
+    }
+
+    throw new ApiError(`Unsupported moderation type '${type}'.`, 400);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ================= ADMIN BROADCAST NOTIFICATIONS =================
+
+router.post("/admin/notifications", async (req, res, next) => {
+  try {
+    const {
+      title,
+      message,
+      type = "SYSTEM",
+      targetRole = "ALL",
+      href,
+    } = req.body;
+
+    if (!title || !message) {
+      throw new ApiError(
+        "Title and message are required for broadcast.",
+        400,
+      );
+    }
+
+    const where: Record<string, unknown> = { status: "ACTIVE" };
+    if (targetRole === "BUYER" || targetRole === "SELLER") {
+      where.role = targetRole;
+    }
+
+    const users = await prisma.user.findMany({
+      where,
+      select: { id: true },
+    });
+
+    if (users.length > 0) {
+      await prisma.notification.createMany({
+        data: users.map((u) => ({
+          userId: u.id,
+          title,
+          message,
+          type,
+          href: href || undefined,
+          isRead: false,
+        })),
+      });
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: `Notification broadcast sent to ${users.length} user(s).`,
+      sentCount: users.length,
+    });
   } catch (error) {
     next(error);
   }

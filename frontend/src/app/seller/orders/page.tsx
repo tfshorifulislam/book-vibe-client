@@ -14,7 +14,9 @@ import { formatDate, formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Seller Orders | BookHand" };
 
-export default function SellerOrdersPage(props: { searchParams: Promise<{ status?: string }> }) {
+export default function SellerOrdersPage(props: {
+  searchParams: Promise<{ status?: string }>;
+}) {
   return (
     <Suspense fallback={<DashboardSkeleton />}>
       <SellerOrdersContent {...props} />

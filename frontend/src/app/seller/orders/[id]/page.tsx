@@ -15,7 +15,9 @@ import { formatDate, formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Manage Order | Seller Workspace" };
 
-export default function SellerOrderDetailPage(props: { params: Promise<{ id: string }> }) {
+export default function SellerOrderDetailPage(props: {
+  params: Promise<{ id: string }>;
+}) {
   return (
     <Suspense fallback={<DashboardSkeleton />}>
       <SellerOrderDetailContent {...props} />

@@ -15,7 +15,9 @@ import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Seller Details | Admin Dashboard" };
 
-export default function AdminSellerDetailPage(props: { params: Promise<{ id: string }> }) {
+export default function AdminSellerDetailPage(props: {
+  params: Promise<{ id: string }>;
+}) {
   return (
     <Suspense fallback={<DashboardSkeleton />}>
       <AdminSellerDetailContent {...props} />

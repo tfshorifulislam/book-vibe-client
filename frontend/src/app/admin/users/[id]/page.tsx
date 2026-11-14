@@ -15,7 +15,9 @@ import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "User Details | Admin Dashboard" };
 
-export default function AdminUserDetailPage(props: { params: Promise<{ id: string }> }) {
+export default function AdminUserDetailPage(props: {
+  params: Promise<{ id: string }>;
+}) {
   return (
     <Suspense fallback={<DashboardSkeleton />}>
       <AdminUserDetailContent {...props} />
@@ -91,9 +93,8 @@ async function AdminUserDetailContent({
               </div>
             ) : null}
             <div className="border-t border-border pt-2 text-xs text-muted-foreground">
-              Joined on{" "}
-              {formatDate(targetUser.createdAt)} ·
-              Email Verified: {targetUser.emailVerified ? "Yes" : "No"}
+              Joined on {formatDate(targetUser.createdAt)} · Email Verified:{" "}
+              {targetUser.emailVerified ? "Yes" : "No"}
             </div>
           </div>
         </div>

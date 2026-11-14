@@ -8,11 +8,7 @@ import { requireRole } from "@/lib/auth/session";
 
 export const instant = false;
 
-export default function BuyerLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function BuyerLayout({ children }: { children: ReactNode }) {
   return (
     <Suspense fallback={<DashboardSkeleton />}>
       <BuyerLayoutContent>{children}</BuyerLayoutContent>

@@ -17,7 +17,9 @@ export const metadata: Metadata = {
   title: "Book Moderation | Admin Dashboard",
 };
 
-export default function AdminBookDetailPage(props: { params: Promise<{ id: string }> }) {
+export default function AdminBookDetailPage(props: {
+  params: Promise<{ id: string }>;
+}) {
   return (
     <Suspense fallback={<DashboardSkeleton />}>
       <AdminBookDetailContent {...props} />

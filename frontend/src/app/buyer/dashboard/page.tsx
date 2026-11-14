@@ -143,7 +143,7 @@ async function BuyerDashboardContent() {
                         (typeof order.createdAt === "string"
                           ? order.createdAt
                           : (order.createdAt?.toISOString?.() ?? "")
-                        ).slice(0, 10)
+                        ).slice(0, 10),
                       )}
                     </p>
                   </div>

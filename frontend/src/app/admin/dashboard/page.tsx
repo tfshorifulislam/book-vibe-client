@@ -185,7 +185,7 @@ async function AdminDashboardContent() {
                       (typeof o.createdAt === "string"
                         ? o.createdAt
                         : (o.createdAt?.toISOString?.() ?? "")
-                      ).slice(0, 10)
+                      ).slice(0, 10),
                     )}
                   </p>
                 </div>

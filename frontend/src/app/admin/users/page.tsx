@@ -14,7 +14,9 @@ import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Manage Users | Admin Dashboard" };
 
-export default function AdminUsersPage(props: { searchParams: Promise<{ role?: string }> }) {
+export default function AdminUsersPage(props: {
+  searchParams: Promise<{ role?: string }>;
+}) {
   return (
     <Suspense fallback={<DashboardSkeleton />}>
       <AdminUsersContent {...props} />

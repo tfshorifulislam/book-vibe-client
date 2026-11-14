@@ -78,9 +78,16 @@ router.post("/wishlist", requireAuth, async (req, res, next) => {
   }
 });
 
-router.delete("/wishlist/:id", requireAuth, async (req, res, next) => {
+router.delete(["/wishlist", "/wishlist/:id"], requireAuth, async (req, res, next) => {
   try {
-    const bookOrItemId = req.params.id as string;
+    const bookOrItemId = (req.params.id ||
+      req.query.bookId ||
+      req.body?.bookId) as string;
+
+    if (!bookOrItemId) {
+      throw new ApiError("Book ID or Wishlist Item ID is required.", 400);
+    }
+
     const wishlist = await prisma.wishlist.findUnique({
       where: { userId: req.user!.userId },
     });
@@ -169,6 +176,73 @@ router.post("/reviews", requireAuth, async (req, res, next) => {
     next(error);
   }
 });
+
+// DELETE /api/reviews or /api/reviews/:id
+router.delete(
+  ["/reviews", "/reviews/:id"],
+  requireAuth,
+  async (req, res, next) => {
+    try {
+      const userId = req.user!.userId;
+      const userRole = req.user!.role;
+      const reviewId = req.params.id as string | undefined;
+      const bookId = (req.query.bookId || req.body?.bookId) as
+        | string
+        | undefined;
+
+      if (!reviewId && !bookId) {
+        throw new ApiError(
+          "Review ID or bookId is required to delete a review.",
+          400,
+        );
+      }
+
+      const review = await prisma.review.findFirst({
+        where: reviewId
+          ? { id: reviewId }
+          : {
+              bookId,
+              userId: userRole === "admin" ? undefined : userId,
+            },
+      });
+
+      if (!review) {
+        throw new ApiError("Review not found.", 404);
+      }
+
+      if (review.userId !== userId && userRole !== "admin") {
+        throw new ApiError(
+          "You do not have permission to delete this review.",
+          403,
+        );
+      }
+
+      await prisma.review.delete({ where: { id: review.id } });
+
+      // Recalculate book rating statistics
+      const stats = await prisma.review.aggregate({
+        where: { bookId: review.bookId, isApproved: true },
+        _sum: { rating: true },
+        _count: { rating: true },
+      });
+
+      await prisma.book.update({
+        where: { id: review.bookId },
+        data: {
+          ratingSum: stats._sum.rating || 0,
+          ratingCount: stats._count.rating || 0,
+        },
+      });
+
+      return res.json({
+        success: true,
+        message: "Review deleted successfully.",
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 // ================= QUESTIONS & ANSWERS =================
 
@@ -400,15 +474,24 @@ router.post("/newsletter", async (req, res, next) => {
       where: { email: input.email },
     });
 
-    if (!existing) {
-      await prisma.newsletterSubscription.create({
-        data: { email: input.email },
+    if (existing) {
+      return res.json({
+        success: true,
+        isDuplicate: true,
+        message:
+          "This email is already subscribed to the BookHand newsletter.",
       });
     }
 
+    await prisma.newsletterSubscription.create({
+      data: { email: input.email },
+    });
+
     return res.json({
       success: true,
-      message: "Thank you for subscribing to our newsletter!",
+      isDuplicate: false,
+      message:
+        "You are subscribed. Look out for new arrivals, offers, and reading picks.",
     });
   } catch (error) {
     next(error);

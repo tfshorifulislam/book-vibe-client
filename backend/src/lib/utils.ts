@@ -1,11 +1,8 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
 import { CURRENCY } from "@/lib/constants";
 import type { Book, BookCondition } from "@/types/book";
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+export function cn(...inputs: unknown[]): string {
+  return inputs.flat().filter(Boolean).join(" ");
 }
 
 const priceFormatter = new Intl.NumberFormat(CURRENCY.locale, {

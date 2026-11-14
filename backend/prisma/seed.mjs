@@ -645,50 +645,61 @@ const descriptions = {
 };
 
 async function main() {
-  console.log("Clearing existing data...");
-  await prisma.auditLog.deleteMany();
-  await prisma.refund.deleteMany();
-  await prisma.dispute.deleteMany();
-  await prisma.payout.deleteMany();
-  await prisma.inventoryMovement.deleteMany();
-  await prisma.notification.deleteMany();
-  await prisma.message.deleteMany();
-  await prisma.conversationParticipant.deleteMany();
-  await prisma.conversation.deleteMany();
-  await prisma.answer.deleteMany();
-  await prisma.question.deleteMany();
-  await prisma.review.deleteMany();
-  await prisma.couponUsage.deleteMany();
-  await prisma.payment.deleteMany();
-  await prisma.shipment.deleteMany();
-  await prisma.orderItem.deleteMany();
-  await prisma.order.deleteMany();
-  await prisma.coupon.deleteMany();
-  await prisma.wishlistItem.deleteMany();
-  await prisma.wishlist.deleteMany();
-  await prisma.cartItem.deleteMany();
-  await prisma.cart.deleteMany();
-  await prisma.bookImage.deleteMany();
-  await prisma.book.deleteMany();
-  await prisma.publisher.deleteMany();
-  await prisma.author.deleteMany();
-  await prisma.category.deleteMany();
-  await prisma.shop.deleteMany();
-  await prisma.address.deleteMany();
-  await prisma.session.deleteMany();
-  await prisma.passwordResetToken.deleteMany();
-  await prisma.emailVerificationToken.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.banner.deleteMany();
-  await prisma.faq.deleteMany();
-  await prisma.siteSetting.deleteMany();
-  await prisma.newsletterSubscription.deleteMany();
+  const isDestructive =
+    process.env.ALLOW_DESTRUCTIVE_SEED === "true" &&
+    process.env.NODE_ENV !== "production";
+
+  if (isDestructive) {
+    console.log("Destructive mode enabled: Clearing existing seed records...");
+    await prisma.auditLog.deleteMany();
+    await prisma.refund.deleteMany();
+    await prisma.dispute.deleteMany();
+    await prisma.payout.deleteMany();
+    await prisma.inventoryMovement.deleteMany();
+    await prisma.notification.deleteMany();
+    await prisma.message.deleteMany();
+    await prisma.conversationParticipant.deleteMany();
+    await prisma.conversation.deleteMany();
+    await prisma.answer.deleteMany();
+    await prisma.question.deleteMany();
+    await prisma.review.deleteMany();
+    await prisma.couponUsage.deleteMany();
+    await prisma.payment.deleteMany();
+    await prisma.shipment.deleteMany();
+    await prisma.orderItem.deleteMany();
+    await prisma.order.deleteMany();
+    await prisma.coupon.deleteMany();
+    await prisma.wishlistItem.deleteMany();
+    await prisma.wishlist.deleteMany();
+    await prisma.cartItem.deleteMany();
+    await prisma.cart.deleteMany();
+    await prisma.bookImage.deleteMany();
+    await prisma.book.deleteMany();
+    await prisma.publisher.deleteMany();
+    await prisma.author.deleteMany();
+    await prisma.category.deleteMany();
+    await prisma.shop.deleteMany();
+    await prisma.address.deleteMany();
+    await prisma.session.deleteMany();
+    await prisma.passwordResetToken.deleteMany();
+    await prisma.emailVerificationToken.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.banner.deleteMany();
+    await prisma.faq.deleteMany();
+    await prisma.siteSetting.deleteMany();
+    await prisma.newsletterSubscription.deleteMany();
+  } else {
+    console.log("Running in safe, non-destructive idempotent mode...");
+  }
 
   console.log("Seeding users...");
   const sellerPassword = hashPassword("Seller@12345");
   const buyerPassword = hashPassword("Buyer@12345");
-  await prisma.user.create({
-    data: {
+
+  await prisma.user.upsert({
+    where: { email: "admin@bookhand.com" },
+    update: {},
+    create: {
       id: "user-admin",
       name: "BookHand Admin",
       email: "admin@bookhand.com",
@@ -699,8 +710,11 @@ async function main() {
       phone: "+8801700000000",
     },
   });
-  await prisma.user.create({
-    data: {
+
+  await prisma.user.upsert({
+    where: { email: "buyer@bookhand.com" },
+    update: {},
+    create: {
       id: "user-buyer",
       name: "Ayesha Rahman",
       email: "buyer@bookhand.com",
@@ -711,10 +725,13 @@ async function main() {
       avatar: null,
     },
   });
+
   for (let i = 0; i < shops.length; i++) {
     const shop = shops[i];
-    await prisma.user.create({
-      data: {
+    await prisma.user.upsert({
+      where: { email: `seller${i + 1}@bookhand.com` },
+      update: {},
+      create: {
         id: shop.ownerId,
         name: shop.name,
         email: `seller${i + 1}@bookhand.com`,
@@ -726,8 +743,10 @@ async function main() {
     });
   }
 
-  await prisma.address.create({
-    data: {
+  await prisma.address.upsert({
+    where: { id: "addr-buyer-default" },
+    update: {},
+    create: {
       id: "addr-buyer-default",
       userId: "user-buyer",
       label: "Home",
@@ -744,12 +763,24 @@ async function main() {
 
   console.log("Seeding categories, shops, authors, publishers...");
   for (const category of categories) {
-    await prisma.category.create({ data: category });
+    await prisma.category.upsert({
+      where: { slug: category.slug },
+      update: category,
+      create: category,
+    });
   }
+
   const shopsBySlug = {};
   for (const shop of shops) {
-    const created = await prisma.shop.create({
-      data: {
+    const created = await prisma.shop.upsert({
+      where: { slug: shop.slug },
+      update: {
+        name: shop.name,
+        description: shop.description,
+        district: shop.district,
+        city: shop.city,
+      },
+      create: {
         id: shop.id,
         ownerId: shop.ownerId,
         name: shop.name,
@@ -774,22 +805,27 @@ async function main() {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
-    authors[name] = await prisma.author.create({
-      data: {
+    authors[name] = await prisma.author.upsert({
+      where: { slug },
+      update: { name },
+      create: {
         name,
         slug,
         bio: `${name} is a widely read author featured on BookHand.`,
       },
     });
   }
+
   const publishers = {};
   for (const name of publisherNames) {
     const slug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
-    publishers[name] = await prisma.publisher.create({
-      data: {
+    publishers[name] = await prisma.publisher.upsert({
+      where: { slug },
+      update: { name },
+      create: {
         name,
         slug,
         description: `${name} publishes books available through BookHand sellers.`,
@@ -825,8 +861,17 @@ async function main() {
     const shop = shopsBySlug[shopSlug];
     const category = categoryBySlug[categorySlug];
     const ratingSum = Math.round(reviewCount * rating);
-    await prisma.book.create({
-      data: {
+    await prisma.book.upsert({
+      where: { slug },
+      update: {
+        price,
+        originalPrice,
+        stock,
+        isFeatured,
+        isNewArrival,
+        isBestSeller,
+      },
+      create: {
         id,
         slug,
         title,
@@ -858,112 +903,123 @@ async function main() {
         createdAt: new Date(`${listedAt}T08:00:00Z`),
       },
     });
-    await prisma.inventoryMovement.create({
-      data: {
-        bookId: id,
-        type: "INITIAL",
-        quantity: stock,
-        note: "Initial stock from seed",
-      },
-    });
   }
 
   console.log("Seeding coupons, banners, FAQs, settings...");
-  await prisma.coupon.createMany({
-    data: [
-      {
-        code: "WELCOME10",
-        description: "10% off your first order (max ৳100).",
-        type: "PERCENT",
-        value: 10,
-        minOrder: 300,
-        maxDiscount: 100,
-        isActive: true,
-      },
-      {
-        code: "BOOKHAND50",
-        description: "৳50 off orders over ৳500.",
-        type: "FIXED",
-        value: 50,
-        minOrder: 500,
-        isActive: true,
-      },
-      {
-        code: "FREESHIP",
-        description: "Free delivery on orders over ৳800.",
-        type: "FREE_SHIPPING",
-        value: 0,
-        minOrder: 800,
-        isActive: true,
-      },
-    ],
-  });
-  await prisma.banner.createMany({
-    data: [
-      {
-        title: "Discover your next great read",
-        subtitle: "New and used books from trusted sellers across Bangladesh.",
-        href: "/books",
-        isActive: true,
-        order: 1,
-      },
-      {
-        title: "Sell books from your shelf",
-        subtitle:
-          "Turn the books you have finished into someone else's next favourite.",
-        href: "/register?role=seller",
-        isActive: true,
-        order: 2,
-      },
-    ],
-  });
-  await prisma.faq.createMany({
-    data: [
-      {
-        question: "How do I track my order?",
-        answer:
-          "Open your buyer dashboard and visit My Orders. Each order shows its current status and tracking information once shipped.",
-        order: 1,
-      },
-      {
-        question: "Can I return a book?",
-        answer:
-          "Yes. Books can be returned within 7 days of delivery if they are materially different from the listing description. See our return policy for details.",
-        order: 2,
-      },
-      {
-        question: "How do I become a seller?",
-        answer:
-          "Register with the seller role, complete your shop profile, and start listing books. Admin approval may be required for payouts.",
-        order: 3,
-      },
-      {
-        question: "Which payment methods are supported?",
-        answer:
-          "We support Cash on Delivery, bKash, Nagad, and card payments. Payment availability may vary by seller and order value.",
-        order: 4,
-      },
-      {
-        question: "Are used books inspected?",
-        answer:
-          "Sellers are responsible for accurate condition descriptions. Buyers can report material discrepancies and request a refund.",
-        order: 5,
-      },
-    ],
-  });
-  await prisma.siteSetting.createMany({
-    data: [
-      { key: "site_name", value: "BookHand" },
-      { key: "support_email", value: "support@bookhand.com" },
-      { key: "support_phone", value: "+8801700000000" },
-      { key: "shipping_flat_rate", value: "60" },
-      { key: "free_shipping_threshold", value: "800" },
-      { key: "commission_rate", value: "5" },
-      { key: "currency", value: "BDT" },
-    ],
-  });
+  const coupons = [
+    {
+      code: "WELCOME10",
+      description: "10% off your first order (max ৳100).",
+      type: "PERCENT",
+      value: 10,
+      minOrder: 300,
+      maxDiscount: 100,
+      isActive: true,
+    },
+    {
+      code: "BOOKHAND50",
+      description: "৳50 off orders over ৳500.",
+      type: "FIXED",
+      value: 50,
+      minOrder: 500,
+      isActive: true,
+    },
+    {
+      code: "FREESHIP",
+      description: "Free delivery on orders over ৳800.",
+      type: "FREE_SHIPPING",
+      value: 0,
+      minOrder: 800,
+      isActive: true,
+    },
+  ];
+  for (const c of coupons) {
+    await prisma.coupon.upsert({
+      where: { code: c.code },
+      update: c,
+      create: c,
+    });
+  }
 
-  console.log("Seeding reviews and a sample order...");
+  const existingBanners = await prisma.banner.count();
+  if (existingBanners === 0) {
+    await prisma.banner.createMany({
+      data: [
+        {
+          title: "Discover your next great read",
+          subtitle: "New and used books from trusted sellers across Bangladesh.",
+          href: "/books",
+          isActive: true,
+          order: 1,
+        },
+        {
+          title: "Sell books from your shelf",
+          subtitle:
+            "Turn the books you have finished into someone else's next favourite.",
+          href: "/register?role=seller",
+          isActive: true,
+          order: 2,
+        },
+      ],
+    });
+  }
+
+  const existingFaqs = await prisma.faq.count();
+  if (existingFaqs === 0) {
+    await prisma.faq.createMany({
+      data: [
+        {
+          question: "How do I track my order?",
+          answer:
+            "Open your buyer dashboard and visit My Orders. Each order shows its current status and tracking information once shipped.",
+          order: 1,
+        },
+        {
+          question: "Can I return a book?",
+          answer:
+            "Yes. Books can be returned within 7 days of delivery if they are materially different from the listing description. See our return policy for details.",
+          order: 2,
+        },
+        {
+          question: "How do I become a seller?",
+          answer:
+            "Register with the seller role, complete your shop profile, and start listing books. Admin approval may be required for payouts.",
+          order: 3,
+        },
+        {
+          question: "Which payment methods are supported?",
+          answer:
+            "We support Cash on Delivery, bKash, Nagad, and card payments. Payment availability may vary by seller and order value.",
+          order: 4,
+        },
+        {
+          question: "Are used books inspected?",
+          answer:
+            "Sellers are responsible for accurate condition descriptions. Buyers can report material discrepancies and request a refund.",
+          order: 5,
+        },
+      ],
+    });
+  }
+
+  const settings = [
+    { key: "site_name", value: "BookHand" },
+    { key: "support_email", value: "support@bookhand.com" },
+    { key: "support_phone", value: "+8801700000000" },
+    { key: "shipping_flat_rate", value: "60" },
+    { key: "free_shipping_threshold", value: "800" },
+    { key: "commission_rate", value: "5" },
+    { key: "currency", value: "BDT" },
+  ];
+  for (const s of settings) {
+    await prisma.siteSetting.upsert({
+      where: { key: s.key },
+      update: { value: s.value },
+      create: s,
+    });
+  }
+
+  console.log("Seeding reviews and sample order...");
   const reviewData = [
     {
       bookId: "book-2",
@@ -987,70 +1043,79 @@ async function main() {
       body: "Chilling and relevant. The seller packaged it carefully.",
     },
   ];
-  for (const review of reviewData) {
-    await prisma.review.create({ data: { ...review, isVerified: true } });
+  for (const r of reviewData) {
+    await prisma.review.upsert({
+      where: { bookId_userId: { bookId: r.bookId, userId: r.userId } },
+      update: { rating: r.rating, title: r.title, body: r.body },
+      create: { ...r, isVerified: true },
+    });
   }
 
-  await prisma.order.create({
-    data: {
-      id: "order-sample-1",
-      orderNumber: "BH-2026-0001",
-      userId: "user-buyer",
-      status: "DELIVERED",
-      subtotal: 800,
-      discount: 50,
-      shipping: 60,
-      total: 810,
-      couponId: null,
-      paymentMethod: "COD",
-      paymentStatus: "PAID",
-      addressSnapshot: JSON.stringify({
-        recipientName: "Ayesha Rahman",
-        phone: "+8801712345678",
-        district: "Dhaka",
-        city: "Dhaka",
-        area: "Dhanmondi",
-        postalCode: "1209",
-        instructions: "Please call before delivery.",
-      }),
-      notes: "Sample order created by the seed script.",
-      items: {
-        create: [
-          {
-            bookId: "book-2",
-            sellerId: "user-seller-2",
-            shopId: "shop-readmore",
-            title: "Atomic Habits",
-            author: "James Clear",
-            coverTone: 2,
-            price: 480,
-            quantity: 1,
+  const existingOrder = await prisma.order.findUnique({
+    where: { id: "order-sample-1" },
+  });
+  if (!existingOrder) {
+    await prisma.order.create({
+      data: {
+        id: "order-sample-1",
+        orderNumber: "BH-2026-0001",
+        userId: "user-buyer",
+        status: "DELIVERED",
+        subtotal: 800,
+        discount: 50,
+        shipping: 60,
+        total: 810,
+        couponId: null,
+        paymentMethod: "COD",
+        paymentStatus: "PAID",
+        addressSnapshot: JSON.stringify({
+          recipientName: "Ayesha Rahman",
+          phone: "+8801712345678",
+          district: "Dhaka",
+          city: "Dhaka",
+          area: "Dhanmondi",
+          postalCode: "1209",
+          instructions: "Please call before delivery.",
+        }),
+        notes: "Sample order created by the seed script.",
+        items: {
+          create: [
+            {
+              bookId: "book-2",
+              sellerId: "user-seller-2",
+              shopId: "shop-readmore",
+              title: "Atomic Habits",
+              author: "James Clear",
+              coverTone: 2,
+              price: 480,
+              quantity: 1,
+              status: "DELIVERED",
+            },
+            {
+              bookId: "book-1",
+              sellerId: "user-seller-1",
+              shopId: "shop-booknest",
+              title: "The Alchemist",
+              author: "Paulo Coelho",
+              coverTone: 1,
+              price: 320,
+              quantity: 1,
+              status: "DELIVERED",
+            },
+          ],
+        },
+        payment: { create: { provider: "COD", amount: 810, status: "PAID" } },
+        shipment: {
+          create: {
             status: "DELIVERED",
+            carrier: "Pathao",
+            trackingNumber: "PT-987654321",
+            deliveredAt: new Date(),
           },
-          {
-            bookId: "book-1",
-            sellerId: "user-seller-1",
-            shopId: "shop-booknest",
-            title: "The Alchemist",
-            author: "Paulo Coelho",
-            coverTone: 1,
-            price: 320,
-            quantity: 1,
-            status: "DELIVERED",
-          },
-        ],
-      },
-      payment: { create: { provider: "COD", amount: 810, status: "PAID" } },
-      shipment: {
-        create: {
-          status: "DELIVERED",
-          carrier: "Pathao",
-          trackingNumber: "PT-987654321",
-          deliveredAt: new Date(),
         },
       },
-    },
-  });
+    });
+  }
 
   await prisma.notification.createMany({
     data: [

@@ -1,63 +1,75 @@
-# Fix Root Cause: BookHand Authentication + Next.js 16.4.6
+# BookHand — Final Independent Production Verification Audit
 
-The same prerender error keeps appearing on different Seller pages.
+The implementation report claims 100% production readiness. Do not assume these claims are correct.
 
-**Current error:**
-`src/lib/auth/jwt.ts:111` — `rotateRefreshToken()` → `prisma.session.findUnique()`.
+Perform a strict, independent, evidence-based verification of the entire application.
 
-**Call stack:**
-`SellerAnalyticsPage` → `requireRole()` → `requireUser()` → `getCurrentUser()` → `rotateRefreshToken()` → Prisma.
+## Rules
 
-Previous fixes addressed individual pages and introduced additional navigation errors. Stop applying isolated fixes.
+- Do not modify code initially.
+- Do not trust previous implementation reports.
+- Inspect the actual source code, database configuration, migrations, API routes, and test results.
+- Do not use mock responses as proof of functionality.
+- Never run destructive operations against production data.
+- Do not expose credentials or secrets.
 
-### Required architecture
+## Verify These Areas
 
-1. Audit ALL Seller, Admin and Buyer protected pages and layouts.
-2. Create a reusable Server Component pattern for protected pages:
-   - Keep the route page as a synchronous component.
-   - Wrap the authenticated async content component in React `<Suspense>` with an appropriate loading fallback.
-   - Inside the async content component, call `await connection()` before authentication and uncached database operations.
-   - Perform `requireUser()` / `requireRole()` and Prisma queries inside this component.
-3. Apply this architecture consistently to every affected protected route, including Dashboard, Analytics, Books, Orders and other protected pages.
-4. Remove misplaced `connection()` calls from shared auth utilities and route-level components where they cause blocking navigation errors.
-5. Never cache session validation, refresh-token rotation, JWT verification or user-specific Prisma queries.
-6. Preserve token revocation checks, expiration validation, JWT signatures, refresh rotation, RBAC and redirects.
-7. Do not use `jwt.decode()` or weaken authentication.
-8. Keep public pages statically renderable.
+1. **Database & Migrations**
+   - Verify `0_init/migration.sql` against the actual Prisma schema.
+   - Verify migration status on PostgreSQL.
+   - Test migration deployment on a separate clean PostgreSQL database.
+   - Verify existing production data integrity.
+   - Verify seed idempotency and production protection.
 
-### Example pattern
+2. **Complete API Verification**
+   - Discover every frontend API request.
+   - Match each request to a real backend route.
+   - Test HTTP methods, payloads, authentication, RBAC, ownership, validation, and error handling.
+   - Identify all missing or broken endpoints.
 
-```tsx
-import { Suspense } from "react";
-import { connection } from "next/server";
+3. **Real Business Workflow E2E**
+   - Buyer registration, login, browsing, cart, COD checkout, order tracking, cancellation, wishlist, reviews.
+   - Seller registration, approval, shop, book CRUD, inventory, order processing.
+   - Admin management, moderation, notifications, banners, FAQs.
+   - Newsletter subscription.
+   - Password reset and session lifecycle.
 
-export default function SellerAnalyticsPage() {
-  return (
-    <Suspense fallback={<AnalyticsLoading />}>
-      <SellerAnalyticsContent />
-    </Suspense>
-  );
-}
+4. **External Integrations**
+   - Verify real Resend email delivery.
+   - Verify real Cloudinary upload and deletion.
+   - Verify production configuration and failure handling.
+   - Payment Gateway remains excluded.
 
-async function SellerAnalyticsContent() {
-  await connection();
+5. **Security**
+   - Verify CORS restrictions.
+   - Test rate limiting.
+   - Test JWT and refresh token lifecycle.
+   - Test role escalation and resource ownership.
+   - Inspect internal query proxy access.
+   - Verify cookie security and CSRF protections.
+   - Inspect sensitive data exposure and file upload security.
 
-  const user = await requireRole("seller");
+6. **Production Build & Deployment**
+   - Verify frontend and backend production builds.
+   - Verify environment configuration.
+   - Verify startup, health checks, logging, and graceful shutdown.
+   - Check Next.js 16 rendering and navigation behavior.
 
-  // Keep existing Prisma queries and UI here.
-}
-```
+## Final Output
 
-Adapt imports, types, components and existing UI to the actual project. Do not replace existing dashboard functionality with placeholders.
+Create `docs/FINAL_INDEPENDENT_AUDIT.md`.
 
-### Verification
+For every requirement, report:
 
-- Run production build and TypeScript checks.
-- Test navigation across ALL protected routes.
-- Test missing, invalid, expired and revoked tokens.
-- Confirm refresh-token rotation works.
-- Confirm neither `blocking-prerender-current-time` nor `blocking-prerender-dynamic` occurs.
-- Confirm public routes remain unaffected.
-- Provide a list of every modified file and actual test results.
+- PASS / FAIL / PARTIAL / NOT VERIFIED
+- Actual command or test performed.
+- Evidence and relevant file paths.
+- Remaining risks.
+- Exact steps required to resolve failures.
 
-Do not stop after fixing Analytics. Audit and fix the complete authentication architecture.
+Do not award 100% based on successful builds or previous reports.
+
+If any issue is discovered, provide a prioritized fix list. Do not modify code until the audit report is complete.
+
+The application can only be declared production-ready when all critical requirements are independently verified.

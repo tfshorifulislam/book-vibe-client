@@ -459,6 +459,194 @@ async function runTests() {
     );
   });
 
+  // --- 10. COMPLETED API ENDPOINTS & WORKFLOW VERIFICATION ---
+  console.log("\n--- Group 10: Completed API Endpoints & Workflow Verification ---");
+  await test("Buyer order cancellation, wishlist deletion, review deletion, and admin moderation work end-to-end", async () => {
+    const app = createExpressApp();
+    const server = app.listen(0);
+    const port = (server.address() as { port: number }).port;
+    const baseUrl = `http://127.0.0.1:${port}/api`;
+
+    try {
+      const buyer = await prisma.user.findFirst({ where: { role: "BUYER" } });
+      const admin = await prisma.user.findFirst({ where: { role: "ADMIN" } });
+      const book = await prisma.book.findFirst({ where: { isActive: true } });
+
+      assert.ok(buyer, "Buyer user must exist");
+      assert.ok(admin, "Admin user must exist");
+      assert.ok(book, "Book must exist");
+
+      const buyerToken = generateAccessToken(buyer);
+      const adminToken = generateAccessToken(admin);
+
+      // 1. Wishlist Add and Delete via Query Param
+      const addWishlistRes = await fetch(`${baseUrl}/wishlist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${buyerToken}`,
+        },
+        body: JSON.stringify({ bookId: book.id }),
+      });
+      assert.strictEqual(addWishlistRes.status, 200);
+
+      const delWishlistRes = await fetch(`${baseUrl}/wishlist?bookId=${book.id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${buyerToken}` },
+      });
+      assert.strictEqual(delWishlistRes.status, 200);
+
+      // 2. Real Newsletter Subscription & Duplicate Detection
+      const testEmail = `test_${Date.now()}@bookhand.com`;
+      const newsRes1 = await fetch(`${baseUrl}/newsletter`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: testEmail }),
+      });
+      assert.strictEqual(newsRes1.status, 200);
+      const newsData1 = await newsRes1.json();
+      assert.strictEqual(newsData1.isDuplicate, false);
+
+      const newsRes2 = await fetch(`${baseUrl}/newsletter`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: testEmail }),
+      });
+      assert.strictEqual(newsRes2.status, 200);
+      const newsData2 = await newsRes2.json();
+      assert.strictEqual(newsData2.isDuplicate, true);
+
+      // Cleanup test newsletter
+      await prisma.newsletterSubscription.deleteMany({ where: { email: testEmail } });
+
+      // 3. Admin Banner & FAQ Deletion
+      const testBanner = await prisma.banner.create({
+        data: { title: "Test Banner", subtitle: "Test", href: "/test", order: 99 },
+      });
+      const delBannerRes = await fetch(`${baseUrl}/admin/banners?id=${testBanner.id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
+      assert.strictEqual(delBannerRes.status, 200);
+
+      const testFaq = await prisma.faq.create({
+        data: { question: "Test Question?", answer: "Test Answer", order: 99 },
+      });
+      const delFaqRes = await fetch(`${baseUrl}/admin/faqs?id=${testFaq.id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
+      assert.strictEqual(delFaqRes.status, 200);
+
+      // 4. Admin Broadcast Notifications
+      const broadcastRes = await fetch(`${baseUrl}/admin/notifications`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify({
+          title: "System Update",
+          message: "Scheduled maintenance tonight.",
+          type: "SYSTEM",
+          targetRole: "BUYER",
+        }),
+      });
+      assert.strictEqual(broadcastRes.status, 201);
+      const broadcastData = await broadcastRes.json();
+      assert.strictEqual(broadcastData.success, true);
+      assert.ok(broadcastData.sentCount > 0);
+
+      // 5. Admin Moderation (Review, Question, Dispute)
+      await prisma.review.deleteMany({ where: { bookId: book.id, userId: buyer.id } });
+      const testReview = await prisma.review.create({
+        data: {
+          bookId: book.id,
+          userId: buyer.id,
+          rating: 5,
+          title: "Temporary test review",
+          body: "Great reading material.",
+          isApproved: false,
+        },
+      });
+
+      const modApproveRes = await fetch(`${baseUrl}/admin/moderation`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify({
+          type: "review",
+          id: testReview.id,
+          action: "approve",
+        }),
+      });
+      assert.strictEqual(modApproveRes.status, 200);
+
+      // 6. Buyer Review Deletion via DELETE /api/reviews?bookId=...
+      const delReviewRes = await fetch(`${baseUrl}/reviews?bookId=${book.id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${buyerToken}` },
+      });
+      assert.strictEqual(delReviewRes.status, 200);
+
+      // 7. Buyer Order Cancellation with Inventory Restock
+      const initialStock = book.stock;
+      const testOrder = await prisma.order.create({
+        data: {
+          orderNumber: `BH-TEST-${Date.now()}`,
+          userId: buyer.id,
+          status: "PENDING",
+          subtotal: 500,
+          discount: 0,
+          shipping: 60,
+          total: 560,
+          paymentMethod: "COD",
+          paymentStatus: "PENDING",
+          addressSnapshot: "{}",
+          items: {
+            create: [
+              {
+                bookId: book.id,
+                title: book.title,
+                author: "Author",
+                price: book.price,
+                quantity: 2,
+                status: "PENDING",
+              },
+            ],
+          },
+        },
+      });
+
+      const cancelRes = await fetch(`${baseUrl}/orders/${testOrder.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${buyerToken}`,
+        },
+        body: JSON.stringify({ status: "CANCELLED", note: "Test cancellation" }),
+      });
+      assert.strictEqual(cancelRes.status, 200);
+
+      const refreshedOrder = await prisma.order.findUnique({ where: { id: testOrder.id } });
+      assert.strictEqual(refreshedOrder?.status, "CANCELLED");
+
+      const refreshedBook = await prisma.book.findUnique({ where: { id: book.id } });
+      assert.strictEqual(refreshedBook?.stock, initialStock + 2);
+
+      // Restore stock and clean test order
+      await prisma.book.update({
+        where: { id: book.id },
+        data: { stock: initialStock },
+      });
+      await prisma.order.delete({ where: { id: testOrder.id } });
+    } finally {
+      server.close();
+    }
+  });
+
   console.log("\n=============================================");
   console.log(
     `TOTAL: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`,
