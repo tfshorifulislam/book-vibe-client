@@ -1,33 +1,30 @@
-# Fix Next.js 16 Blocking Prerender Current Time Error
+# Fix Next.js 16 Blocking Prerender Error in BookHand
 
-Error location:
+Investigate the `InstantServer` / `blocking-prerender-dynamic` error.
 
-- `src/lib/auth/jwt.ts` line 87
-- `src/lib/auth/session.ts`
-- `src/app/seller/layout.tsx`
+**Error location:**
 
-Problem:
-`jwt.verify()` internally uses the current time during prerendering, causing Next.js 16 to throw a Blocking Route error.
+- `src/lib/auth/session.ts:232` — `requireUser()` calls `await connection()`
+- `src/app/seller/dashboard/page.tsx:23` — calls `requireUser()` through `requireRole()`
 
-## Tasks
+**Tasks:**
 
-1. Inspect the complete JWT authentication flow.
-2. Make authenticated Seller, Admin, and Buyer layouts execute dynamically at request time.
-3. Use Next.js `await connection()` from `next/server` in the appropriate Server Component layouts before calling authentication functions.
-4. Verify `requireUser()` and `requireRole()` execute only in request-time server contexts.
-5. Preserve JWT signature verification, expiration checks, refresh token rotation, and RBAC.
-6. Do not disable JWT verification.
-7. Do not replace `jwt.verify()` with insecure custom verification.
-8. Do not add `"use client"` to server layouts.
-9. Keep public pages statically prerenderable where possible.
-10. Check other authenticated layouts for the same issue.
+1. Inspect `requireUser()`, `requireRole()`, `getCurrentUser()` and all their usages.
+2. Do not call `connection()` inside shared authentication helpers.
+3. Identify which pages/layouts require request-time authentication.
+4. Apply the appropriate Next.js 16 rendering strategy:
+   - Use `<Suspense>` boundaries where streaming is appropriate.
+   - Use `export const instant = false` only for routes that genuinely require blocking dynamic rendering.
+5. Check Seller, Admin and Buyer protected routes for the same issue.
+6. Keep public pages eligible for instant/static rendering.
+7. Preserve JWT verification, expiration checks, refresh-token rotation, cookies, redirects and RBAC.
+8. Never bypass authentication or weaken security to fix this error.
 
-## Verification
+**Verification:**
 
-- Run `npm run typecheck`
-- Run `npm run lint`
-- Run `npm run build`
-- Test Seller, Admin, and Buyer authentication.
-- Verify expired and invalid tokens are rejected.
+- Run TypeScript, ESLint and production build.
+- Test authenticated and unauthenticated navigation.
+- Test expired and invalid JWTs.
+- Confirm protected pages render correctly without blocking unrelated public pages.
 
-Fix the root cause without weakening security or changing existing business logic.
+Make the smallest correct architectural change. Do not apply a global workaround.

@@ -3,7 +3,6 @@ import "server-only";
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { connection } from "next/server";
 
 import {
   ACCESS_TOKEN_COOKIE,
@@ -151,7 +150,6 @@ export async function destroySession(): Promise<void> {
 }
 
 export async function getCurrentUser(): Promise<User | null> {
-  await connection();
   const cookieStore = await cookies();
 
   // 1. First verify JWT Access Token
@@ -229,7 +227,6 @@ export async function getCurrentUser(): Promise<User | null> {
 }
 
 export async function requireUser(): Promise<User> {
-  await connection();
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   return user;
